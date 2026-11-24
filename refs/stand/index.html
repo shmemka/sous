@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="description" content="Полный интерактивный прототип платформы СОУС по утверждённым референсам">
+  <title>СОУС — полный дизайн-прототип</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@500;600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./home.css">
+  <link rel="stylesheet" href="./chat.css">
+  <link rel="stylesheet" href="./workspace.css">
+  <link rel="stylesheet" href="./tools.css">
+  <link rel="stylesheet" href="./registration.css">
+  <link rel="stylesheet" href="./admin.css">
+</head>
+<body>
+  <a class="skip-link" href="#app">Перейти к содержимому</a>
+  <header id="site-header" class="top"></header>
+  <div id="shell" class="shell">
+    <aside id="route-panel" class="route-panel" aria-label="Карта экранов"></aside>
+    <main id="app" tabindex="-1"></main>
+  </div>
+  <div id="drawer-root"></div>
+  <div id="modal-root"></div>
+  <div id="toast-root" class="toasts" aria-live="polite"></div>
+  <div id="prototype-tools"></div>
+  <script type="module" src="./app.mjs?v=20261116"></script>
+</body>
+</html>

@@ -191,7 +191,11 @@ _Последнее обновление: 24.11.2026_
 
 - `CONTEXT.md` — этот файл.
 - `refs/prototype-after-fixes.html` — «Прототип после правок.html» от прошлого дизайнера (копия из чата).
-- `docs/` — сдаваемые прототипы для GitHub Pages. `docs/assets/` — логотип и фон со стенда.
+- `docs/` — сдаваемые прототипы для GitHub Pages (`main`, папка `/docs`). `docs/assets/` — логотип.
+- `docs/shared/sous.css`, `sous.js` — общие стили и скрипт всех страниц; `docs/shared/pages.js` — экраны и статусы.
+- `DESIGN.md` — дизайн-правила (выжимка unslop) и каталог компонентов.
+- `refs/stand/` — копия исходников стенда с картой маршрутов; `refs/coyc.md` — функционал coyc.pro по разделам.
+- `tools/check.cjs` — проверка страницы; `.claude/skills/new-page/` — команда `/new-page`.
 - `docs/vacancies/index.html` — переработанная страница «Вакансии и резюме» + детальная вакансии, роли, модалки, мобилка.
 - `docs/vacancies/README.md` — решения, user flow, роли, глоссарий страницы, открытые вопросы.
 

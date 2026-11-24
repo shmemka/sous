@@ -8,473 +8,27 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-/* ---------- Токены (из стенда, без изменений палитры) ---------- */
-:root{
-  --font-sans:"Montserrat",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --font-display:"Alumni Sans","Montserrat",Impact,sans-serif;
-  --primary:#ee5a20;--primary-hover:#ff6a2b;--on-primary:#fff;
-  --bg:#0a0503;--surface:#15100d;--surface-2:#1c1612;--surface-hover:#211913;--sunken:#100b08;
-  --line:#2b211c;--line-2:#443329;--line-3:#6a4a3a;
-  --text:#fff;--text-2:#d9cfc8;--text-3:#a08f85;
-  --ok:#42c97a;--danger:#ff6961;
-  --top-bg:rgba(10,5,3,.94);--backdrop:rgba(0,0,0,.66);
-  --fill:rgba(255,236,224,.05);--fill-2:rgba(255,236,224,.09);--ring:0 0 0 2px rgba(238,90,32,.55);
-  --glow-a:rgba(238,90,32,.26);--glow-b:rgba(222,29,29,.10);
-  --shadow:0 12px 32px rgba(0,0,0,.28);
-  --ease:cubic-bezier(.2,0,0,1);
-  --r-control:10px;--r-card:16px;--r-panel:20px;
-  color-scheme:dark;
-}
-:root[data-theme="light"]{
-  --primary:#e2531b;--primary-hover:#c9470f;
-  --bg:#faf7f4;--surface:#fff;--surface-2:#fff;--surface-hover:#f6f1ec;--sunken:#f3ede7;
-  --line:#ebe2d9;--line-2:#d8cbbf;--line-3:#b4a697;
-  --text:#140d09;--text-2:#3c2d24;--text-3:#7a665a;
-  --ok:#1f9d55;--danger:#d63a32;
-  --top-bg:rgba(250,247,244,.94);--backdrop:rgba(33,20,12,.4);
-  --fill:rgba(70,40,20,.05);--fill-2:rgba(70,40,20,.09);--ring:0 0 0 2px rgba(226,83,27,.45);
-  --glow-a:rgba(255,152,36,.16);--glow-b:rgba(238,90,32,.06);
-  --shadow:0 12px 32px rgba(71,46,30,.12);
-  color-scheme:light;
-}
-*{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%;scroll-padding-top:80px}
-body{margin:0;background:var(--bg);color:var(--text);font:400 15px/1.5 var(--font-sans);min-height:100vh;overflow-x:hidden}
-body.lock{overflow:hidden}
-a{color:inherit;text-decoration:none}
-button,input,select,textarea{font:inherit;color:inherit}
-button{cursor:pointer;background:none;border:0;padding:0}
-h1,h2,h3,p{margin:0}
-ul{margin:0;padding:0;list-style:none}
-[hidden]{display:none!important}
-:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
-.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.icon{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
-.icon.lg{width:20px;height:20px}
-.wrap{width:min(1240px,calc(100% - 64px));margin:0 auto}
-.num{font-variant-numeric:tabular-nums}
-
-/* ---------- Кнопки и поля ---------- */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 16px;border-radius:var(--r-control);border:0;background:var(--fill);color:var(--text);font-size:14px;font-weight:600;white-space:nowrap;transition:background-color .16s var(--ease),border-color .16s var(--ease),color .16s var(--ease),transform .12s var(--ease)}
-.btn:hover{background:var(--fill-2)}
-.btn:active{transform:scale(.98)}
-.btn.primary{background:var(--primary);color:var(--on-primary)}
-.btn.primary:hover{background:var(--primary-hover)}
-.btn.ghost{background:transparent}
-.btn.ghost:hover{background:var(--fill)}
-.btn.sm{min-height:36px;padding:0 12px;font-size:13px}
-.btn.lg{min-height:48px;padding:0 20px;font-size:15px}
-.btn.block{width:100%}
-.btn.icon-only{width:40px;padding:0}
-.btn.sm.icon-only{width:36px}
-.btn.done{background:transparent;color:var(--ok);cursor:default}
-.btn.done:active{transform:none}
-.btn[disabled]{opacity:.5;cursor:not-allowed}
-.link{color:var(--text-2);font-size:14px;font-weight:500;transition:color .16s var(--ease)}
-.link:hover{color:var(--text)}
-.link.accent{color:var(--primary);font-weight:600}
-.field{display:grid;gap:6px}
-.field>span{font-size:13px;font-weight:500;color:var(--text-2)}
-.field small{font-size:12px;color:var(--text-3)}
-.input,.select,.textarea{width:100%;min-height:44px;padding:0 12px;border:0;border-radius:var(--r-control);background:var(--fill);color:var(--text);font-size:14px;transition:background-color .16s var(--ease),box-shadow .16s var(--ease)}
-.input:hover,.select:hover,.textarea:hover{background:var(--fill-2)}
-.input:focus,.select:focus,.textarea:focus{box-shadow:var(--ring);outline:none}
-.input::placeholder,.textarea::placeholder{color:var(--text-3)}
-.select{appearance:none;padding-right:36px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23a08f85' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
-.textarea{min-height:112px;padding:12px;resize:vertical;line-height:1.5}
-
-/* ---------- Кастомный выпадающий список ---------- */
-.dd{position:relative;width:100%}
-.dd-btn{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;padding:0 12px;border-radius:var(--r-control);background:var(--fill);color:var(--text);font-size:14px;text-align:left;transition:background-color .16s var(--ease),box-shadow .16s var(--ease)}
-.dd-btn:hover{background:var(--fill-2)}
-.dd-btn:focus-visible{outline:none;box-shadow:var(--ring)}
-.dd-btn>.icon{color:var(--text-3)}
-.dd-val{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.dd-btn .chev{width:16px;height:16px;color:var(--text-3);transition:transform .16s var(--ease)}
-.dd.open .chev{transform:rotate(180deg)}
-.dd.bare .dd-btn{height:48px;padding:0 16px 0 12px;background:transparent;font-size:15px;border-radius:12px}
-/* внутри строки поиска без заливки: она конфликтует с разделителем и кнопкой «Найти» */
-.dd.bare .dd-btn:hover{background:transparent}
-.dd.bare .dd-btn:hover>.icon,.dd.bare .dd-btn:hover .chev,.dd.bare.open .dd-btn>.icon,.dd.bare.open .chev{color:var(--text)}
-.dd.bare .dd-btn:focus-visible{box-shadow:none}
-.dd.compact{width:auto}
-.dd.compact .dd-btn{min-height:40px;gap:6px;background:transparent;color:var(--text-2);font-weight:500}
-.dd.compact .dd-btn:hover{background:var(--fill);color:var(--text)}
-.dd-pop{position:fixed;z-index:200;max-height:300px;overflow:auto;padding:6px;border-radius:12px;background:var(--surface-2);box-shadow:var(--shadow),0 0 0 1px var(--fill);animation:rise .16s var(--ease)}
-.dd-opt{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;min-height:40px;padding:0 12px;border-radius:8px;color:var(--text-2);font-size:14px;text-align:left;transition:background-color .12s var(--ease),color .12s var(--ease)}
-.dd-opt:hover,.dd-opt.active{background:var(--fill-2);color:var(--text)}
-.dd-opt[aria-selected="true"]{color:var(--text);font-weight:500}
-.dd-opt .icon{color:var(--primary);visibility:hidden}
-.dd-opt[aria-selected="true"] .icon{visibility:visible}
-
-/* ---------- Шапка: 5 групп вместо 12 ссылок ---------- */
-.top{position:sticky;top:0;z-index:50;background:var(--top-bg);backdrop-filter:blur(12px)}
-.top-in{width:min(1440px,calc(100% - 48px));margin:0 auto;height:64px;display:flex;align-items:center;gap:24px}
-.logo{display:flex;align-items:center;gap:8px;font:700 28px/1 var(--font-display);color:var(--primary);letter-spacing:.01em}
-.logo img{width:32px;height:32px}
-.nav{display:flex;align-items:center;gap:4px;margin-left:8px}
-.nav-item{position:relative}
-.nav-btn{display:flex;align-items:center;gap:4px;height:40px;padding:0 12px;border-radius:var(--r-control);color:var(--text-2);font-size:14px;font-weight:500;transition:background-color .16s var(--ease),color .16s var(--ease)}
-.nav-btn:hover,.nav-item.open .nav-btn{color:var(--text);background:var(--surface-hover)}
-.nav-btn.current{color:var(--text)}
-.nav-btn.current::after{content:"";position:absolute;left:12px;right:12px;bottom:-12px;height:2px;background:var(--primary);border-radius:2px}
-.nav-btn .icon{width:14px;height:14px;color:var(--text-3)}
-.menu{position:absolute;top:calc(100% + 8px);left:0;min-width:280px;padding:8px;border-radius:var(--r-card);background:var(--surface-2);box-shadow:var(--shadow);opacity:0;transform:translateY(-4px);pointer-events:none;transition:opacity .16s var(--ease),transform .16s var(--ease)}
-.nav-item.open .menu{opacity:1;transform:none;pointer-events:auto}
-.menu a{display:grid;gap:2px;padding:8px 12px;border-radius:8px;transition:background-color .16s var(--ease)}
-.menu a:hover{background:var(--surface-hover)}
-.menu a b{font-size:14px;font-weight:500}
-.menu a span{font-size:12px;color:var(--text-3)}
-.menu a.here b{color:var(--primary)}
-.top-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
-.avatar{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--fill-2);font-size:12px;font-weight:600;color:var(--text-2)}
-.burger{display:none}
-
-/* ---------- Шапка страницы ---------- */
-.head{position:relative;isolation:isolate;overflow:hidden;background:radial-gradient(1100px 420px at 88% -10%,var(--glow-a),transparent 70%),radial-gradient(800px 360px at 0% 120%,var(--glow-b),transparent 70%)}
-.head::after{content:"";position:absolute;left:0;right:0;bottom:0;height:64px;z-index:-1;background:linear-gradient(to bottom,transparent,var(--bg))}
-
-.head-in{padding:24px 0 28px;display:grid;gap:16px}
-.head-in>*{min-width:0}
-.l-short{display:none}
-.head-row{display:flex;align-items:center;justify-content:space-between;gap:16px}
-.tabs{display:inline-flex;gap:24px}
-.tab{position:relative;display:flex;align-items:center;gap:8px;height:40px;color:var(--text-3);font-size:15px;font-weight:600;transition:color .16s var(--ease)}
-.tab:hover{color:var(--text)}
-.tab[aria-selected="true"]{color:var(--text)}
-.tab[aria-selected="true"]::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--primary);border-radius:2px}
-.tab small{font-size:13px;font-weight:500;color:var(--text-3)}
-.head h1{font:700 52px/1 var(--font-display);letter-spacing:0}
-.lead{max-width:620px;color:var(--text-2);font-size:15px}
-.search{display:flex;align-items:stretch;width:100%;padding:4px;border-radius:var(--r-card);background:var(--surface);box-shadow:var(--shadow);transition:box-shadow .16s var(--ease)}
-.search:focus-within{box-shadow:var(--shadow),var(--ring)}
-.s-field{position:relative;display:flex;align-items:center;flex:1;min-width:0}
-.s-field>.icon{position:absolute;left:12px;color:var(--text-3);pointer-events:none}
-.s-field input{width:100%;height:48px;padding:0 12px 0 40px;border:0;background:transparent;font-size:15px;outline:none}
-
-.s-field input::placeholder{color:var(--text-3)}
-.s-city{flex:0 0 220px;border-left:1px solid var(--line)}
-
-.search .btn{min-height:48px;border-radius:12px;padding:0 24px}
-
-/* ---------- Каталог ---------- */
-.catalog{display:grid;grid-template-columns:240px minmax(0,1fr);gap:40px;align-items:start;padding:28px 0 80px}
-.filters{position:sticky;top:88px;display:grid;gap:24px}
-.filters-head{display:flex;align-items:baseline;justify-content:space-between}
-.filters-head h2{font-size:16px;font-weight:600}
-.fgroup{display:grid;gap:8px}
-.fgroup>b{font-size:13px;font-weight:600;color:var(--text-2)}
-.check{display:flex;align-items:center;gap:12px;min-height:32px;font-size:14px;color:var(--text-2);cursor:pointer}
-.check:hover{color:var(--text)}
-.check input{appearance:none;width:18px;height:18px;flex:none;margin:0;border:0;border-radius:5px;background:var(--fill-2);display:grid;place-items:center;transition:background-color .16s var(--ease),border-color .16s var(--ease);cursor:pointer}
-.check input:checked{background:var(--primary)}
-.check input:checked::after{content:"";width:9px;height:5px;border:2px solid #fff;border-top:0;border-right:0;transform:translateY(-1px) rotate(-45deg)}
-.check .c{margin-left:auto;font-size:12px;color:var(--text-3)}
-.toggle-row{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px;color:var(--text-2);cursor:pointer}
-.switch{appearance:none;width:36px;height:20px;flex:none;margin:0;border-radius:10px;background:var(--fill-2);position:relative;cursor:pointer;transition:background-color .16s var(--ease)}
-.switch::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .16s var(--ease)}
-.switch:checked{background:var(--primary)}
-.switch:checked::after{transform:translateX(16px)}
-
-.toolbar{display:flex;align-items:center;gap:12px;min-height:40px;margin-bottom:16px;flex-wrap:wrap}
-.count{font-size:15px;color:var(--text-2)}
-.count b{color:var(--text);font-weight:600}
-.sort-wrap{margin-left:auto}
-.filters-btn{display:none}
-.filters-btn .badge-n{display:grid;place-items:center;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--primary);color:#fff;font-size:12px}
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin:-4px 0 16px}
-.chip{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 8px 0 12px;border-radius:8px;background:var(--fill);font-size:13px;color:var(--text-2);transition:background-color .16s var(--ease)}
-.chip:hover{background:var(--fill-2);color:var(--text)}
-.chip .icon{width:14px;height:14px}
-
-.note{display:flex;gap:12px;align-items:flex-start;padding:16px;margin-bottom:16px;border-radius:var(--r-card);background:var(--surface);font-size:14px;color:var(--text-2)}
-.note .icon{margin-top:2px;color:var(--text-3)}
-.note a{color:var(--primary);font-weight:600}
-
-.list{display:grid;gap:12px}
-.card{position:relative;display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:16px 20px;padding:20px 24px;border-radius:var(--r-card);background:var(--surface);transition:background-color .16s var(--ease)}
-.card:hover{background:var(--surface-hover)}
-
-.tile{display:grid;place-items:center;width:48px;height:48px;border-radius:12px;background:var(--fill-2);font:700 18px/1 var(--font-display);color:var(--text-2)}
-.tile.round{border-radius:50%;font:600 14px/1 var(--font-sans)}
-.c-main{min-width:0;display:grid;gap:4px}
-.c-title{font-size:18px;font-weight:600;line-height:1.3}
-.c-title a::after{content:"";position:absolute;inset:0;border-radius:var(--r-card)}
-.c-org{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text-2)}
-.verified{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:var(--text-3)}
-.verified .icon{width:14px;height:14px;color:var(--ok)}
-.meta{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:4px;font-size:13px;color:var(--text-3)}
-.meta span{display:inline-flex;align-items:center;gap:6px}
-.meta .icon{width:14px;height:14px}
-.c-desc{margin-top:4px;font-size:14px;color:var(--text-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-width:680px}
-.mine-tag{display:inline-flex;align-items:center;gap:6px;margin-bottom:4px;font-size:13px;font-weight:500;color:var(--primary)}
-.c-side{display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:16px;text-align:right}
-.money{font:700 28px/1 var(--font-display);white-space:nowrap}
-.money small{display:block;margin-top:4px;font:400 12px/1.3 var(--font-sans);color:var(--text-3)}
-.c-actions{position:relative;z-index:1;display:flex;align-items:center;gap:8px}
-.fav[aria-pressed="true"] .icon{fill:var(--primary);stroke:var(--primary)}
-.empty{display:grid;justify-items:center;gap:8px;padding:56px 24px;border-radius:var(--r-card);background:var(--surface);text-align:center}
-.empty h3{font:700 28px/1.1 var(--font-display)}
-.empty p{max-width:420px;color:var(--text-2);font-size:14px}
-.empty .btn{margin-top:8px}
-
-/* ---------- Детальная вакансии ---------- */
-.detail{padding:24px 0 96px}
-.back{display:inline-flex;align-items:center;gap:6px;margin-bottom:20px;font-size:14px;color:var(--text-2)}
-.back:hover{color:var(--text)}
-.d-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start}
-.d-main{display:grid;gap:16px}
-.panel{padding:24px;border-radius:var(--r-panel);background:var(--surface)}
-.d-head{display:grid;gap:16px}
-.d-head h1{font:700 48px/1 var(--font-display)}
-.d-org{display:flex;align-items:center;gap:12px}
-.d-org b{display:block;font-size:15px;font-weight:600}
-.d-org span{font-size:13px;color:var(--text-3)}
-.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line);padding-top:16px}
-.facts div{display:grid;gap:2px;padding-right:16px}
-.facts div+div{padding-left:16px;border-left:1px solid var(--line)}
-.facts b{font-size:15px;font-weight:600}
-.facts span{font-size:12px;color:var(--text-3)}
-.panel h2{font-size:18px;font-weight:600;margin-bottom:12px}
-.prose{color:var(--text-2);font-size:15px}
-.bullets{display:grid;gap:8px;color:var(--text-2);font-size:15px}
-.bullets li{display:flex;gap:12px}
-.bullets .icon{margin-top:4px;color:var(--text-3)}
-.place{display:flex;align-items:center;gap:12px;color:var(--text-2);font-size:15px}
-.place .icon{color:var(--text-3)}
-.aside{position:sticky;top:88px;display:grid;gap:16px}
-.action-card{display:grid;gap:16px}
-.action-card .money{font-size:36px}
-.hint{display:flex;gap:8px;font-size:13px;color:var(--text-3)}
-.hint .icon{width:14px;height:14px;margin-top:2px}
-.stat-row{display:flex;gap:24px}
-.stat-row div{display:grid}
-.stat-row b{font:700 32px/1 var(--font-display)}
-.stat-row span{font-size:12px;color:var(--text-3)}
-.org-card{display:grid;gap:12px}
-.org-line{display:flex;justify-content:space-between;font-size:14px;color:var(--text-2)}
-.org-line b{color:var(--text);font-weight:600}
-.related{margin-top:40px}
-.related h2{font:700 32px/1 var(--font-display);margin-bottom:16px}
-.related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-.mini{position:relative;display:grid;gap:4px;padding:20px;border-radius:var(--r-card);background:var(--surface);transition:background-color .16s var(--ease)}
-.mini:hover{background:var(--surface-hover)}
-.mini b{font-size:16px;font-weight:600}
-.mini span{font-size:13px;color:var(--text-3)}
-.mini .money{font-size:24px;margin-top:8px}
-.report{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text-3)}
-.report:hover{color:var(--text-2)}
-.mbar{display:none}
-
-/* ---------- Модальные окна ---------- */
-.backdrop{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px;background:var(--backdrop);animation:fade .16s var(--ease)}
-.modal{width:min(520px,100%);max-height:min(88vh,860px);display:flex;flex-direction:column;border-radius:var(--r-panel);background:var(--surface-2);box-shadow:var(--shadow);animation:rise .2s var(--ease)}
-.m-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:24px 24px 0}
-.m-head h2{font:700 32px/1.05 var(--font-display)}
-.m-head p{margin-top:6px;font-size:14px;color:var(--text-2)}
-.m-body{display:grid;gap:16px;padding:20px 24px;overflow:auto}
-.m-foot{display:flex;gap:8px;justify-content:flex-end;padding:8px 24px 24px}
-.m-foot .btn{min-width:120px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.resume-mini{display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;background:var(--fill)}
-.resume-mini b{display:block;font-size:14px;font-weight:600}
-.resume-mini span{font-size:13px;color:var(--text-3)}
-.resume-mini .link{margin-left:auto;font-size:13px}
-.success{display:grid;justify-items:center;gap:8px;padding:12px 0 4px;text-align:center}
-.success .ok-circle{display:grid;place-items:center;width:56px;height:56px;border-radius:50%;background:var(--fill-2);color:var(--ok);margin-bottom:8px}
-.success .ok-circle .icon{width:24px;height:24px}
-.success h3{font:700 32px/1.05 var(--font-display)}
-.success p{max-width:360px;font-size:14px;color:var(--text-2)}
-.sheet-filters{display:grid;gap:24px}
-
-/* ---------- Тосты и панель прототипа ---------- */
-.toasts{position:fixed;right:24px;top:80px;z-index:120;display:grid;gap:8px;width:min(360px,calc(100vw - 32px))}
-.toast{display:flex;gap:12px;align-items:flex-start;padding:12px 16px;border-radius:12px;background:var(--surface-2);box-shadow:var(--shadow);font-size:14px;animation:rise .2s var(--ease)}
-.toast .icon{margin-top:2px;color:var(--ok)}
-.toast.info .icon{color:var(--text-3)}
-.toast b{display:block;font-weight:600}
-.toast span{color:var(--text-2);font-size:13px}
-.proto{position:fixed;right:16px;bottom:16px;z-index:90;display:flex;align-items:center;gap:8px}
-.proto-pages{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--surface-2);color:var(--text-2);box-shadow:var(--shadow);transition:color .16s var(--ease),background-color .16s var(--ease)}
-.proto-pages:hover,.proto-pages[aria-expanded="true"]{color:var(--text);background:var(--surface-hover)}
-.pages-panel{position:absolute;right:0;bottom:44px;width:380px;max-height:min(72vh,640px);display:flex;flex-direction:column;border-radius:var(--r-card);background:var(--surface-2);box-shadow:var(--shadow);overflow:hidden;animation:rise .16s var(--ease)}
-.pp-head{display:grid;gap:8px;padding:16px 16px 12px}
-.pp-head h3{font-size:14px;font-weight:600}
-.pp-head p{font-size:12px;color:var(--text-3)}
-.pp-bar{display:flex;height:4px;border-radius:2px;background:var(--fill-2);overflow:hidden}
-.pp-bar i{display:block;height:100%;background:var(--ok)}
-.pp-bar i.wip{background:var(--primary)}
-.pp-legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--text-3)}
-.pp-legend span{display:inline-flex;align-items:center;gap:6px}
-.pp-list{overflow:auto;padding:0 8px 8px}
-.pp-group{padding-top:8px}
-.pp-group>b{display:flex;justify-content:space-between;padding:4px 8px;font-size:12px;font-weight:500;color:var(--text-3)}
-.pp-row{display:flex;align-items:center;gap:10px;min-height:44px;padding:6px 8px;border-radius:8px;font-size:13px;color:var(--text-2)}
-a.pp-row{color:var(--text);transition:background-color .12s var(--ease)}
-a.pp-row:hover{background:var(--fill)}
-.pp-row.here{background:var(--fill-2)}
-.pp-row.muted{color:var(--text-3)}
-.pp-t{flex:1;min-width:0;display:grid}
-.pp-t small{font-size:11px;color:var(--text-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pp-s{font-size:11px;color:var(--text-3);white-space:nowrap}
-.pp-row.here .pp-s{color:var(--primary);font-weight:500}
-.st{width:8px;height:8px;flex:none;border-radius:50%;background:var(--fill-2);box-shadow:inset 0 0 0 1.5px var(--text-3);opacity:.7}
-.st.done{background:var(--ok);box-shadow:none;opacity:1}
-.st.wip{background:var(--primary);box-shadow:none;opacity:1}
-.st.here{background:transparent;box-shadow:0 0 0 2px var(--primary);opacity:1}
-.pp-row.here .st{box-shadow:0 0 0 2px var(--surface-2),0 0 0 4px var(--primary)}
-.proto-btn{display:flex;align-items:center;gap:8px;height:36px;padding:0 12px;border-radius:18px;background:var(--surface-2);color:var(--text-2);font-size:12px;font-weight:500;box-shadow:var(--shadow)}
-.proto-panel{position:absolute;right:0;bottom:44px;width:280px;padding:16px;border-radius:var(--r-card);background:var(--surface-2);box-shadow:var(--shadow);display:grid;gap:12px}
-.proto-panel h3{font-size:14px;font-weight:600}
-.proto-panel p{font-size:12px;color:var(--text-3)}
-.roles{display:grid;gap:4px}
-.roles button{display:flex;justify-content:space-between;align-items:center;height:36px;padding:0 12px;border-radius:8px;font-size:13px;color:var(--text-2);text-align:left}
-.roles button:hover{background:var(--surface-hover);color:var(--text)}
-.roles button[aria-pressed="true"]{background:var(--fill-2);color:var(--text)}
-.roles button span{font-size:12px;color:var(--text-3)}
-
-.drawer-wrap{position:fixed;inset:0;z-index:100;background:var(--backdrop);animation:fade .16s var(--ease)}
-.drawer{position:absolute;top:0;right:0;bottom:0;width:min(360px,100%);display:flex;flex-direction:column;background:var(--surface-2);animation:slide .2s var(--ease)}
-.drawer-head{display:flex;align-items:center;justify-content:space-between;height:64px;padding:0 16px}
-.drawer-body{padding:16px;overflow:auto;display:grid;gap:24px}
-.m-group b{display:block;margin-bottom:4px;font-size:12px;font-weight:500;color:var(--text-3)}
-.m-group a{display:flex;align-items:center;justify-content:space-between;min-height:44px;font-size:15px;font-weight:500}
-.m-group a.here{color:var(--primary)}
-
-.footer{padding:24px 0 72px;font-size:13px;color:var(--text-3)}
-.footer .wrap{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
-.footer .logo{font-size:22px}
-.footer .logo img{width:26px;height:26px}
-.footer nav{display:flex;gap:16px}
-.footer nav a:hover{color:var(--text)}
-
-@keyframes fade{from{opacity:0}}
-@keyframes rise{from{opacity:0;transform:translateY(6px)}}
-@keyframes slide{from{transform:translateX(24px);opacity:0}}
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}}
-
-/* ---------- Планшет ---------- */
-@media (max-width:1100px){
-  .nav{display:none}.burger{display:inline-flex}
-  .d-grid{grid-template-columns:minmax(0,1fr) 300px}
-}
-@media (max-width:960px){
-  .catalog{grid-template-columns:minmax(0,1fr);padding-top:16px}
-  .filters{display:none}
-  .filters-btn{display:inline-flex}
-  .d-grid{grid-template-columns:minmax(0,1fr)}
-  .aside{position:static}
-  .aside .action-card{display:none}
-  .related-grid{grid-template-columns:1fr 1fr}
-  .mbar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:var(--top-bg);backdrop-filter:blur(12px)}
-  .mbar .money{font-size:24px}
-  .mbar .money small{margin-top:2px}
-  .proto{bottom:88px}
-  .detail-page .proto{bottom:88px}
-}
-/* ---------- Телефон: первая вакансия на первом экране ---------- */
-@media (max-width:640px){
-  .wrap{width:calc(100% - 32px)}
-  .top-in{width:calc(100% - 32px);height:56px;gap:12px}
-  .logo{font-size:26px}.logo img{width:28px;height:28px}
-  .top-actions .hide-m{display:none}
-  .head-in{padding:12px 0 16px;gap:12px}
-  .head h1{font-size:40px}
-  .lead{display:none}
-  .head-row .btn{min-height:36px;padding:0 12px;font-size:13px}
-  .l-full{display:none}.l-short{display:inline}
-  .search{flex-wrap:wrap;padding:4px;gap:0}
-  .s-field{flex:1 1 100%}
-  .toolbar .sort-wrap{display:none}
-  .filters-btn{margin-left:auto}
-  .s-field input{height:44px}
-  .s-city{flex:1 1 100%;border-left:0;border-top:1px solid var(--line)}
-  .s-city .dd-btn{height:44px}
-  .search .btn{display:none}
-  .toolbar{gap:8px;margin-bottom:12px}
-
-  .filters-btn{min-height:36px}
-  .card{grid-template-columns:40px minmax(0,1fr);gap:12px;padding:16px}
-  .tile{width:40px;height:40px;font-size:16px;border-radius:10px}
-  .c-title{font-size:16px}
-  .c-desc{display:none}
-  .c-side{grid-column:1/-1;flex-direction:row;align-items:center;text-align:left}
-  .money{font-size:24px}
-  .d-head h1{font-size:36px}
-  .facts{grid-template-columns:1fr 1fr;gap:12px 0}
-  .facts div:nth-child(3){padding-left:0;border-left:0}
-  .panel{padding:20px}
-  .related-grid{grid-template-columns:1fr}
-  .backdrop{place-items:end stretch;padding:0}
-  .modal{width:100%;max-height:92vh;border-radius:20px 20px 0 0}
-  .m-head h2{font-size:28px}
-  .m-foot{padding-bottom:calc(16px + env(safe-area-inset-bottom))}
-  .m-foot .btn{flex:1}
-  .grid2{grid-template-columns:1fr}
-  .toasts{top:auto;bottom:96px;right:16px}
-  .proto{right:auto;left:16px;bottom:16px}
-  .proto-panel,.pages-panel{right:auto;left:0;width:calc(100vw - 32px)}
-  .detail-page .proto{bottom:96px}
-}
-</style>
+<link rel="stylesheet" href="../shared/sous.css">
 </head>
 <body>
 <a class="sr-only" href="#app">Перейти к содержимому</a>
 <header class="top" id="top"></header>
 <main id="app" tabindex="-1"></main>
-<footer class="footer"><div class="wrap"><a class="logo" href="#/"><img src="../assets/logo.png" alt=""><span>СОУС</span></a><span>Работа, автоуслуги, закупки и обучение для индустрии автоуслуг</span><nav><a href="#!/contacts">Контакты</a><a href="#!/terms">Оферта</a><a href="#!/privacy">Приватность</a></nav></div></footer>
+<footer class="footer" id="footer"></footer>
 <div id="modal-root"></div>
 <div id="toast-root" class="toasts" aria-live="polite"></div>
 <div id="proto-root"></div>
 
 <script src="../shared/pages.js"></script>
+<script src="../shared/sous.js"></script>
 <script>
 /* =========================================================
-   Данные прототипа
+   Вакансии и резюме: данные
+   Общие функции, шапка, окна и списки в ../shared/sous.js
    ========================================================= */
-const STAND = "#!"; /* экраны, которые ещё не готовы: клик показывает подсказку, а не уводит на другой сайт */
-
-const ROLES = {
-  guest:    { label: "Гость",        name: "",                 initials: "" },
-  worker:   { label: "Специалист",   name: "Михаил Соколов",   initials: "МС" },
-  employer: { label: "Работодатель", name: "Shine&Go",         initials: "SG" },
-  client:   { label: "Автовладелец", name: "Иван Михайлов",    initials: "ИМ" },
-  supplier: { label: "Поставщик",    name: "Koch Chemie",      initials: "KC" },
-  partner:  { label: "Партнёр",      name: "Детейлинг Партнёр", initials: "ДП" },
-};
-
-/* Шапка: 5 групп по задачам вместо 12 плоских ссылок */
-const NAV = [
-  ["Работа", [
-    ["#/", "Вакансии и резюме", "Постоянная работа и сотрудники", true],
-    [STAND + "/gigs", "Подработки", "Разовые смены и срочные подмены"],
-    [STAND + "/companies", "Компании", "Мойки, студии и автосервисы"],
-  ]],
-  ["Автоуслуги", [
-    [STAND + "/orders", "Заявки автовладельцев", "Клиенты ищут исполнителя"],
-    [STAND + "/promos", "Кешбэк и акции", "Скидки у партнёров"],
-    [STAND + "/sous-map", "Карта СОУС", "Компании и услуги на карте"],
-  ]],
-  ["Закупки", [
-    [STAND + "/suppliers", "Поставщики", "Автохимия, оборудование, расходники"],
-    [STAND + "/supply-requests", "Заявки на закупку", "Поставщики предлагают цену"],
-    [STAND + "/calculator", "Калькулятор расхода", "Сколько химии нужно"],
-  ]],
-  ["Обучение", [
-    [STAND + "/training", "Учебный центр", "Курсы и сертификаты"],
-    [STAND + "/events", "Мероприятия", "Форумы и встречи индустрии"],
-  ]],
-  ["Сообщество", [
-    [STAND + "/feed", "Лента и автоновости", "Новости и опыт коллег"],
-    [STAND + "/chats", "Чаты", "Обсуждения по специализациям"],
-  ]],
-];
-
 const SPECS = ["Мойка", "Полировка", "Химчистка", "Керамика", "Плёнки и PPF", "Администратор"];
 const EXPERIENCE = ["Без опыта", "От 1 года", "От 3 лет"];
 const SCHEDULES = ["Полный день", "Сменный", "Гибкий"];
-const CITIES = ["Все города", "Москва", "Санкт-Петербург", "Казань", "Екатеринбург"];
 const SALARY_STEPS = [["", "Любая"], ["60000", "от 60 000 ₽"], ["80000", "от 80 000 ₽"], ["100000", "от 100 000 ₽"]];
 
 let VACANCIES = [
@@ -525,12 +79,9 @@ const RESUMES = [
     desc: "Запись клиентов, работа с CRM, приём и выдача автомобилей." },
 ];
 
-/* =========================================================
-   Состояние
-   ========================================================= */
-const state = {
-  role: read("sous-role", "guest"),
-  theme: read("sous-theme", "dark"),
+
+/* ---------- Состояние страницы ---------- */
+Object.assign(state, {
   tab: "vacancies",
   q: "", city: "Все города",
   f: { spec: new Set(), exp: new Set(), schedule: new Set(), salary: "", verified: false },
@@ -538,140 +89,8 @@ const state = {
   applied: new Set(),
   invited: new Set(),
   fav: new Set(),
-  protoOpen: false,
-  pendingAction: null,
-  pagesOpen: false,
-};
-function read(k, d) { try { return localStorage.getItem(k) || d; } catch { return d; } }
-function write(k, v) { try { localStorage.setItem(k, v); } catch {} }
-
-/* =========================================================
-   Утилиты
-   ========================================================= */
-const $ = (s, r = document) => r.querySelector(s);
-const $$ = (s, r = document) => [...r.querySelectorAll(s)];
-const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const fmt = (n) => n.toLocaleString("ru-RU").replace(/ /g, " ");
-const salary = (a, b) => b ? `${fmt(a)}–${fmt(b)} ₽` : `от ${fmt(a)} ₽`;
-const ago = (d) => d === 0 ? "Сегодня" : d === 1 ? "Вчера" : d < 5 ? `${d} дня назад` : d < 7 ? `${d} дней назад` : d < 14 ? "Неделю назад" : "Две недели назад";
-const initials = (s) => s.replace(/[«»"]/g, "").split(/[\s&]+/).filter(Boolean).map((p) => p[0]).join("").slice(0, 2).toUpperCase();
+});
 const isMine = (v) => state.role === "employer" && v.org === ROLES.employer.name;
-
-const ICONS = {
-  search: '<circle cx="7.5" cy="7.5" r="5"/><path d="m11.5 11.5 3 3"/>',
-  pin: '<path d="M8 14.5s5-4.3 5-8.2A5 5 0 0 0 3 6.3c0 3.9 5 8.2 5 8.2Z"/><circle cx="8" cy="6.3" r="1.8"/>',
-  clock: '<circle cx="8" cy="8" r="6"/><path d="M8 4.8V8l2 1.5"/>',
-  briefcase: '<rect x="2" y="5" width="12" height="9" rx="1.5"/><path d="M5.5 5V3.5A1 1 0 0 1 6.5 2.5h3a1 1 0 0 1 1 1V5M2 9h12"/>',
-  heart: '<path d="M8 13.5S2 10 2 6a3 3 0 0 1 6-1 3 3 0 0 1 6 1c0 4-6 7.5-6 7.5Z"/>',
-  shield: '<path d="M8 1.8 13 3.6v4c0 3.2-2.2 5.6-5 6.6-2.8-1-5-3.4-5-6.6v-4Z"/><path d="m5.8 8 1.6 1.6 2.9-3"/>',
-  down: '<path d="m4 6 4 4 4-4"/>',
-  back: '<path d="M10 3.5 5.5 8l4.5 4.5"/>',
-  right: '<path d="M6 3.5 10.5 8 6 12.5"/>',
-  x: '<path d="m4 4 8 8M12 4l-8 8"/>',
-  sliders: '<path d="M2.5 4.5h7M12.5 4.5h1M2.5 11.5h1M6.5 11.5h7"/><circle cx="11" cy="4.5" r="1.5"/><circle cx="5" cy="11.5" r="1.5"/>',
-  plus: '<path d="M8 3v10M3 8h10"/>',
-  sun: '<circle cx="8" cy="8" r="2.8"/><path d="M8 1.5v1.3M8 13.2v1.3M1.5 8h1.3M13.2 8h1.3M3.4 3.4l.9.9M11.7 11.7l.9.9M3.4 12.6l.9-.9M11.7 4.3l.9-.9"/>',
-  moon: '<path d="M13.5 9.5A5.5 5.5 0 0 1 6.5 2.5a5.5 5.5 0 1 0 7 7Z"/>',
-  bell: '<path d="M4 6.5a4 4 0 0 1 8 0c0 4 1.5 5 1.5 5h-11S4 10.5 4 6.5ZM6.5 13.5a1.6 1.6 0 0 0 3 0"/>',
-  message: '<path d="M2.5 4a1.5 1.5 0 0 1 1.5-1.5h8A1.5 1.5 0 0 1 13.5 4v6a1.5 1.5 0 0 1-1.5 1.5H6.5L3.5 14v-2.5H4A1.5 1.5 0 0 1 2.5 10Z"/>',
-  menu: '<path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11"/>',
-  check: '<path d="m3.5 8.5 3 3 6-7"/>',
-  dot: '<circle cx="8" cy="8" r="1.5"/>',
-  info: '<circle cx="8" cy="8" r="6"/><path d="M8 7.2v3.6M8 5.2v.1"/>',
-  flag: '<path d="M3.5 14V2.5M3.5 3h8l-1.5 3 1.5 3h-8"/>',
-  send: '<path d="m2.5 8 11-5.5-3.5 11-2-4.5Z"/><path d="m8 9 2.2-2.2"/>',
-  users: '<circle cx="6" cy="5.5" r="2.5"/><path d="M1.5 13.5a4.5 4.5 0 0 1 9 0M10.5 3.2a2.5 2.5 0 0 1 0 4.6M12 9.5a4.5 4.5 0 0 1 2.5 4"/>',
-  edit: '<path d="M10.5 2.5 13.5 5.5 6 13H3v-3Z"/>',
-  pages: '<path d="M5.5 2.5h6a1 1 0 0 1 1 1v8"/><rect x="3.5" y="4.5" width="7" height="9" rx="1"/><path d="M5.5 7.5h3M5.5 10h3"/>',
-};
-const icon = (n, cls = "") => `<svg class="icon ${cls}" viewBox="0 0 16 16" aria-hidden="true">${ICONS[n]}</svg>`;
-
-/* =========================================================
-   Кастомный выпадающий список
-   ========================================================= */
-const DD = {};
-function dd({ key, name = key, value, options, variant = "", iconName = "", label = "" }) {
-  const opts = options.map((o) => Array.isArray(o) ? o : [o, o]);
-  DD[key] = opts;
-  const cur = opts.find(([v]) => v === value) || opts[0];
-  return `<div class="dd ${variant}" data-dd="${key}" data-value="${esc(cur[0])}">
-    <input type="hidden" name="${name}" value="${esc(cur[0])}">
-    <button type="button" class="dd-btn" data-act="dd" aria-haspopup="listbox" aria-expanded="false"${label ? ` aria-label="${label}"` : ""}>${iconName ? icon(iconName, "lg") : ""}<span class="dd-val">${esc(cur[1])}</span>${icon("down", "chev")}</button>
-  </div>`;
-}
-let ddOpen = null;
-function openDD(el) {
-  closeDD();
-  const btn = $(".dd-btn", el), r = btn.getBoundingClientRect(), opts = DD[el.dataset.dd];
-  const pop = document.createElement("div");
-  pop.className = "dd-pop"; pop.setAttribute("role", "listbox");
-  pop.innerHTML = opts.map(([v, l]) => `<button type="button" class="dd-opt" role="option" data-act="dd-opt" data-v="${esc(v)}" aria-selected="${v === el.dataset.value}">${esc(l)}${icon("check")}</button>`).join("");
-  document.body.appendChild(pop);
-  el.classList.add("open"); btn.setAttribute("aria-expanded", "true");
-  ddOpen = { el, pop };
-  placeDD();
-  ($(".dd-opt[aria-selected=true]", pop) || $(".dd-opt", pop)).classList.add("active");
-}
-function placeDD() {
-  if (!ddOpen) return;
-  const { el, pop } = ddOpen, r = $(".dd-btn", el).getBoundingClientRect();
-  if (r.bottom < 0 || r.top > window.innerHeight) return closeDD();
-  const w = Math.max(r.width, 200), below = window.innerHeight - r.bottom;
-  pop.style.minWidth = w + "px";
-  pop.style.left = Math.max(8, Math.min(r.left, window.innerWidth - w - 8)) + "px";
-  const up = below < Math.min(pop.offsetHeight + 12, 240) && r.top > below;
-  pop.style.top = up ? "" : (r.bottom + 6) + "px";
-  pop.style.bottom = up ? (window.innerHeight - r.top + 6) + "px" : "";
-}
-function closeDD() {
-  if (!ddOpen) return;
-  ddOpen.pop.remove(); ddOpen.el.classList.remove("open");
-  $(".dd-btn", ddOpen.el)?.setAttribute("aria-expanded", "false");
-  ddOpen = null;
-}
-function setDD(el, v) {
-  const opt = DD[el.dataset.dd].find(([x]) => x === v);
-  if (!opt) return;
-  el.dataset.value = v; $("input", el).value = v; $(".dd-val", el).textContent = opt[1];
-}
-function pickDD(v) {
-  const { el } = ddOpen; const key = el.dataset.dd;
-  closeDD(); $(".dd-btn", el).focus();
-  if (key === "search-city") state.city = v;
-  else if (key === "sort") state.sort = v;
-  else if (key === "salary") state.f.salary = v;
-  else { setDD(el, v); return; }
-  syncFilterInputs(); renderResults();
-}
-window.addEventListener("resize", closeDD);
-document.addEventListener("scroll", (e) => { if (ddOpen && !ddOpen.pop.contains(e.target)) placeDD(); }, true);
-
-/* =========================================================
-   Шапка
-   ========================================================= */
-function renderHeader() {
-  const r = state.role;
-  const user = ROLES[r];
-  const right = r === "guest"
-    ? `<a class="link hide-m" href="#" data-act="login">Войти</a><button class="btn sm hide-m" data-act="register">Регистрация</button>`
-    : `<a class="btn ghost icon-only hide-m" href="${STAND}/messages" aria-label="Сообщения">${icon("message", "lg")}</a>
-       <a class="btn ghost icon-only hide-m" href="${STAND}/notifications" aria-label="Уведомления">${icon("bell", "lg")}</a>
-       <a class="avatar" href="${STAND}/dashboard" title="Кабинет: ${esc(user.name)}">${user.initials}</a>`;
-  $("#top").innerHTML = `<div class="top-in">
-    <a class="logo" href="#/"><img src="../assets/logo.png" alt=""><span>СОУС</span></a>
-    <nav class="nav" aria-label="Разделы">${NAV.map(([title, items], i) => `
-      <div class="nav-item" data-nav="${i}">
-        <button class="nav-btn ${i === 0 ? "current" : ""}" aria-expanded="false" data-act="nav" data-i="${i}">${title}${icon("down")}</button>
-        <div class="menu" role="menu">${items.map(([href, label, sub, here]) => `<a role="menuitem" class="${here ? "here" : ""}" href="${href}"><b>${label}</b><span>${sub}</span></a>`).join("")}</div>
-      </div>`).join("")}
-    </nav>
-    <div class="top-actions">
-      <button class="btn ghost icon-only" data-act="theme" aria-label="${state.theme === "dark" ? "Светлая тема" : "Тёмная тема"}">${icon(state.theme === "dark" ? "sun" : "moon", "lg")}</button>
-      ${right}
-      <button class="btn icon-only burger" data-act="burger" aria-label="Меню">${icon("menu", "lg")}</button>
-    </div>
-  </div>`;
-}
 
 /* =========================================================
    Каталог
@@ -705,15 +124,10 @@ function activeChips() {
   return chips;
 }
 
-function plural(n, one, few, many) {
-  const m10 = n % 10, m100 = n % 100;
-  return `${n} ${m10 === 1 && m100 !== 11 ? one : m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20) ? few : many}`;
-}
-
 function headAction() {
   const r = state.role, vac = state.tab === "vacancies";
   if (r === "employer") return `<button class="btn primary" data-act="create">${icon("plus")}<span class="l-full">Разместить вакансию</span><span class="l-short">Вакансия</span></button>`;
-  if (r === "worker") return `<a class="btn" href="${STAND}/resume/resume-001/edit">${icon("edit")}<span class="l-full">Моё резюме</span><span class="l-short">Резюме</span></a>`;
+  if (r === "worker") return `<a class="btn" href="${pageHref(`/resume/resume-001/edit`)}">${icon("edit")}<span class="l-full">Моё резюме</span><span class="l-short">Резюме</span></a>`;
   if (r === "guest") return vac
     ? `<button class="btn" data-act="create">${icon("plus")}<span class="l-full">Разместить вакансию</span><span class="l-short">Вакансия</span></button>`
     : `<button class="btn" data-act="resume">${icon("plus")}<span class="l-full">Создать резюме</span><span class="l-short">Резюме</span></button>`;
@@ -722,9 +136,9 @@ function headAction() {
 
 function roleNote() {
   const notes = {
-    client: `Здесь ищут работу и сотрудников. Чтобы найти мастера для своего автомобиля, <a href="${STAND}/orders">оставьте заявку автовладельца</a>`,
-    supplier: `Здесь ищут работу и сотрудников. Чтобы предложить товары студиям, откройте <a href="${STAND}/supply-requests">заявки на закупку</a>`,
-    partner: `Здесь ищут работу и сотрудников. Акции и кешбэк для клиентов настраиваются в <a href="${STAND}/promos">разделе акций</a>`,
+    client: `Здесь ищут работу и сотрудников. Чтобы найти мастера для своего автомобиля, <a href="${pageHref(`/orders`)}">оставьте заявку автовладельца</a>`,
+    supplier: `Здесь ищут работу и сотрудников. Чтобы предложить товары студиям, откройте <a href="${pageHref(`/supply-requests`)}">заявки на закупку</a>`,
+    partner: `Здесь ищут работу и сотрудников. Акции и кешбэк для клиентов настраиваются в <a href="${pageHref(`/promos`)}">разделе акций</a>`,
   };
   return notes[state.role] ? `<div class="note">${icon("info")}<p>${notes[state.role]}</p></div>` : "";
 }
@@ -768,7 +182,7 @@ function vacancyCard(v) {
 function resumeCard(p) {
   const r = state.role, mine = r === "worker" && p.name === ROLES.worker.name;
   let action = "";
-  if (mine) action = `<a class="btn sm" href="${STAND}/resume/resume-001/edit">${icon("edit")}Редактировать</a>`;
+  if (mine) action = `<a class="btn sm" href="${pageHref(`/resume/resume-001/edit`)}">${icon("edit")}Редактировать</a>`;
   else if (r === "guest" || r === "employer") action = state.invited.has(p.id)
     ? `<span class="btn sm done">${icon("check")}Приглашение отправлено</span>`
     : `<button class="btn sm" data-act="invite" data-id="${p.id}">Пригласить</button>`;
@@ -776,7 +190,7 @@ function resumeCard(p) {
     <span class="tile round" aria-hidden="true">${initials(p.name)}</span>
     <div class="c-main">
       ${mine ? `<span class="mine-tag">${icon("dot")}Ваше резюме · заполнено на 82%</span>` : ""}
-      <h2 class="c-title"><a href="${STAND}/specialists/${p.id}">${esc(p.name)}</a></h2>
+      <h2 class="c-title"><a href="${pageHref(`/specialists/${p.id}`)}">${esc(p.name)}</a></h2>
       <div class="c-org">${esc(p.role)}${p.verified ? `<span class="verified" title="Документы специалиста проверены">${icon("shield")}Документы проверены</span>` : ""}</div>
       <div class="meta"><span>${icon("pin")}${p.city}</span><span>${icon("briefcase")}${p.years}</span><span>${icon("clock")}${p.schedule}</span><span>Обновлено: ${ago(p.days).toLowerCase()}</span></div>
       <p class="c-desc">${esc(p.desc)}</p>
@@ -819,7 +233,7 @@ function catalogView() {
         ${headAction()}
       </div>
       <h1>${vac ? "Вакансии" : "Резюме специалистов"}</h1>
-      <p class="lead">${vac ? "Постоянная работа в автомойках, детейлинг-студиях и автосервисах. Разовые смены ищите в разделе <a class=\"link accent\" href=\"" + STAND + "/gigs\">Подработки</a>" : "Мастера, которые ищут постоянную работу. Опыт, ожидания и проверка документов видны сразу"}</p>
+      <p class="lead">${vac ? "Постоянная работа в автомойках, детейлинг-студиях и автосервисах. Разовые смены ищите в разделе <a class=\"link accent\" href=\"" + pageHref("/gigs") + "\">Подработки</a>" : "Мастера, которые ищут постоянную работу. Опыт, ожидания и проверка документов видны сразу"}</p>
       <form class="search" role="search" data-act-submit="search">
         <label class="s-field"><span class="sr-only">Поиск</span>${icon("search", "lg")}<input id="q" type="search" value="${esc(state.q)}" placeholder="${vac ? "Должность или компания" : "Специализация или имя"}" autocomplete="off"></label>
         <div class="s-field s-city">${dd({ key: "search-city", name: "city", value: state.city, options: CITIES, variant: "bare", iconName: "pin", label: "Город" })}</div>
@@ -852,11 +266,11 @@ function detailView(id) {
     card = `<section class="panel action-card">
       <span class="mine-tag">${icon("dot")}Ваша вакансия</span>
       <div class="stat-row"><div><b class="num">${v.responses}</b><span>откликов</span></div><div><b class="num">${v.fresh}</b><span>новых</span></div></div>
-      <a class="btn primary lg block" href="${STAND}/dashboard">Смотреть отклики</a>
+      <a class="btn primary lg block" href="${pageHref(`/dashboard`)}">Смотреть отклики</a>
       <div class="grid2"><a class="btn" href="#" data-act="create" data-edit="${v.id}">${icon("edit")}Изменить</a><button class="btn" data-act="unpublish" data-id="${v.id}">Снять</button></div>
       <p class="hint">${icon("info")}Отклики приходят в «Сообщения» и в кабинет</p>
     </section>`;
-    mbar = `<a class="btn primary" href="${STAND}/dashboard">Отклики · ${v.responses}</a>`;
+    mbar = `<a class="btn primary" href="${pageHref(`/dashboard`)}">Отклики · ${v.responses}</a>`;
   } else if (r === "guest" || r === "worker") {
     const btn = applied ? `<span class="btn lg block done">${icon("check")}Отклик отправлен</span>` : `<button class="btn primary lg block" data-act="apply" data-id="${v.id}">Откликнуться</button>`;
     card = `<section class="panel action-card">
@@ -902,7 +316,7 @@ function detailView(id) {
           <div class="d-org"><span class="tile">${initials(v.org)}</span><div><b>${esc(v.org)}</b><span>${v.city}</span></div></div>
           <div class="org-line"><span>Рейтинг</span><b class="num">${v.verified ? "9,8 из 10" : "Пока нет отзывов"}</b></div>
           <div class="org-line"><span>Открытых вакансий</span><b class="num">${VACANCIES.filter((x) => x.org === v.org).length}</b></div>
-          <a class="btn block" href="${STAND}/companies/company-001">Профиль компании</a>
+          <a class="btn block" href="${pageHref(`/companies/company-001`)}">Профиль компании</a>
         </section>
       </aside>
     </div>
@@ -914,35 +328,15 @@ function detailView(id) {
   ${mbar ? `<div class="mbar"><div class="money num">${salary(v.from, v.to)}<small>в месяц</small></div>${mbar}</div>` : ""}`;
 }
 
+
 /* =========================================================
-   Модальные окна
+   Окна страницы
    ========================================================= */
-function openModal(html) {
-  $("#modal-root").innerHTML = `<div class="backdrop" data-act="close-bg"><div class="modal" role="dialog" aria-modal="true">${html}</div></div>`;
-  document.body.classList.add("lock");
-  setTimeout(() => ($("#modal-root [autofocus]") || $("#modal-root .modal button, #modal-root .modal input"))?.focus(), 30);
-}
-function closeModal() { closeDD(); $("#modal-root").innerHTML = ""; document.body.classList.remove("lock"); }
-const mHead = (title, sub = "") => `<div class="m-head"><div><h2>${title}</h2>${sub ? `<p>${sub}</p>` : ""}</div><button class="btn sm ghost icon-only" data-act="close" aria-label="Закрыть">${icon("x", "lg")}</button></div>`;
-
-function authModal(kind, id) {
-  const text = {
-    apply: ["Войдите, чтобы откликнуться", `После входа вернём вас к вакансии «${esc(VACANCIES.find((v) => v.id === id)?.title || "")}», и отклик можно будет отправить сразу`],
-    fav: ["Войдите, чтобы сохранить", "Избранные вакансии будут в кабинете на любом устройстве"],
-    invite: ["Войдите как работодатель", "Пригласить специалиста можно после входа в аккаунт компании"],
-    resume: ["Создайте аккаунт специалиста", "Резюме увидят компании, а вы сможете откликаться на вакансии"],
-  }[kind];
-  state.pendingAction = { kind, id };
-  openModal(`${mHead(text[0], text[1])}
-    <div class="m-body"><p class="hint">${icon("info")}Смотреть вакансии и резюме можно без регистрации. Вход нужен для отклика, сообщения и публикации</p></div>
-    <div class="m-foot"><button class="btn" data-act="auth-register">Регистрация</button><button class="btn primary" data-act="auth-login" autofocus>Войти по телефону</button></div>`);
-}
-
 function applyModal(id) {
   const v = VACANCIES.find((x) => x.id === id);
   openModal(`${mHead("Отклик на вакансию", `${esc(v.title)} · ${esc(v.org)}`)}
     <form class="m-body" id="mform">
-      <div class="resume-mini"><span class="tile round">МС</span><div><b>Михаил Соколов</b><span>Детейлер · опыт 6 лет · резюме заполнено на 82%</span></div><a class="link" href="${STAND}/resume/resume-001/edit">Изменить</a></div>
+      <div class="resume-mini"><span class="tile round">МС</span><div><b>Михаил Соколов</b><span>Детейлер · опыт 6 лет · резюме заполнено на 82%</span></div><a class="link" href="${pageHref(`/resume/resume-001/edit`)}">Изменить</a></div>
       <label class="field"><span>Сообщение работодателю</span><textarea class="textarea" name="msg" placeholder="Коротко о себе и когда готовы выйти" autofocus></textarea><small>Необязательно. Резюме и портфолио прикрепятся автоматически</small></label>
     </form>
     <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="apply-send" data-id="${id}">${icon("send")}Отправить отклик</button></div>`);
@@ -951,7 +345,7 @@ function applyModal(id) {
 function applySuccess(id) {
   const v = VACANCIES.find((x) => x.id === id);
   $("#modal-root .modal").innerHTML = `${mHead("", "")}<div class="m-body"><div class="success"><span class="ok-circle">${icon("check")}</span><h3>Отклик отправлен</h3><p>${esc(v.org)} получит ваше резюме в личных сообщениях. Ответ придёт туда же, мы пришлём уведомление</p></div></div>
-    <div class="m-foot"><button class="btn" data-act="close">К вакансиям</button><a class="btn primary" href="${STAND}/messages">Открыть сообщения</a></div>`;
+    <div class="m-foot"><button class="btn" data-act="close">К вакансиям</button><a class="btn primary" href="${pageHref(`/messages`)}">Открыть сообщения</a></div>`;
 }
 
 function createModal(editId) {
@@ -1010,89 +404,9 @@ function filtersSheet() {
     <div class="m-foot"><button class="btn" data-act="reset">Сбросить</button><button class="btn primary" data-act="close" id="sheet-apply">Показать: ${filtered().length}</button></div>`);
 }
 
-function mobileMenu() {
-  const wrap = document.createElement("div");
-  wrap.className = "drawer-wrap";
-  wrap.dataset.act = "close-drawer";
-  const r = state.role;
-  wrap.innerHTML = `<aside class="drawer" role="dialog" aria-modal="true" aria-label="Меню">
-    <div class="drawer-head"><a class="logo" href="#/"><img src="../assets/logo.png" alt=""><span>СОУС</span></a><button class="btn icon-only" data-act="close-drawer" aria-label="Закрыть">${icon("x", "lg")}</button></div>
-    <div class="drawer-body">
-      ${r === "guest" ? `<div class="grid2"><button class="btn" data-act="login">Войти</button><button class="btn primary" data-act="register">Регистрация</button></div>`
-        : `<div class="grid2"><a class="btn" href="${STAND}/messages">${icon("message")}Сообщения</a><a class="btn" href="${STAND}/dashboard">Кабинет</a></div>`}
-      ${NAV.map(([t, items]) => `<div class="m-group"><b>${t}</b>${items.map(([h, l, , here]) => `<a href="${h}" class="${here ? "here" : ""}">${l}${icon("right")}</a>`).join("")}</div>`).join("")}
-    </div></aside>`;
-  document.body.appendChild(wrap);
-  document.body.classList.add("lock");
-}
-
-function toast(title, text = "", kind = "ok") {
-  const el = document.createElement("div");
-  el.className = "toast " + kind;
-  el.innerHTML = `${icon(kind === "info" ? "info" : "check")}<div><b>${title}</b>${text ? `<span>${text}</span>` : ""}</div>`;
-  $("#toast-root").appendChild(el);
-  setTimeout(() => el.remove(), 3600);
-}
-
 /* =========================================================
-   Панель прототипа (служебная, в продукт не входит)
+   Обновление списка и фильтров
    ========================================================= */
-function currentPagePath() {
-  const h = route();
-  if (h.startsWith("/v/")) return "/vacancies/:id";
-  return state.tab === "resumes" ? "/specialists" : "/vacancies";
-}
-/* ссылка на экран в этой же папке превращается в якорь, чтобы не перезагружать страницу */
-function localHref(href) {
-  const m = href.match(/^\.\.\/([^/]+)\/(#.*)$/);
-  const folder = location.pathname.split("/").slice(-2, -1)[0];
-  return m && m[1] === folder ? m[2] : href;
-}
-function pagesPanel() {
-  const all = window.SOUS_PAGES.flatMap((g) => g.pages);
-  const done = all.filter((p) => p.status === "done").length, wip = all.filter((p) => p.status === "wip").length;
-  const cur = currentPagePath();
-  const label = { done: "Готово", wip: "В работе" };
-  return `<section class="pages-panel" role="dialog" aria-label="Страницы прототипа">
-    <div class="pp-head"><h3>Страницы</h3><p class="num">Готово ${done} из ${all.length} · в работе ${wip}</p>
-      <div class="pp-bar" aria-hidden="true"><i style="width:${done / all.length * 100}%"></i><i class="wip" style="width:${wip / all.length * 100}%"></i></div>
-      <div class="pp-legend"><span><i class="st done"></i>Готово</span><span><i class="st wip"></i>В работе</span><span><i class="st todo"></i>Не начато</span><span><i class="st here"></i>Вы здесь</span></div>
-    </div>
-    <div class="pp-list">${window.SOUS_PAGES.map((g) => `<div class="pp-group"><b>${g.title}<span class="num">${g.pages.filter((p) => p.status === "done").length}/${g.pages.length}</span></b>
-      ${g.pages.map((p) => {
-        const here = p.path === cur, st = p.status || "todo";
-        const inner = `<i class="st ${st}"></i><span class="pp-t">${p.title}<small>${p.note ? p.note : p.path}</small></span><span class="pp-s">${here ? "Вы здесь" : label[st] || ""}</span>`;
-        return p.href && st !== "todo"
-          ? `<a class="pp-row ${here ? "here" : ""}" href="${localHref(p.href)}" data-act="page-go">${inner}</a>`
-          : `<div class="pp-row muted">${inner}</div>`;
-      }).join("")}</div>`).join("")}</div>
-  </section>`;
-}
-function renderProto() {
-  const hints = { guest: "смотрит без входа", worker: "ищет работу", employer: "ищет сотрудников", client: "не целевая роль", supplier: "не целевая роль", partner: "не целевая роль" };
-  $("#proto-root").innerHTML = `<div class="proto">
-    ${state.protoOpen ? `<section class="proto-panel"><h3>Роль пользователя</h3><p>Служебная панель прототипа. Показывает, как страница меняется для каждой роли</p>
-      <div class="roles">${Object.entries(ROLES).map(([id, r]) => `<button data-act="role" data-role="${id}" aria-pressed="${state.role === id}">${r.label}<span>${hints[id]}</span></button>`).join("")}</div></section>` : ""}
-    ${state.pagesOpen ? pagesPanel() : ""}
-    <button class="proto-pages" data-act="pages" aria-label="Все страницы прототипа" aria-expanded="${state.pagesOpen}">${icon("pages", "lg")}</button>
-    <button class="proto-btn" data-act="proto" aria-expanded="${state.protoOpen}">Прототип · ${ROLES[state.role].label}${icon("down")}</button>
-  </div>`;
-  const list = $(".pp-list"), here = $(".pp-row.here");
-  if (list && here) list.scrollTop = here.offsetTop - list.offsetTop - list.clientHeight / 2 + here.offsetHeight / 2;
-}
-
-/* =========================================================
-   Рендер и роутинг
-   ========================================================= */
-function route() { const h = location.hash.replace(/^#!?/, "") || "/"; return h; }
-function render() {
-  const h = route();
-  renderHeader();
-  renderProto();
-  const m = h.match(/^\/v\/([\w-]+)/);
-  if (h === "/resumes") state.tab = "resumes";
-  $("#app").innerHTML = m ? detailView(m[1]) : catalogView();
-}
 function renderResults() {
   const el = $("#results");
   if (el) el.innerHTML = resultsMarkup();
@@ -1117,16 +431,8 @@ function resetFilters() {
   const q = $("#q"); if (q) q.value = "";
   syncFilterInputs(); renderResults();
 }
+function refresh() { if (route().startsWith("/v/")) render(); else renderResults(); }
 
-window.addEventListener("hashchange", () => {
-  if (location.hash.startsWith("#!")) return;
-  if (route() === "/") state.tab = "vacancies";
-  closeModal(); render(); window.scrollTo(0, 0);
-});
-
-/* =========================================================
-   События
-   ========================================================= */
 document.addEventListener("input", (e) => {
   if (e.target.id === "q") { state.q = e.target.value; renderResults(); }
 });
@@ -1139,56 +445,51 @@ document.addEventListener("change", (e) => {
   syncFilterInputs(); renderResults();
 });
 document.addEventListener("submit", (e) => { e.preventDefault(); if (e.target.dataset.actSubmit === "search") { $("#results")?.scrollIntoView({ behavior: "smooth", block: "start" }); } });
-document.addEventListener("keydown", (e) => {
-  if (ddOpen) {
-    const opts = $$(".dd-opt", ddOpen.pop), i = opts.findIndex((o) => o.classList.contains("active"));
-    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-      e.preventDefault();
-      const n = opts[(i + (e.key === "ArrowDown" ? 1 : -1) + opts.length) % opts.length];
-      opts.forEach((o) => o.classList.remove("active")); n.classList.add("active"); n.scrollIntoView({ block: "nearest" });
-      return;
-    }
-    if (e.key === "Enter") { e.preventDefault(); pickDD(opts[i].dataset.v); return; }
-    if (e.key === "Escape" || e.key === "Tab") { const b = $(".dd-btn", ddOpen.el); closeDD(); if (e.key === "Escape") { b.focus(); return; } }
-  } else if (e.key === "ArrowDown" && e.target.classList?.contains("dd-btn")) { e.preventDefault(); openDD(e.target.closest(".dd")); return; }
-  if (e.key === "Escape") { closeModal(); $(".drawer-wrap")?.remove(); document.body.classList.remove("lock"); closeNav(); }
-});
-function closeNav() { $$(".nav-item.open").forEach((n) => { n.classList.remove("open"); $("button", n).setAttribute("aria-expanded", "false"); }); }
 
-function needAuth(kind, id) { if (state.role === "guest") { authModal(kind, id); return true; } return false; }
-
-function setRole(role) {
-  state.role = role; write("sous-role", role);
-  render();
-}
-
-function soon(path) {
-  const page = window.SOUS_FIND_PAGE(path);
-  const name = page ? page.title : "Этот экран";
-  toast(`«${name}» ещё в работе`, "Экран появится в прототипе после согласования. Список всех страниц открывается круглой кнопкой внизу", "info");
-}
-document.addEventListener("click", (e) => {
-  const link = e.target.closest('a[href^="#!"]');
-  if (link) { e.preventDefault(); $(".drawer-wrap")?.remove(); document.body.classList.remove("lock"); closeNav(); soon(link.getAttribute("href").slice(2)); return; }
-  const el = e.target.closest("[data-act]");
-  if (!e.target.closest(".nav-item")) closeNav();
-  if (ddOpen && !e.target.closest(".dd-pop") && !ddOpen.el.contains(e.target)) closeDD();
-  if (!e.target.closest(".proto") && (state.protoOpen || state.pagesOpen)) { state.protoOpen = false; state.pagesOpen = false; renderProto(); }
-  if (!el) return;
-  const act = el.dataset.act, id = el.dataset.id;
-  if ((el.classList.contains("backdrop") || el.classList.contains("drawer-wrap")) && e.target !== el) return;
-  const actions = {
-    dd: () => { const box = el.closest(".dd"); ddOpen?.el === box ? closeDD() : openDD(box); },
-    "dd-opt": () => pickDD(el.dataset.v),
-    nav: () => { const item = el.closest(".nav-item"); const open = !item.classList.contains("open"); closeNav(); if (open) { item.classList.add("open"); el.setAttribute("aria-expanded", "true"); } },
-    theme: () => { state.theme = state.theme === "dark" ? "light" : "dark"; document.documentElement.dataset.theme = state.theme; write("sous-theme", state.theme); renderHeader(); },
-    burger: mobileMenu,
-    "close-drawer": () => { $(".drawer-wrap")?.remove(); document.body.classList.remove("lock"); },
-    login: () => { e.preventDefault(); $(".drawer-wrap")?.remove(); state.pendingAction = null; authModal("apply", null); $(".m-head h2").textContent = "Вход"; $(".m-head p").textContent = "По номеру телефона, без пароля"; },
-    register: () => { $(".drawer-wrap")?.remove(); authModal("resume"); },
-    tab: () => { state.tab = el.dataset.tab; state.f.spec.clear(); render(); },
+/* =========================================================
+   Описание страницы для общего скрипта
+   ========================================================= */
+const PAGE = {
+  section: "/vacancies",
+  currentPath() {
+    if (route().startsWith("/v/")) return "/vacancies/:id";
+    return state.tab === "resumes" ? "/specialists" : "/vacancies";
+  },
+  render() {
+    const m = route().match(/^\/v\/([\w-]+)/);
+    $("#app").innerHTML = m ? detailView(m[1]) : catalogView();
+  },
+  onRoute() {
+    if (route() === "/") state.tab = "vacancies";
+    if (route() === "/resumes") state.tab = "resumes";
+  },
+  onDD(key, v) {
+    if (key === "search-city") state.city = v;
+    else if (key === "sort") state.sort = v;
+    else if (key === "salary") state.f.salary = v;
+    else return false;
+    syncFilterInputs(); renderResults();
+    return true;
+  },
+  authText(kind, id) {
+    return {
+      apply: ["Войдите, чтобы откликнуться", `После входа вернём вас к вакансии «${esc(VACANCIES.find((v) => v.id === id)?.title || "")}», и отклик можно будет отправить сразу`],
+      fav: ["Войдите, чтобы сохранить", "Избранные вакансии будут в кабинете на любом устройстве"],
+      invite: ["Войдите как работодатель", "Пригласить специалиста можно после входа в аккаунт компании"],
+      resume: ["Создайте аккаунт специалиста", "Резюме увидят компании, а вы сможете откликаться на вакансии"],
+    }[kind];
+  },
+  loginRole: (p) => p.kind === "invite" ? "employer" : "worker",
+  afterLogin(p) {
+    if (p.kind === "apply" && p.id) setTimeout(() => applyModal(p.id), 200);
+    if (p.kind === "invite" && p.id) setTimeout(() => inviteModal(p.id), 200);
+    if (p.kind === "fav" && p.id) { state.fav.add(p.id); refresh(); }
+  },
+  roleHints: { guest: "смотрит без входа", worker: "ищет работу", employer: "ищет сотрудников", client: "не целевая роль", supplier: "не целевая роль", partner: "не целевая роль" },
+  actions: {
+    tab: (el, e, id) => { state.tab = el.dataset.tab; state.f.spec.clear(); render(); },
     reset: resetFilters,
-    unchip: () => {
+    unchip: (el, e, id) => {
       const { k, v } = el.dataset;
       if (k === "city") state.city = "Все города";
       else if (k === "salary") state.f.salary = "";
@@ -1197,18 +498,18 @@ document.addEventListener("click", (e) => {
       syncFilterInputs(); renderResults();
     },
     sheet: filtersSheet,
-    apply: () => { if (!needAuth("apply", id)) applyModal(id); },
-    "apply-send": () => { state.applied.add(id); applySuccess(id); refresh(); },
-    fav: () => {
+    apply: (el, e, id) => { if (!needAuth("apply", id)) applyModal(id); },
+    "apply-send": (el, e, id) => { state.applied.add(id); applySuccess(id); refresh(); },
+    fav: (el, e, id) => {
       if (needAuth("fav", id)) return;
       state.fav.has(id) ? state.fav.delete(id) : state.fav.add(id);
       toast(state.fav.has(id) ? "Сохранено в избранное" : "Убрано из избранного", state.fav.has(id) ? "Избранное хранится в личном кабинете" : "");
       refresh();
     },
-    invite: () => { if (!needAuth("invite", id)) inviteModal(id); },
-    "invite-send": () => { state.invited.add(id); closeModal(); toast("Приглашение отправлено", "Ответ придёт в «Сообщения»"); refresh(); },
-    create: () => { e.preventDefault(); if (["guest", "employer"].includes(state.role)) createModal(el.dataset.edit); },
-    "create-send": () => {
+    invite: (el, e, id) => { if (!needAuth("invite", id)) inviteModal(id); },
+    "invite-send": (el, e, id) => { state.invited.add(id); closeModal(); toast("Приглашение отправлено", "Ответ придёт в «Сообщения»"); refresh(); },
+    create: (el, e, id) => { e.preventDefault(); if (["guest", "employer"].includes(state.role)) createModal(el.dataset.edit); },
+    "create-send": (el, e, id) => {
       const f = $("#mform");
       if (!f.reportValidity()) return;
       if (state.role === "guest") { closeModal(); state.pendingAction = null; toast("Черновик сохранён", "Войдите как работодатель, чтобы опубликовать"); setTimeout(() => setRole("employer"), 400); return; }
@@ -1222,35 +523,15 @@ document.addEventListener("click", (e) => {
         desc: d.desc, duties: [d.desc], terms: ["Условия уточняются у работодателя"], place: d.city });
       closeModal(); state.tab = "vacancies"; location.hash = "#/"; render(); toast("Вакансия размещена", "Она уже в каталоге, отклики придут в «Сообщения»");
     },
-    unpublish: () => unpublishModal(id),
-    "unpublish-send": () => { VACANCIES = VACANCIES.filter((v) => v.id !== id); closeModal(); location.hash = "#/"; toast("Вакансия снята с публикации", "Вернуть её можно в кабинете"); },
+    unpublish: (el, e, id) => unpublishModal(id),
+    "unpublish-send": (el, e, id) => { VACANCIES = VACANCIES.filter((v) => v.id !== id); closeModal(); location.hash = "#/"; toast("Вакансия снята с публикации", "Вернуть её можно в кабинете"); },
     report: reportModal,
-    "report-send": () => { closeModal(); toast("Жалоба отправлена", "Ответ придёт в уведомления"); },
-    resume: () => { if (!needAuth("resume")) soon("/resume/new"); },
-    "auth-login": () => {
-      const p = state.pendingAction || {};
-      const role = p.kind === "invite" ? "employer" : "worker";
-      closeModal(); setRole(role);
-      toast("Вы вошли", role === "worker" ? "Михаил Соколов, специалист" : "Shine&Go, работодатель");
-      if (p.kind === "apply" && p.id) setTimeout(() => applyModal(p.id), 200);
-      if (p.kind === "invite" && p.id) setTimeout(() => inviteModal(p.id), 200);
-      if (p.kind === "fav" && p.id) { state.fav.add(p.id); refresh(); }
-      state.pendingAction = null;
-    },
-    "auth-register": () => { closeModal(); soon("/register"); },
-    close: closeModal,
-    "close-bg": closeModal,
-    proto: () => { state.protoOpen = !state.protoOpen; state.pagesOpen = false; renderProto(); },
-    pages: () => { state.pagesOpen = !state.pagesOpen; state.protoOpen = false; renderProto(); },
-    "page-go": () => { state.pagesOpen = false; renderProto(); },
-    role: () => { state.protoOpen = false; setRole(el.dataset.role); },
-  };
-  actions[act]?.();
-});
-function refresh() { if (route().startsWith("/v/")) render(); else renderResults(); }
+    "report-send": (el, e, id) => { closeModal(); toast("Жалоба отправлена", "Ответ придёт в уведомления"); },
+    resume: (el, e, id) => { if (!needAuth("resume")) soon("/resume/new"); },
+  },
+};
 
-document.documentElement.dataset.theme = state.theme;
-render();
+start();
 </script>
 </body>
 </html>
