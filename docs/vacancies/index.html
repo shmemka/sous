@@ -19,7 +19,8 @@
   --text:#fff;--text-2:#d9cfc8;--text-3:#a08f85;
   --ok:#42c97a;--danger:#ff6961;
   --top-bg:rgba(10,5,3,.94);--backdrop:rgba(0,0,0,.66);
-  --hero-art:url("../assets/06-dark.webp");--hero-fade:linear-gradient(90deg,rgba(10,5,3,.97) 0%,rgba(10,5,3,.9) 45%,rgba(10,5,3,.55) 100%);
+  --fill:rgba(255,236,224,.05);--fill-2:rgba(255,236,224,.09);--ring:0 0 0 2px rgba(238,90,32,.55);
+  --glow-a:rgba(238,90,32,.26);--glow-b:rgba(222,29,29,.10);
   --shadow:0 12px 32px rgba(0,0,0,.28);
   --ease:cubic-bezier(.2,0,0,1);
   --r-control:10px;--r-card:16px;--r-panel:20px;
@@ -32,7 +33,8 @@
   --text:#140d09;--text-2:#3c2d24;--text-3:#7a665a;
   --ok:#1f9d55;--danger:#d63a32;
   --top-bg:rgba(250,247,244,.94);--backdrop:rgba(33,20,12,.4);
-  --hero-art:url("../assets/06-light.webp");--hero-fade:linear-gradient(90deg,rgba(250,247,244,.98) 0%,rgba(250,247,244,.92) 45%,rgba(250,247,244,.6) 100%);
+  --fill:rgba(70,40,20,.05);--fill-2:rgba(70,40,20,.09);--ring:0 0 0 2px rgba(226,83,27,.45);
+  --glow-a:rgba(255,152,36,.16);--glow-b:rgba(238,90,32,.06);
   --shadow:0 12px 32px rgba(71,46,30,.12);
   color-scheme:light;
 }
@@ -54,19 +56,19 @@ ul{margin:0;padding:0;list-style:none}
 .num{font-variant-numeric:tabular-nums}
 
 /* ---------- Кнопки и поля ---------- */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 16px;border-radius:var(--r-control);border:1px solid var(--line-2);background:var(--surface);color:var(--text);font-size:14px;font-weight:600;white-space:nowrap;transition:background-color .16s var(--ease),border-color .16s var(--ease),color .16s var(--ease),transform .12s var(--ease)}
-.btn:hover{border-color:var(--line-3);background:var(--surface-hover)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 16px;border-radius:var(--r-control);border:0;background:var(--fill);color:var(--text);font-size:14px;font-weight:600;white-space:nowrap;transition:background-color .16s var(--ease),border-color .16s var(--ease),color .16s var(--ease),transform .12s var(--ease)}
+.btn:hover{background:var(--fill-2)}
 .btn:active{transform:scale(.98)}
-.btn.primary{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
-.btn.primary:hover{background:var(--primary-hover);border-color:var(--primary-hover)}
-.btn.ghost{border-color:transparent;background:transparent}
-.btn.ghost:hover{background:var(--surface-hover)}
+.btn.primary{background:var(--primary);color:var(--on-primary)}
+.btn.primary:hover{background:var(--primary-hover)}
+.btn.ghost{background:transparent}
+.btn.ghost:hover{background:var(--fill)}
 .btn.sm{min-height:36px;padding:0 12px;font-size:13px}
 .btn.lg{min-height:48px;padding:0 20px;font-size:15px}
 .btn.block{width:100%}
 .btn.icon-only{width:40px;padding:0}
 .btn.sm.icon-only{width:36px}
-.btn.done{background:transparent;border-color:var(--line);color:var(--ok);cursor:default}
+.btn.done{background:transparent;color:var(--ok);cursor:default}
 .btn.done:active{transform:none}
 .btn[disabled]{opacity:.5;cursor:not-allowed}
 .link{color:var(--text-2);font-size:14px;font-weight:500;transition:color .16s var(--ease)}
@@ -75,15 +77,36 @@ ul{margin:0;padding:0;list-style:none}
 .field{display:grid;gap:6px}
 .field>span{font-size:13px;font-weight:500;color:var(--text-2)}
 .field small{font-size:12px;color:var(--text-3)}
-.input,.select,.textarea{width:100%;min-height:44px;padding:0 12px;border:1px solid var(--line-2);border-radius:var(--r-control);background:var(--sunken);color:var(--text);font-size:14px;transition:border-color .16s var(--ease)}
-.input:hover,.select:hover,.textarea:hover{border-color:var(--line-3)}
-.input:focus,.select:focus,.textarea:focus{border-color:var(--primary);outline:none}
+.input,.select,.textarea{width:100%;min-height:44px;padding:0 12px;border:0;border-radius:var(--r-control);background:var(--fill);color:var(--text);font-size:14px;transition:background-color .16s var(--ease),box-shadow .16s var(--ease)}
+.input:hover,.select:hover,.textarea:hover{background:var(--fill-2)}
+.input:focus,.select:focus,.textarea:focus{box-shadow:var(--ring);outline:none}
 .input::placeholder,.textarea::placeholder{color:var(--text-3)}
 .select{appearance:none;padding-right:36px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23a08f85' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
 .textarea{min-height:112px;padding:12px;resize:vertical;line-height:1.5}
 
+/* ---------- Кастомный выпадающий список ---------- */
+.dd{position:relative;width:100%}
+.dd-btn{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;padding:0 12px;border-radius:var(--r-control);background:var(--fill);color:var(--text);font-size:14px;text-align:left;transition:background-color .16s var(--ease),box-shadow .16s var(--ease)}
+.dd-btn:hover{background:var(--fill-2)}
+.dd-btn:focus-visible{outline:none;box-shadow:var(--ring)}
+.dd-btn>.icon{color:var(--text-3)}
+.dd-val{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dd-btn .chev{width:16px;height:16px;color:var(--text-3);transition:transform .16s var(--ease)}
+.dd.open .chev{transform:rotate(180deg)}
+.dd.bare .dd-btn{height:48px;padding:0 16px 0 12px;background:transparent;font-size:15px;border-radius:12px}
+.dd.bare .dd-btn:hover{background:var(--fill)}
+.dd.compact{width:auto}
+.dd.compact .dd-btn{min-height:40px;gap:6px;background:transparent;color:var(--text-2);font-weight:500}
+.dd.compact .dd-btn:hover{background:var(--fill);color:var(--text)}
+.dd-pop{position:fixed;z-index:200;max-height:300px;overflow:auto;padding:6px;border-radius:12px;background:var(--surface-2);box-shadow:var(--shadow),0 0 0 1px var(--fill);animation:rise .16s var(--ease)}
+.dd-opt{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;min-height:40px;padding:0 12px;border-radius:8px;color:var(--text-2);font-size:14px;text-align:left;transition:background-color .12s var(--ease),color .12s var(--ease)}
+.dd-opt:hover,.dd-opt.active{background:var(--fill-2);color:var(--text)}
+.dd-opt[aria-selected="true"]{color:var(--text);font-weight:500}
+.dd-opt .icon{color:var(--primary);visibility:hidden}
+.dd-opt[aria-selected="true"] .icon{visibility:visible}
+
 /* ---------- Шапка: 5 групп вместо 12 ссылок ---------- */
-.top{position:sticky;top:0;z-index:50;background:var(--top-bg);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.top{position:sticky;top:0;z-index:50;background:var(--top-bg);backdrop-filter:blur(12px)}
 .top-in{width:min(1440px,calc(100% - 48px));margin:0 auto;height:64px;display:flex;align-items:center;gap:24px}
 .logo{display:flex;align-items:center;gap:8px;font:700 28px/1 var(--font-display);color:var(--primary);letter-spacing:.01em}
 .logo img{width:32px;height:32px}
@@ -94,7 +117,7 @@ ul{margin:0;padding:0;list-style:none}
 .nav-btn.current{color:var(--text)}
 .nav-btn.current::after{content:"";position:absolute;left:12px;right:12px;bottom:-12px;height:2px;background:var(--primary);border-radius:2px}
 .nav-btn .icon{width:14px;height:14px;color:var(--text-3)}
-.menu{position:absolute;top:calc(100% + 8px);left:0;min-width:280px;padding:8px;border:1px solid var(--line);border-radius:var(--r-card);background:var(--surface-2);box-shadow:var(--shadow);opacity:0;transform:translateY(-4px);pointer-events:none;transition:opacity .16s var(--ease),transform .16s var(--ease)}
+.menu{position:absolute;top:calc(100% + 8px);left:0;min-width:280px;padding:8px;border-radius:var(--r-card);background:var(--surface-2);box-shadow:var(--shadow);opacity:0;transform:translateY(-4px);pointer-events:none;transition:opacity .16s var(--ease),transform .16s var(--ease)}
 .nav-item.open .menu{opacity:1;transform:none;pointer-events:auto}
 .menu a{display:grid;gap:2px;padding:8px 12px;border-radius:8px;transition:background-color .16s var(--ease)}
 .menu a:hover{background:var(--surface-hover)}
@@ -102,18 +125,18 @@ ul{margin:0;padding:0;list-style:none}
 .menu a span{font-size:12px;color:var(--text-3)}
 .menu a.here b{color:var(--primary)}
 .top-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
-.avatar{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--sunken);border:1px solid var(--line-2);font-size:12px;font-weight:600;color:var(--text-2)}
+.avatar{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--fill-2);font-size:12px;font-weight:600;color:var(--text-2)}
 .burger{display:none}
 
 /* ---------- Шапка страницы ---------- */
-.head{position:relative;isolation:isolate;border-bottom:1px solid var(--line);overflow:hidden}
-.head::before{content:"";position:absolute;inset:0;z-index:-2;background:var(--hero-art) right 40%/cover no-repeat;opacity:.85}
-.head::after{content:"";position:absolute;inset:0;z-index:-1;background:var(--hero-fade)}
+.head{position:relative;isolation:isolate;overflow:hidden;background:radial-gradient(1100px 420px at 88% -10%,var(--glow-a),transparent 70%),radial-gradient(800px 360px at 0% 120%,var(--glow-b),transparent 70%)}
+.head::after{content:"";position:absolute;left:0;right:0;bottom:0;height:64px;z-index:-1;background:linear-gradient(to bottom,transparent,var(--bg))}
+
 .head-in{padding:24px 0 28px;display:grid;gap:16px}
 .head-in>*{min-width:0}
 .l-short{display:none}
 .head-row{display:flex;align-items:center;justify-content:space-between;gap:16px}
-.tabs{display:inline-flex;gap:24px;border-bottom:1px solid var(--line-2)}
+.tabs{display:inline-flex;gap:24px}
 .tab{position:relative;display:flex;align-items:center;gap:8px;height:40px;color:var(--text-3);font-size:15px;font-weight:600;transition:color .16s var(--ease)}
 .tab:hover{color:var(--text)}
 .tab[aria-selected="true"]{color:var(--text)}
@@ -121,15 +144,15 @@ ul{margin:0;padding:0;list-style:none}
 .tab small{font-size:13px;font-weight:500;color:var(--text-3)}
 .head h1{font:700 52px/1 var(--font-display);letter-spacing:0}
 .lead{max-width:620px;color:var(--text-2);font-size:15px}
-.search{display:flex;align-items:stretch;max-width:840px;padding:4px;border:1px solid var(--line-2);border-radius:var(--r-card);background:var(--surface)}
-.search:focus-within{border-color:var(--line-3)}
+.search{display:flex;align-items:stretch;max-width:840px;padding:4px;border-radius:var(--r-card);background:var(--surface);box-shadow:var(--shadow);transition:box-shadow .16s var(--ease)}
+.search:focus-within{box-shadow:var(--shadow),var(--ring)}
 .s-field{position:relative;display:flex;align-items:center;flex:1;min-width:0}
-.s-field .icon{position:absolute;left:12px;color:var(--text-3);pointer-events:none}
-.s-field input,.s-field select{width:100%;height:48px;padding:0 12px 0 40px;border:0;background:transparent;font-size:15px;outline:none}
-.s-field select{appearance:none;cursor:pointer}
+.s-field>.icon{position:absolute;left:12px;color:var(--text-3);pointer-events:none}
+.s-field input{width:100%;height:48px;padding:0 12px 0 40px;border:0;background:transparent;font-size:15px;outline:none}
+
 .s-field input::placeholder{color:var(--text-3)}
 .s-city{flex:0 0 220px;border-left:1px solid var(--line)}
-.s-field option{background:var(--surface);color:var(--text)}
+
 .search .btn{min-height:48px;border-radius:12px;padding:0 24px}
 
 /* ---------- Каталог ---------- */
@@ -141,12 +164,12 @@ ul{margin:0;padding:0;list-style:none}
 .fgroup>b{font-size:13px;font-weight:600;color:var(--text-2)}
 .check{display:flex;align-items:center;gap:12px;min-height:32px;font-size:14px;color:var(--text-2);cursor:pointer}
 .check:hover{color:var(--text)}
-.check input{appearance:none;width:18px;height:18px;flex:none;margin:0;border:1px solid var(--line-3);border-radius:5px;background:var(--sunken);display:grid;place-items:center;transition:background-color .16s var(--ease),border-color .16s var(--ease);cursor:pointer}
-.check input:checked{background:var(--primary);border-color:var(--primary)}
+.check input{appearance:none;width:18px;height:18px;flex:none;margin:0;border:0;border-radius:5px;background:var(--fill-2);display:grid;place-items:center;transition:background-color .16s var(--ease),border-color .16s var(--ease);cursor:pointer}
+.check input:checked{background:var(--primary)}
 .check input:checked::after{content:"";width:9px;height:5px;border:2px solid #fff;border-top:0;border-right:0;transform:translateY(-1px) rotate(-45deg)}
 .check .c{margin-left:auto;font-size:12px;color:var(--text-3)}
 .toggle-row{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px;color:var(--text-2);cursor:pointer}
-.switch{appearance:none;width:36px;height:20px;flex:none;margin:0;border-radius:10px;background:var(--line-2);position:relative;cursor:pointer;transition:background-color .16s var(--ease)}
+.switch{appearance:none;width:36px;height:20px;flex:none;margin:0;border-radius:10px;background:var(--fill-2);position:relative;cursor:pointer;transition:background-color .16s var(--ease)}
 .switch::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .16s var(--ease)}
 .switch:checked{background:var(--primary)}
 .switch:checked::after{transform:translateX(16px)}
@@ -154,23 +177,23 @@ ul{margin:0;padding:0;list-style:none}
 .toolbar{display:flex;align-items:center;gap:12px;min-height:40px;margin-bottom:16px;flex-wrap:wrap}
 .count{font-size:15px;color:var(--text-2)}
 .count b{color:var(--text);font-weight:600}
-.toolbar .select{width:auto;min-height:40px;margin-left:auto;background-color:var(--surface)}
+.sort-wrap{margin-left:auto}
 .filters-btn{display:none}
 .filters-btn .badge-n{display:grid;place-items:center;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--primary);color:#fff;font-size:12px}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin:-4px 0 16px}
-.chip{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 8px 0 12px;border:1px solid var(--line-2);border-radius:8px;background:var(--surface);font-size:13px;color:var(--text-2);transition:border-color .16s var(--ease)}
-.chip:hover{border-color:var(--line-3);color:var(--text)}
+.chip{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 8px 0 12px;border-radius:8px;background:var(--fill);font-size:13px;color:var(--text-2);transition:background-color .16s var(--ease)}
+.chip:hover{background:var(--fill-2);color:var(--text)}
 .chip .icon{width:14px;height:14px}
 
-.note{display:flex;gap:12px;align-items:flex-start;padding:16px;margin-bottom:16px;border:1px solid var(--line);border-radius:var(--r-card);background:var(--surface);font-size:14px;color:var(--text-2)}
+.note{display:flex;gap:12px;align-items:flex-start;padding:16px;margin-bottom:16px;border-radius:var(--r-card);background:var(--surface);font-size:14px;color:var(--text-2)}
 .note .icon{margin-top:2px;color:var(--text-3)}
 .note a{color:var(--primary);font-weight:600}
 
 .list{display:grid;gap:12px}
-.card{position:relative;display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:16px 20px;padding:20px 24px;border:1px solid var(--line);border-radius:var(--r-card);background:var(--surface);transition:border-color .16s var(--ease),background-color .16s var(--ease)}
-.card:hover{border-color:var(--line-2);background:var(--surface-hover)}
-.card.mine{border-color:var(--line-2)}
-.tile{display:grid;place-items:center;width:48px;height:48px;border-radius:12px;border:1px solid var(--line-2);background:var(--sunken);font:700 18px/1 var(--font-display);color:var(--text-2)}
+.card{position:relative;display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:16px 20px;padding:20px 24px;border-radius:var(--r-card);background:var(--surface);transition:background-color .16s var(--ease)}
+.card:hover{background:var(--surface-hover)}
+
+.tile{display:grid;place-items:center;width:48px;height:48px;border-radius:12px;background:var(--fill-2);font:700 18px/1 var(--font-display);color:var(--text-2)}
 .tile.round{border-radius:50%;font:600 14px/1 var(--font-sans)}
 .c-main{min-width:0;display:grid;gap:4px}
 .c-title{font-size:18px;font-weight:600;line-height:1.3}
@@ -188,7 +211,7 @@ ul{margin:0;padding:0;list-style:none}
 .money small{display:block;margin-top:4px;font:400 12px/1.3 var(--font-sans);color:var(--text-3)}
 .c-actions{position:relative;z-index:1;display:flex;align-items:center;gap:8px}
 .fav[aria-pressed="true"] .icon{fill:var(--primary);stroke:var(--primary)}
-.empty{display:grid;justify-items:center;gap:8px;padding:56px 24px;border:1px dashed var(--line-2);border-radius:var(--r-card);text-align:center}
+.empty{display:grid;justify-items:center;gap:8px;padding:56px 24px;border-radius:var(--r-card);background:var(--surface);text-align:center}
 .empty h3{font:700 28px/1.1 var(--font-display)}
 .empty p{max-width:420px;color:var(--text-2);font-size:14px}
 .empty .btn{margin-top:8px}
@@ -199,7 +222,7 @@ ul{margin:0;padding:0;list-style:none}
 .back:hover{color:var(--text)}
 .d-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start}
 .d-main{display:grid;gap:16px}
-.panel{padding:24px;border:1px solid var(--line);border-radius:var(--r-panel);background:var(--surface)}
+.panel{padding:24px;border-radius:var(--r-panel);background:var(--surface)}
 .d-head{display:grid;gap:16px}
 .d-head h1{font:700 48px/1 var(--font-display)}
 .d-org{display:flex;align-items:center;gap:12px}
@@ -232,8 +255,8 @@ ul{margin:0;padding:0;list-style:none}
 .related{margin-top:40px}
 .related h2{font:700 32px/1 var(--font-display);margin-bottom:16px}
 .related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-.mini{position:relative;display:grid;gap:4px;padding:20px;border:1px solid var(--line);border-radius:var(--r-card);background:var(--surface);transition:border-color .16s var(--ease)}
-.mini:hover{border-color:var(--line-2)}
+.mini{position:relative;display:grid;gap:4px;padding:20px;border-radius:var(--r-card);background:var(--surface);transition:background-color .16s var(--ease)}
+.mini:hover{background:var(--surface-hover)}
 .mini b{font-size:16px;font-weight:600}
 .mini span{font-size:13px;color:var(--text-3)}
 .mini .money{font-size:24px;margin-top:8px}
@@ -243,20 +266,20 @@ ul{margin:0;padding:0;list-style:none}
 
 /* ---------- Модальные окна ---------- */
 .backdrop{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px;background:var(--backdrop);animation:fade .16s var(--ease)}
-.modal{width:min(520px,100%);max-height:min(88vh,860px);display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--r-panel);background:var(--surface-2);box-shadow:var(--shadow);animation:rise .2s var(--ease)}
+.modal{width:min(520px,100%);max-height:min(88vh,860px);display:flex;flex-direction:column;border-radius:var(--r-panel);background:var(--surface-2);box-shadow:var(--shadow);animation:rise .2s var(--ease)}
 .m-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:24px 24px 0}
 .m-head h2{font:700 32px/1.05 var(--font-display)}
 .m-head p{margin-top:6px;font-size:14px;color:var(--text-2)}
 .m-body{display:grid;gap:16px;padding:20px 24px;overflow:auto}
-.m-foot{display:flex;gap:8px;justify-content:flex-end;padding:16px 24px 24px;border-top:1px solid var(--line)}
+.m-foot{display:flex;gap:8px;justify-content:flex-end;padding:8px 24px 24px}
 .m-foot .btn{min-width:120px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.resume-mini{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--sunken)}
+.resume-mini{display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;background:var(--fill)}
 .resume-mini b{display:block;font-size:14px;font-weight:600}
 .resume-mini span{font-size:13px;color:var(--text-3)}
 .resume-mini .link{margin-left:auto;font-size:13px}
 .success{display:grid;justify-items:center;gap:8px;padding:12px 0 4px;text-align:center}
-.success .ok-circle{display:grid;place-items:center;width:56px;height:56px;border-radius:50%;border:1px solid var(--line-2);color:var(--ok);margin-bottom:8px}
+.success .ok-circle{display:grid;place-items:center;width:56px;height:56px;border-radius:50%;background:var(--fill-2);color:var(--ok);margin-bottom:8px}
 .success .ok-circle .icon{width:24px;height:24px}
 .success h3{font:700 32px/1.05 var(--font-display)}
 .success p{max-width:360px;font-size:14px;color:var(--text-2)}
@@ -264,30 +287,30 @@ ul{margin:0;padding:0;list-style:none}
 
 /* ---------- Тосты и панель прототипа ---------- */
 .toasts{position:fixed;right:24px;top:80px;z-index:120;display:grid;gap:8px;width:min(360px,calc(100vw - 32px))}
-.toast{display:flex;gap:12px;align-items:flex-start;padding:12px 16px;border:1px solid var(--line-2);border-radius:12px;background:var(--surface-2);box-shadow:var(--shadow);font-size:14px;animation:rise .2s var(--ease)}
+.toast{display:flex;gap:12px;align-items:flex-start;padding:12px 16px;border-radius:12px;background:var(--surface-2);box-shadow:var(--shadow);font-size:14px;animation:rise .2s var(--ease)}
 .toast .icon{margin-top:2px;color:var(--ok)}
 .toast b{display:block;font-weight:600}
 .toast span{color:var(--text-2);font-size:13px}
 .proto{position:fixed;right:16px;bottom:16px;z-index:90}
-.proto-btn{display:flex;align-items:center;gap:8px;height:36px;padding:0 12px;border:1px dashed var(--line-3);border-radius:18px;background:var(--surface-2);color:var(--text-2);font-size:12px;font-weight:500;box-shadow:var(--shadow)}
-.proto-panel{position:absolute;right:0;bottom:44px;width:280px;padding:16px;border:1px solid var(--line-2);border-radius:var(--r-card);background:var(--surface-2);box-shadow:var(--shadow);display:grid;gap:12px}
+.proto-btn{display:flex;align-items:center;gap:8px;height:36px;padding:0 12px;border-radius:18px;background:var(--surface-2);color:var(--text-2);font-size:12px;font-weight:500;box-shadow:var(--shadow)}
+.proto-panel{position:absolute;right:0;bottom:44px;width:280px;padding:16px;border-radius:var(--r-card);background:var(--surface-2);box-shadow:var(--shadow);display:grid;gap:12px}
 .proto-panel h3{font-size:14px;font-weight:600}
 .proto-panel p{font-size:12px;color:var(--text-3)}
 .roles{display:grid;gap:4px}
 .roles button{display:flex;justify-content:space-between;align-items:center;height:36px;padding:0 12px;border-radius:8px;font-size:13px;color:var(--text-2);text-align:left}
 .roles button:hover{background:var(--surface-hover);color:var(--text)}
-.roles button[aria-pressed="true"]{background:var(--sunken);color:var(--text);box-shadow:inset 0 0 0 1px var(--line-2)}
+.roles button[aria-pressed="true"]{background:var(--fill-2);color:var(--text)}
 .roles button span{font-size:12px;color:var(--text-3)}
 
 .drawer-wrap{position:fixed;inset:0;z-index:100;background:var(--backdrop);animation:fade .16s var(--ease)}
-.drawer{position:absolute;top:0;right:0;bottom:0;width:min(360px,100%);display:flex;flex-direction:column;background:var(--surface-2);border-left:1px solid var(--line);animation:slide .2s var(--ease)}
-.drawer-head{display:flex;align-items:center;justify-content:space-between;height:64px;padding:0 16px;border-bottom:1px solid var(--line)}
+.drawer{position:absolute;top:0;right:0;bottom:0;width:min(360px,100%);display:flex;flex-direction:column;background:var(--surface-2);animation:slide .2s var(--ease)}
+.drawer-head{display:flex;align-items:center;justify-content:space-between;height:64px;padding:0 16px}
 .drawer-body{padding:16px;overflow:auto;display:grid;gap:24px}
 .m-group b{display:block;margin-bottom:4px;font-size:12px;font-weight:500;color:var(--text-3)}
-.m-group a{display:flex;align-items:center;justify-content:space-between;min-height:44px;font-size:15px;font-weight:500;border-bottom:1px solid var(--line)}
+.m-group a{display:flex;align-items:center;justify-content:space-between;min-height:44px;font-size:15px;font-weight:500}
 .m-group a.here{color:var(--primary)}
 
-.footer{border-top:1px solid var(--line);padding:24px 0 72px;font-size:13px;color:var(--text-3)}
+.footer{padding:24px 0 72px;font-size:13px;color:var(--text-3)}
 .footer .wrap{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
 .footer .logo{font-size:22px}
 .footer .logo img{width:26px;height:26px}
@@ -312,7 +335,7 @@ ul{margin:0;padding:0;list-style:none}
   .aside{position:static}
   .aside .action-card{display:none}
   .related-grid{grid-template-columns:1fr 1fr}
-  .mbar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:var(--top-bg);backdrop-filter:blur(12px);border-top:1px solid var(--line)}
+  .mbar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:var(--top-bg);backdrop-filter:blur(12px)}
   .mbar .money{font-size:24px}
   .mbar .money small{margin-top:2px}
   .proto{bottom:88px}
@@ -331,14 +354,14 @@ ul{margin:0;padding:0;list-style:none}
   .l-full{display:none}.l-short{display:inline}
   .search{flex-wrap:wrap;padding:4px;gap:0}
   .s-field{flex:1 1 100%}
-  .toolbar .select{display:none}
+  .toolbar .sort-wrap{display:none}
   .filters-btn{margin-left:auto}
   .s-field input{height:44px}
   .s-city{flex:1 1 100%;border-left:0;border-top:1px solid var(--line)}
-  .s-city select{height:44px}
+  .s-city .dd-btn{height:44px}
   .search .btn{display:none}
   .toolbar{gap:8px;margin-bottom:12px}
-  .toolbar .select{min-height:36px;font-size:13px;padding-left:10px}
+
   .filters-btn{min-height:36px}
   .card{grid-template-columns:40px minmax(0,1fr);gap:12px;padding:16px}
   .tile{width:40px;height:40px;font-size:16px;border-radius:10px}
@@ -352,7 +375,7 @@ ul{margin:0;padding:0;list-style:none}
   .panel{padding:20px}
   .related-grid{grid-template-columns:1fr}
   .backdrop{place-items:end stretch;padding:0}
-  .modal{width:100%;max-height:92vh;border-radius:20px 20px 0 0;border-bottom:0}
+  .modal{width:100%;max-height:92vh;border-radius:20px 20px 0 0}
   .m-head h2{font-size:28px}
   .m-foot{padding-bottom:calc(16px + env(safe-area-inset-bottom))}
   .m-foot .btn{flex:1}
@@ -528,6 +551,66 @@ const ICONS = {
 const icon = (n, cls = "") => `<svg class="icon ${cls}" viewBox="0 0 16 16" aria-hidden="true">${ICONS[n]}</svg>`;
 
 /* =========================================================
+   Кастомный выпадающий список
+   ========================================================= */
+const DD = {};
+function dd({ key, name = key, value, options, variant = "", iconName = "", label = "" }) {
+  const opts = options.map((o) => Array.isArray(o) ? o : [o, o]);
+  DD[key] = opts;
+  const cur = opts.find(([v]) => v === value) || opts[0];
+  return `<div class="dd ${variant}" data-dd="${key}" data-value="${esc(cur[0])}">
+    <input type="hidden" name="${name}" value="${esc(cur[0])}">
+    <button type="button" class="dd-btn" data-act="dd" aria-haspopup="listbox" aria-expanded="false"${label ? ` aria-label="${label}"` : ""}>${iconName ? icon(iconName, "lg") : ""}<span class="dd-val">${esc(cur[1])}</span>${icon("down", "chev")}</button>
+  </div>`;
+}
+let ddOpen = null;
+function openDD(el) {
+  closeDD();
+  const btn = $(".dd-btn", el), r = btn.getBoundingClientRect(), opts = DD[el.dataset.dd];
+  const pop = document.createElement("div");
+  pop.className = "dd-pop"; pop.setAttribute("role", "listbox");
+  pop.innerHTML = opts.map(([v, l]) => `<button type="button" class="dd-opt" role="option" data-act="dd-opt" data-v="${esc(v)}" aria-selected="${v === el.dataset.value}">${esc(l)}${icon("check")}</button>`).join("");
+  document.body.appendChild(pop);
+  el.classList.add("open"); btn.setAttribute("aria-expanded", "true");
+  ddOpen = { el, pop };
+  placeDD();
+  ($(".dd-opt[aria-selected=true]", pop) || $(".dd-opt", pop)).classList.add("active");
+}
+function placeDD() {
+  if (!ddOpen) return;
+  const { el, pop } = ddOpen, r = $(".dd-btn", el).getBoundingClientRect();
+  if (r.bottom < 0 || r.top > window.innerHeight) return closeDD();
+  const w = Math.max(r.width, 200), below = window.innerHeight - r.bottom;
+  pop.style.minWidth = w + "px";
+  pop.style.left = Math.max(8, Math.min(r.left, window.innerWidth - w - 8)) + "px";
+  const up = below < Math.min(pop.offsetHeight + 12, 240) && r.top > below;
+  pop.style.top = up ? "" : (r.bottom + 6) + "px";
+  pop.style.bottom = up ? (window.innerHeight - r.top + 6) + "px" : "";
+}
+function closeDD() {
+  if (!ddOpen) return;
+  ddOpen.pop.remove(); ddOpen.el.classList.remove("open");
+  $(".dd-btn", ddOpen.el)?.setAttribute("aria-expanded", "false");
+  ddOpen = null;
+}
+function setDD(el, v) {
+  const opt = DD[el.dataset.dd].find(([x]) => x === v);
+  if (!opt) return;
+  el.dataset.value = v; $("input", el).value = v; $(".dd-val", el).textContent = opt[1];
+}
+function pickDD(v) {
+  const { el } = ddOpen; const key = el.dataset.dd;
+  closeDD(); $(".dd-btn", el).focus();
+  if (key === "search-city") state.city = v;
+  else if (key === "sort") state.sort = v;
+  else if (key === "salary") state.f.salary = v;
+  else { setDD(el, v); return; }
+  syncFilterInputs(); renderResults();
+}
+window.addEventListener("resize", closeDD);
+document.addEventListener("scroll", (e) => { if (ddOpen && !ddOpen.pop.contains(e.target)) placeDD(); }, true);
+
+/* =========================================================
    Шапка
    ========================================================= */
 function renderHeader() {
@@ -618,7 +701,7 @@ function filtersMarkup(prefix = "") {
   return `${group("Специализация", "spec", SPECS)}
     ${group("Опыт", "exp", EXPERIENCE)}
     ${group("График", "schedule", SCHEDULES)}
-    <label class="field"><span>${state.tab === "vacancies" ? "Зарплата" : "Ожидания по зарплате"}</span><select class="select" data-filter="salary">${SALARY_STEPS.map(([v, l]) => `<option value="${v}" ${state.f.salary === v ? "selected" : ""}>${l}</option>`).join("")}</select></label>
+    <div class="field"><span>${state.tab === "vacancies" ? "Зарплата" : "Ожидания по зарплате"}</span>${dd({ key: "salary", value: state.f.salary, options: SALARY_STEPS, label: "Зарплата" })}</div>
     <label class="toggle-row"><span>${state.tab === "vacancies" ? "Только проверенные компании" : "Документы проверены"}</span><input class="switch" type="checkbox" data-filter="verified" ${state.f.verified ? "checked" : ""}></label>`;
 }
 
@@ -680,7 +763,7 @@ function resultsMarkup() {
   return `<div class="toolbar">
       <p class="count"><b class="num">${word.split(" ")[0]}</b> ${word.split(" ").slice(1).join(" ")}</p>
       <button class="btn sm filters-btn" data-act="sheet">${icon("sliders")}Фильтры${chips.length ? `<span class="badge-n num">${chips.length}</span>` : ""}</button>
-      <select class="select" data-act-change="sort" aria-label="Сортировка"><option value="new" ${state.sort === "new" ? "selected" : ""}>Сначала новые</option><option value="salary" ${state.sort === "salary" ? "selected" : ""}>Сначала с большей зарплатой</option></select>
+      <div class="sort-wrap">${dd({ key: "sort", value: state.sort, options: [["new", "Сначала новые"], ["salary", "Сначала с большей зарплатой"]], variant: "compact", label: "Сортировка" })}</div>
     </div>
     ${chips.length ? `<div class="chips">${chips.map(([k, v, l]) => `<button class="chip" data-act="unchip" data-k="${k}" data-v="${esc(v)}">${esc(l)}${icon("x")}</button>`).join("")}<button class="link" data-act="reset" style="font-size:13px">Сбросить всё</button></div>` : ""}
     ${roleNote()}
@@ -703,7 +786,7 @@ function catalogView() {
       <p class="lead">${vac ? "Постоянная работа в автомойках, детейлинг-студиях и автосервисах. Разовые смены — в разделе <a class=\"link accent\" href=\"" + STAND + "/gigs\">Подработки</a>" : "Мастера, которые ищут постоянную работу. Опыт, ожидания и проверка документов видны сразу"}</p>
       <form class="search" role="search" data-act-submit="search">
         <label class="s-field"><span class="sr-only">Поиск</span>${icon("search", "lg")}<input id="q" type="search" value="${esc(state.q)}" placeholder="${vac ? "Должность или компания" : "Специализация или имя"}" autocomplete="off"></label>
-        <label class="s-field s-city"><span class="sr-only">Город</span>${icon("pin", "lg")}<select id="city">${CITIES.map((c) => `<option ${state.city === c ? "selected" : ""}>${c}</option>`).join("")}</select></label>
+        <div class="s-field s-city">${dd({ key: "search-city", name: "city", value: state.city, options: CITIES, variant: "bare", iconName: "pin", label: "Город" })}</div>
         <button class="btn primary" type="submit">Найти</button>
       </form>
     </div></section>
@@ -803,7 +886,7 @@ function openModal(html) {
   document.body.classList.add("lock");
   setTimeout(() => ($("#modal-root [autofocus]") || $("#modal-root .modal button, #modal-root .modal input"))?.focus(), 30);
 }
-function closeModal() { $("#modal-root").innerHTML = ""; document.body.classList.remove("lock"); }
+function closeModal() { closeDD(); $("#modal-root").innerHTML = ""; document.body.classList.remove("lock"); }
 const mHead = (title, sub = "") => `<div class="m-head"><div><h2>${title}</h2>${sub ? `<p>${sub}</p>` : ""}</div><button class="btn sm ghost icon-only" data-act="close" aria-label="Закрыть">${icon("x", "lg")}</button></div>`;
 
 function authModal(kind, id) {
@@ -842,13 +925,13 @@ function createModal(editId) {
     <form class="m-body" id="mform">
       <label class="field"><span>Должность</span><input class="input" name="title" required placeholder="Например, детейлер-полировщик" value="${v ? esc(v.title) : ""}" autofocus></label>
       <div class="grid2">
-        <label class="field"><span>Специализация</span><select class="select" name="spec">${SPECS.map((s) => `<option ${v?.spec === s ? "selected" : ""}>${s}</option>`).join("")}</select></label>
-        ${guest ? `<label class="field"><span>Город</span><select class="select" name="city">${CITIES.slice(1).map((c) => `<option>${c}</option>`).join("")}</select></label>`
-                : `<label class="field"><span>Филиал</span><select class="select" name="city"><option>Казань, «Центральный»</option><option>Казань, «Северный»</option></select></label>`}
+        <div class="field"><span>Специализация</span>${dd({ key: "f-spec", name: "spec", value: v?.spec, options: SPECS })}</div>
+        ${guest ? `<div class="field"><span>Город</span>${dd({ key: "f-city", name: "city", value: "Казань", options: CITIES.slice(1) })}</div>`
+                : `<div class="field"><span>Филиал</span>${dd({ key: "f-branch", name: "city", value: "Казань, «Центральный»", options: ["Казань, «Центральный»", "Казань, «Северный»"] })}</div>`}
       </div>
       <div class="grid2">
-        <label class="field"><span>График</span><select class="select" name="schedule">${SCHEDULES.map((s) => `<option ${v?.schedule === s ? "selected" : ""}>${s}</option>`).join("")}</select></label>
-        <label class="field"><span>Опыт</span><select class="select" name="exp">${EXPERIENCE.map((s) => `<option ${v?.exp === s ? "selected" : ""}>${s}</option>`).join("")}</select></label>
+        <div class="field"><span>График</span>${dd({ key: "f-schedule", name: "schedule", value: v?.schedule, options: SCHEDULES })}</div>
+        <div class="field"><span>Опыт</span>${dd({ key: "f-exp", name: "exp", value: v?.exp, options: EXPERIENCE })}</div>
       </div>
       <div class="grid2">
         <label class="field"><span>Зарплата от, ₽</span><input class="input num" name="from" inputmode="numeric" required placeholder="80 000" value="${v ? v.from : ""}"></label>
@@ -865,7 +948,7 @@ function inviteModal(id) {
   const mine = VACANCIES.filter((v) => v.org === ROLES.employer.name);
   openModal(`${mHead("Пригласить на вакансию", `${esc(p.name)} · ${esc(p.role)}`)}
     <form class="m-body" id="mform">
-      <label class="field"><span>Вакансия</span><select class="select">${mine.map((v) => `<option>${esc(v.title)} · ${salary(v.from, v.to)}</option>`).join("")}</select></label>
+      <div class="field"><span>Вакансия</span>${dd({ key: "f-vacancy", name: "vacancy", value: mine[0]?.id, options: mine.map((v) => [v.id, `${v.title} · ${salary(v.from, v.to)}`]) })}</div>
       <label class="field"><span>Сообщение</span><textarea class="textarea" placeholder="Чем заинтересовал опыт и что предлагаете" autofocus></textarea><small>Приглашение придёт специалисту в личные сообщения</small></label>
     </form>
     <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="invite-send" data-id="${id}">${icon("send")}Отправить</button></div>`);
@@ -887,7 +970,7 @@ function reportModal() {
 }
 
 function filtersSheet() {
-  openModal(`${mHead("Фильтры")}<div class="m-body"><div class="sheet-filters" id="sheet"><label class="field"><span>Сортировка</span><select class="select" data-act-change="sort"><option value="new" ${state.sort === "new" ? "selected" : ""}>Сначала новые</option><option value="salary" ${state.sort === "salary" ? "selected" : ""}>Сначала с большей зарплатой</option></select></label>${filtersMarkup("m")}</div></div>
+  openModal(`${mHead("Фильтры")}<div class="m-body"><div class="sheet-filters" id="sheet"><div class="field"><span>Сортировка</span>${dd({ key: "sort", value: state.sort, options: [["new", "Сначала новые"], ["salary", "Сначала с большей зарплатой"]], label: "Сортировка" })}</div>${filtersMarkup("m")}</div></div>
     <div class="m-foot"><button class="btn" data-act="reset">Сбросить</button><button class="btn primary" data-act="close" id="sheet-apply">Показать: ${filtered().length}</button></div>`);
 }
 
@@ -949,11 +1032,12 @@ function renderResults() {
 function syncFilterInputs() {
   $$("[data-filter]").forEach((el) => {
     const k = el.dataset.filter;
-    if (k === "salary") el.value = state.f.salary;
-    else if (k === "verified") el.checked = state.f.verified;
+    if (k === "verified") el.checked = state.f.verified;
     else el.checked = state.f[k].has(el.value);
   });
-  const c = $("#city"); if (c) c.value = state.city;
+  $$('[data-dd="salary"]').forEach((el) => setDD(el, state.f.salary));
+  $$('[data-dd="sort"]').forEach((el) => setDD(el, state.sort));
+  $$('[data-dd="search-city"]').forEach((el) => setDD(el, state.city));
 }
 function resetFilters() {
   state.f = { spec: new Set(), exp: new Set(), schedule: new Set(), salary: "", verified: false };
@@ -972,17 +1056,25 @@ document.addEventListener("input", (e) => {
 });
 document.addEventListener("change", (e) => {
   const t = e.target;
-  if (t.id === "city") { state.city = t.value; renderResults(); return; }
-  if (t.dataset.actChange === "sort") { state.sort = t.value; renderResults(); return; }
   const k = t.dataset.filter;
   if (!k) return;
-  if (k === "salary") state.f.salary = t.value;
-  else if (k === "verified") state.f.verified = t.checked;
+  if (k === "verified") state.f.verified = t.checked;
   else t.checked ? state.f[k].add(t.value) : state.f[k].delete(t.value);
   syncFilterInputs(); renderResults();
 });
 document.addEventListener("submit", (e) => { e.preventDefault(); if (e.target.dataset.actSubmit === "search") { $("#results")?.scrollIntoView({ behavior: "smooth", block: "start" }); } });
 document.addEventListener("keydown", (e) => {
+  if (ddOpen) {
+    const opts = $$(".dd-opt", ddOpen.pop), i = opts.findIndex((o) => o.classList.contains("active"));
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      const n = opts[(i + (e.key === "ArrowDown" ? 1 : -1) + opts.length) % opts.length];
+      opts.forEach((o) => o.classList.remove("active")); n.classList.add("active"); n.scrollIntoView({ block: "nearest" });
+      return;
+    }
+    if (e.key === "Enter") { e.preventDefault(); pickDD(opts[i].dataset.v); return; }
+    if (e.key === "Escape" || e.key === "Tab") { const b = $(".dd-btn", ddOpen.el); closeDD(); if (e.key === "Escape") { b.focus(); return; } }
+  } else if (e.key === "ArrowDown" && e.target.classList?.contains("dd-btn")) { e.preventDefault(); openDD(e.target.closest(".dd")); return; }
   if (e.key === "Escape") { closeModal(); $(".drawer-wrap")?.remove(); document.body.classList.remove("lock"); closeNav(); }
 });
 function closeNav() { $$(".nav-item.open").forEach((n) => { n.classList.remove("open"); $("button", n).setAttribute("aria-expanded", "false"); }); }
@@ -997,11 +1089,14 @@ function setRole(role) {
 document.addEventListener("click", (e) => {
   const el = e.target.closest("[data-act]");
   if (!e.target.closest(".nav-item")) closeNav();
+  if (ddOpen && !e.target.closest(".dd-pop") && !ddOpen.el.contains(e.target)) closeDD();
   if (!e.target.closest(".proto") && state.protoOpen) { state.protoOpen = false; renderProto(); }
   if (!el) return;
   const act = el.dataset.act, id = el.dataset.id;
   if ((el.classList.contains("backdrop") || el.classList.contains("drawer-wrap")) && e.target !== el) return;
   const actions = {
+    dd: () => { const box = el.closest(".dd"); ddOpen?.el === box ? closeDD() : openDD(box); },
+    "dd-opt": () => pickDD(el.dataset.v),
     nav: () => { const item = el.closest(".nav-item"); const open = !item.classList.contains("open"); closeNav(); if (open) { item.classList.add("open"); el.setAttribute("aria-expanded", "true"); } },
     theme: () => { state.theme = state.theme === "dark" ? "light" : "dark"; document.documentElement.dataset.theme = state.theme; write("sous-theme", state.theme); renderHeader(); },
     burger: mobileMenu,
