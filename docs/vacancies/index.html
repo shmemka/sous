@@ -19,7 +19,6 @@
   --text:#fff;--text-2:#d9cfc8;--text-3:#a08f85;
   --ok:#42c97a;--danger:#ff6961;
   --top-bg:rgba(10,5,3,.94);--backdrop:rgba(0,0,0,.66);
-  --glass:rgba(18,11,8,.4);--glass-hi:rgba(255,236,224,.07);--glass-menu:rgba(30,23,19,.7);--glass-shadow:0 8px 24px rgba(0,0,0,.28);
   --fill:rgba(255,236,224,.05);--fill-2:rgba(255,236,224,.09);--ring:0 0 0 2px rgba(238,90,32,.55);
   --glow-a:rgba(238,90,32,.26);--glow-b:rgba(222,29,29,.10);
   --shadow:0 12px 32px rgba(0,0,0,.28);
@@ -34,7 +33,6 @@
   --text:#140d09;--text-2:#3c2d24;--text-3:#7a665a;
   --ok:#1f9d55;--danger:#d63a32;
   --top-bg:rgba(250,247,244,.94);--backdrop:rgba(33,20,12,.4);
-  --glass:rgba(250,247,244,.55);--glass-hi:rgba(255,255,255,.55);--glass-menu:rgba(255,255,255,.72);--glass-shadow:0 8px 24px rgba(71,46,30,.08);
   --fill:rgba(70,40,20,.05);--fill-2:rgba(70,40,20,.09);--ring:0 0 0 2px rgba(226,83,27,.45);
   --glow-a:rgba(255,152,36,.16);--glow-b:rgba(238,90,32,.06);
   --shadow:0 12px 32px rgba(71,46,30,.12);
@@ -108,11 +106,7 @@ ul{margin:0;padding:0;list-style:none}
 .dd-opt[aria-selected="true"] .icon{visibility:visible}
 
 /* ---------- Шапка: 5 групп вместо 12 ссылок ---------- */
-/* стекло рисуется на псевдоэлементе, чтобы выпадающие меню тоже могли размывать фон под собой */
-.top{position:sticky;top:0;z-index:50;transition:box-shadow .2s var(--ease)}
-.top::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(to bottom,var(--glass-hi),transparent 70%),var(--glass);-webkit-backdrop-filter:blur(20px) saturate(170%);backdrop-filter:blur(20px) saturate(170%)}
-.top.scrolled{box-shadow:var(--glass-shadow)}
-#app{margin-top:-64px}
+.top{position:sticky;top:0;z-index:50;background:var(--top-bg);backdrop-filter:blur(12px)}
 .top-in{width:min(1440px,calc(100% - 48px));margin:0 auto;height:64px;display:flex;align-items:center;gap:24px}
 .logo{display:flex;align-items:center;gap:8px;font:700 28px/1 var(--font-display);color:var(--primary);letter-spacing:.01em}
 .logo img{width:32px;height:32px}
@@ -123,7 +117,7 @@ ul{margin:0;padding:0;list-style:none}
 .nav-btn.current{color:var(--text)}
 .nav-btn.current::after{content:"";position:absolute;left:12px;right:12px;bottom:-12px;height:2px;background:var(--primary);border-radius:2px}
 .nav-btn .icon{width:14px;height:14px;color:var(--text-3)}
-.menu{position:absolute;top:calc(100% + 8px);left:0;min-width:280px;padding:8px;border-radius:var(--r-card);background:var(--glass-menu);-webkit-backdrop-filter:blur(24px) saturate(170%);backdrop-filter:blur(24px) saturate(170%);box-shadow:var(--shadow);opacity:0;transform:translateY(-4px);pointer-events:none;transition:opacity .16s var(--ease),transform .16s var(--ease)}
+.menu{position:absolute;top:calc(100% + 8px);left:0;min-width:280px;padding:8px;border-radius:var(--r-card);background:var(--surface-2);box-shadow:var(--shadow);opacity:0;transform:translateY(-4px);pointer-events:none;transition:opacity .16s var(--ease),transform .16s var(--ease)}
 .nav-item.open .menu{opacity:1;transform:none;pointer-events:auto}
 .menu a{display:grid;gap:2px;padding:8px 12px;border-radius:8px;transition:background-color .16s var(--ease)}
 .menu a:hover{background:var(--surface-hover)}
@@ -138,7 +132,7 @@ ul{margin:0;padding:0;list-style:none}
 .head{position:relative;isolation:isolate;overflow:hidden;background:radial-gradient(1100px 420px at 88% -10%,var(--glow-a),transparent 70%),radial-gradient(800px 360px at 0% 120%,var(--glow-b),transparent 70%)}
 .head::after{content:"";position:absolute;left:0;right:0;bottom:0;height:64px;z-index:-1;background:linear-gradient(to bottom,transparent,var(--bg))}
 
-.head-in{padding:88px 0 28px;display:grid;gap:16px}
+.head-in{padding:24px 0 28px;display:grid;gap:16px}
 .head-in>*{min-width:0}
 .l-short{display:none}
 .head-row{display:flex;align-items:center;justify-content:space-between;gap:16px}
@@ -150,7 +144,7 @@ ul{margin:0;padding:0;list-style:none}
 .tab small{font-size:13px;font-weight:500;color:var(--text-3)}
 .head h1{font:700 52px/1 var(--font-display);letter-spacing:0}
 .lead{max-width:620px;color:var(--text-2);font-size:15px}
-.search{display:flex;align-items:stretch;max-width:840px;padding:4px;border-radius:var(--r-card);background:var(--surface);box-shadow:var(--shadow);transition:box-shadow .16s var(--ease)}
+.search{display:flex;align-items:stretch;width:100%;padding:4px;border-radius:var(--r-card);background:var(--surface);box-shadow:var(--shadow);transition:box-shadow .16s var(--ease)}
 .search:focus-within{box-shadow:var(--shadow),var(--ring)}
 .s-field{position:relative;display:flex;align-items:center;flex:1;min-width:0}
 .s-field>.icon{position:absolute;left:12px;color:var(--text-3);pointer-events:none}
@@ -223,7 +217,7 @@ ul{margin:0;padding:0;list-style:none}
 .empty .btn{margin-top:8px}
 
 /* ---------- Детальная вакансии ---------- */
-.detail{padding:88px 0 96px}
+.detail{padding:24px 0 96px}
 .back{display:inline-flex;align-items:center;gap:6px;margin-bottom:20px;font-size:14px;color:var(--text-2)}
 .back:hover{color:var(--text)}
 .d-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start}
@@ -380,11 +374,9 @@ a.pp-row:hover{background:var(--fill)}
 @media (max-width:640px){
   .wrap{width:calc(100% - 32px)}
   .top-in{width:calc(100% - 32px);height:56px;gap:12px}
-  #app{margin-top:-56px}
-  .detail{padding-top:72px}
   .logo{font-size:26px}.logo img{width:28px;height:28px}
   .top-actions .hide-m{display:none}
-  .head-in{padding:68px 0 16px;gap:12px}
+  .head-in{padding:12px 0 16px;gap:12px}
   .head h1{font-size:40px}
   .lead{display:none}
   .head-row .btn{min-height:36px;padding:0 12px;font-size:13px}
@@ -1255,10 +1247,7 @@ document.addEventListener("click", (e) => {
 function refresh() { if (route().startsWith("/v/")) render(); else renderResults(); }
 
 document.documentElement.dataset.theme = state.theme;
-const onScroll = () => $("#top").classList.toggle("scrolled", window.scrollY > 4);
-window.addEventListener("scroll", onScroll, { passive: true });
 render();
-onScroll();
 </script>
 </body>
 </html>
