@@ -94,7 +94,10 @@ ul{margin:0;padding:0;list-style:none}
 .dd-btn .chev{width:16px;height:16px;color:var(--text-3);transition:transform .16s var(--ease)}
 .dd.open .chev{transform:rotate(180deg)}
 .dd.bare .dd-btn{height:48px;padding:0 16px 0 12px;background:transparent;font-size:15px;border-radius:12px}
-.dd.bare .dd-btn:hover{background:var(--fill)}
+/* внутри строки поиска без заливки: она конфликтует с разделителем и кнопкой «Найти» */
+.dd.bare .dd-btn:hover{background:transparent}
+.dd.bare .dd-btn:hover>.icon,.dd.bare .dd-btn:hover .chev,.dd.bare.open .dd-btn>.icon,.dd.bare.open .chev{color:var(--text)}
+.dd.bare .dd-btn:focus-visible{box-shadow:none}
 .dd.compact{width:auto}
 .dd.compact .dd-btn{min-height:40px;gap:6px;background:transparent;color:var(--text-2);font-weight:500}
 .dd.compact .dd-btn:hover{background:var(--fill);color:var(--text)}
