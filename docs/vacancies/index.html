@@ -289,9 +289,38 @@ ul{margin:0;padding:0;list-style:none}
 .toasts{position:fixed;right:24px;top:80px;z-index:120;display:grid;gap:8px;width:min(360px,calc(100vw - 32px))}
 .toast{display:flex;gap:12px;align-items:flex-start;padding:12px 16px;border-radius:12px;background:var(--surface-2);box-shadow:var(--shadow);font-size:14px;animation:rise .2s var(--ease)}
 .toast .icon{margin-top:2px;color:var(--ok)}
+.toast.info .icon{color:var(--text-3)}
 .toast b{display:block;font-weight:600}
 .toast span{color:var(--text-2);font-size:13px}
-.proto{position:fixed;right:16px;bottom:16px;z-index:90}
+.proto{position:fixed;right:16px;bottom:16px;z-index:90;display:flex;align-items:center;gap:8px}
+.proto-pages{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--surface-2);color:var(--text-2);box-shadow:var(--shadow);transition:color .16s var(--ease),background-color .16s var(--ease)}
+.proto-pages:hover,.proto-pages[aria-expanded="true"]{color:var(--text);background:var(--surface-hover)}
+.pages-panel{position:absolute;right:0;bottom:44px;width:380px;max-height:min(72vh,640px);display:flex;flex-direction:column;border-radius:var(--r-card);background:var(--surface-2);box-shadow:var(--shadow);overflow:hidden;animation:rise .16s var(--ease)}
+.pp-head{display:grid;gap:8px;padding:16px 16px 12px}
+.pp-head h3{font-size:14px;font-weight:600}
+.pp-head p{font-size:12px;color:var(--text-3)}
+.pp-bar{display:flex;height:4px;border-radius:2px;background:var(--fill-2);overflow:hidden}
+.pp-bar i{display:block;height:100%;background:var(--ok)}
+.pp-bar i.wip{background:var(--primary)}
+.pp-legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--text-3)}
+.pp-legend span{display:inline-flex;align-items:center;gap:6px}
+.pp-list{overflow:auto;padding:0 8px 8px}
+.pp-group{padding-top:8px}
+.pp-group>b{display:flex;justify-content:space-between;padding:4px 8px;font-size:12px;font-weight:500;color:var(--text-3)}
+.pp-row{display:flex;align-items:center;gap:10px;min-height:44px;padding:6px 8px;border-radius:8px;font-size:13px;color:var(--text-2)}
+a.pp-row{color:var(--text);transition:background-color .12s var(--ease)}
+a.pp-row:hover{background:var(--fill)}
+.pp-row.here{background:var(--fill-2)}
+.pp-row.muted{color:var(--text-3)}
+.pp-t{flex:1;min-width:0;display:grid}
+.pp-t small{font-size:11px;color:var(--text-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pp-s{font-size:11px;color:var(--text-3);white-space:nowrap}
+.pp-row.here .pp-s{color:var(--primary);font-weight:500}
+.st{width:8px;height:8px;flex:none;border-radius:50%;background:var(--fill-2);box-shadow:inset 0 0 0 1.5px var(--text-3);opacity:.7}
+.st.done{background:var(--ok);box-shadow:none;opacity:1}
+.st.wip{background:var(--primary);box-shadow:none;opacity:1}
+.st.here{background:transparent;box-shadow:0 0 0 2px var(--primary);opacity:1}
+.pp-row.here .st{box-shadow:0 0 0 2px var(--surface-2),0 0 0 4px var(--primary)}
 .proto-btn{display:flex;align-items:center;gap:8px;height:36px;padding:0 12px;border-radius:18px;background:var(--surface-2);color:var(--text-2);font-size:12px;font-weight:500;box-shadow:var(--shadow)}
 .proto-panel{position:absolute;right:0;bottom:44px;width:280px;padding:16px;border-radius:var(--r-card);background:var(--surface-2);box-shadow:var(--shadow);display:grid;gap:12px}
 .proto-panel h3{font-size:14px;font-weight:600}
@@ -382,6 +411,7 @@ ul{margin:0;padding:0;list-style:none}
   .grid2{grid-template-columns:1fr}
   .toasts{top:auto;bottom:96px;right:16px}
   .proto{right:auto;left:16px;bottom:16px}
+  .proto-panel,.pages-panel{right:auto;left:0;width:calc(100vw - 32px)}
   .detail-page .proto{bottom:96px}
 }
 </style>
@@ -390,16 +420,17 @@ ul{margin:0;padding:0;list-style:none}
 <a class="sr-only" href="#app">Перейти к содержимому</a>
 <header class="top" id="top"></header>
 <main id="app" tabindex="-1"></main>
-<footer class="footer"><div class="wrap"><a class="logo" href="#/"><img src="../assets/logo.png" alt=""><span>СОУС</span></a><span>Работа, автоуслуги, закупки и обучение для индустрии автоуслуг</span><nav><a href="https://sous-design-prototype.vercel.app/#/contacts">Контакты</a><a href="https://sous-design-prototype.vercel.app/#/terms">Оферта</a><a href="https://sous-design-prototype.vercel.app/#/privacy">Приватность</a></nav></div></footer>
+<footer class="footer"><div class="wrap"><a class="logo" href="#/"><img src="../assets/logo.png" alt=""><span>СОУС</span></a><span>Работа, автоуслуги, закупки и обучение для индустрии автоуслуг</span><nav><a href="#!/contacts">Контакты</a><a href="#!/terms">Оферта</a><a href="#!/privacy">Приватность</a></nav></div></footer>
 <div id="modal-root"></div>
 <div id="toast-root" class="toasts" aria-live="polite"></div>
 <div id="proto-root"></div>
 
+<script src="../shared/pages.js"></script>
 <script>
 /* =========================================================
    Данные прототипа
    ========================================================= */
-const STAND = "https://sous-design-prototype.vercel.app/#";
+const STAND = "#!"; /* экраны, которые ещё не готовы: клик показывает подсказку, а не уводит на другой сайт */
 
 const ROLES = {
   guest:    { label: "Гость",        name: "",                 initials: "" },
@@ -506,6 +537,7 @@ const state = {
   fav: new Set(),
   protoOpen: false,
   pendingAction: null,
+  pagesOpen: false,
 };
 function read(k, d) { try { return localStorage.getItem(k) || d; } catch { return d; } }
 function write(k, v) { try { localStorage.setItem(k, v); } catch {} }
@@ -547,6 +579,7 @@ const ICONS = {
   send: '<path d="m2.5 8 11-5.5-3.5 11-2-4.5Z"/><path d="m8 9 2.2-2.2"/>',
   users: '<circle cx="6" cy="5.5" r="2.5"/><path d="M1.5 13.5a4.5 4.5 0 0 1 9 0M10.5 3.2a2.5 2.5 0 0 1 0 4.6M12 9.5a4.5 4.5 0 0 1 2.5 4"/>',
   edit: '<path d="M10.5 2.5 13.5 5.5 6 13H3v-3Z"/>',
+  pages: '<path d="M5.5 2.5h6a1 1 0 0 1 1 1v8"/><rect x="3.5" y="4.5" width="7" height="9" rx="1"/><path d="M5.5 7.5h3M5.5 10h3"/>',
 };
 const icon = (n, cls = "") => `<svg class="icon ${cls}" viewBox="0 0 16 16" aria-hidden="true">${ICONS[n]}</svg>`;
 
@@ -990,10 +1023,10 @@ function mobileMenu() {
   document.body.classList.add("lock");
 }
 
-function toast(title, text = "") {
+function toast(title, text = "", kind = "ok") {
   const el = document.createElement("div");
-  el.className = "toast";
-  el.innerHTML = `${icon("check")}<div><b>${title}</b>${text ? `<span>${text}</span>` : ""}</div>`;
+  el.className = "toast " + kind;
+  el.innerHTML = `${icon(kind === "info" ? "info" : "check")}<div><b>${title}</b>${text ? `<span>${text}</span>` : ""}</div>`;
   $("#toast-root").appendChild(el);
   setTimeout(() => el.remove(), 3600);
 }
@@ -1001,24 +1034,60 @@ function toast(title, text = "") {
 /* =========================================================
    Панель прототипа (служебная, в продукт не входит)
    ========================================================= */
+function currentPagePath() {
+  const h = route();
+  if (h.startsWith("/v/")) return "/vacancies/:id";
+  return state.tab === "resumes" ? "/specialists" : "/vacancies";
+}
+/* ссылка на экран в этой же папке превращается в якорь, чтобы не перезагружать страницу */
+function localHref(href) {
+  const m = href.match(/^\.\.\/([^/]+)\/(#.*)$/);
+  const folder = location.pathname.split("/").slice(-2, -1)[0];
+  return m && m[1] === folder ? m[2] : href;
+}
+function pagesPanel() {
+  const all = window.SOUS_PAGES.flatMap((g) => g.pages);
+  const done = all.filter((p) => p.status === "done").length, wip = all.filter((p) => p.status === "wip").length;
+  const cur = currentPagePath();
+  const label = { done: "Готово", wip: "В работе" };
+  return `<section class="pages-panel" role="dialog" aria-label="Страницы прототипа">
+    <div class="pp-head"><h3>Страницы</h3><p class="num">Готово ${done} из ${all.length} · в работе ${wip}</p>
+      <div class="pp-bar" aria-hidden="true"><i style="width:${done / all.length * 100}%"></i><i class="wip" style="width:${wip / all.length * 100}%"></i></div>
+      <div class="pp-legend"><span><i class="st done"></i>Готово</span><span><i class="st wip"></i>В работе</span><span><i class="st todo"></i>Не начато</span><span><i class="st here"></i>Вы здесь</span></div>
+    </div>
+    <div class="pp-list">${window.SOUS_PAGES.map((g) => `<div class="pp-group"><b>${g.title}<span class="num">${g.pages.filter((p) => p.status === "done").length}/${g.pages.length}</span></b>
+      ${g.pages.map((p) => {
+        const here = p.path === cur, st = p.status || "todo";
+        const inner = `<i class="st ${st}"></i><span class="pp-t">${p.title}<small>${p.note ? p.note : p.path}</small></span><span class="pp-s">${here ? "Вы здесь" : label[st] || ""}</span>`;
+        return p.href && st !== "todo"
+          ? `<a class="pp-row ${here ? "here" : ""}" href="${localHref(p.href)}" data-act="page-go">${inner}</a>`
+          : `<div class="pp-row muted">${inner}</div>`;
+      }).join("")}</div>`).join("")}</div>
+  </section>`;
+}
 function renderProto() {
   const hints = { guest: "смотрит без входа", worker: "ищет работу", employer: "ищет сотрудников", client: "не целевая роль", supplier: "не целевая роль", partner: "не целевая роль" };
   $("#proto-root").innerHTML = `<div class="proto">
     ${state.protoOpen ? `<section class="proto-panel"><h3>Роль пользователя</h3><p>Служебная панель прототипа. Показывает, как страница меняется для каждой роли</p>
       <div class="roles">${Object.entries(ROLES).map(([id, r]) => `<button data-act="role" data-role="${id}" aria-pressed="${state.role === id}">${r.label}<span>${hints[id]}</span></button>`).join("")}</div></section>` : ""}
-    <button class="proto-btn" data-act="proto">Прототип · ${ROLES[state.role].label}${icon("down")}</button>
+    ${state.pagesOpen ? pagesPanel() : ""}
+    <button class="proto-pages" data-act="pages" aria-label="Все страницы прототипа" aria-expanded="${state.pagesOpen}">${icon("pages", "lg")}</button>
+    <button class="proto-btn" data-act="proto" aria-expanded="${state.protoOpen}">Прототип · ${ROLES[state.role].label}${icon("down")}</button>
   </div>`;
+  const list = $(".pp-list"), here = $(".pp-row.here");
+  if (list && here) list.scrollTop = here.offsetTop - list.offsetTop - list.clientHeight / 2 + here.offsetHeight / 2;
 }
 
 /* =========================================================
    Рендер и роутинг
    ========================================================= */
-function route() { const h = location.hash.replace(/^#/, "") || "/"; return h; }
+function route() { const h = location.hash.replace(/^#!?/, "") || "/"; return h; }
 function render() {
   const h = route();
   renderHeader();
   renderProto();
   const m = h.match(/^\/v\/([\w-]+)/);
+  if (h === "/resumes") state.tab = "resumes";
   $("#app").innerHTML = m ? detailView(m[1]) : catalogView();
 }
 function renderResults() {
@@ -1046,7 +1115,11 @@ function resetFilters() {
   syncFilterInputs(); renderResults();
 }
 
-window.addEventListener("hashchange", () => { closeModal(); render(); window.scrollTo(0, 0); });
+window.addEventListener("hashchange", () => {
+  if (location.hash.startsWith("#!")) return;
+  if (route() === "/") state.tab = "vacancies";
+  closeModal(); render(); window.scrollTo(0, 0);
+});
 
 /* =========================================================
    События
@@ -1086,11 +1159,18 @@ function setRole(role) {
   render();
 }
 
+function soon(path) {
+  const page = window.SOUS_FIND_PAGE(path);
+  const name = page ? page.title : "Этот экран";
+  toast(`«${name}» ещё в работе`, "Экран появится в прототипе после согласования. Список всех страниц — в круглой кнопке внизу", "info");
+}
 document.addEventListener("click", (e) => {
+  const link = e.target.closest('a[href^="#!"]');
+  if (link) { e.preventDefault(); $(".drawer-wrap")?.remove(); document.body.classList.remove("lock"); closeNav(); soon(link.getAttribute("href").slice(2)); return; }
   const el = e.target.closest("[data-act]");
   if (!e.target.closest(".nav-item")) closeNav();
   if (ddOpen && !e.target.closest(".dd-pop") && !ddOpen.el.contains(e.target)) closeDD();
-  if (!e.target.closest(".proto") && state.protoOpen) { state.protoOpen = false; renderProto(); }
+  if (!e.target.closest(".proto") && (state.protoOpen || state.pagesOpen)) { state.protoOpen = false; state.pagesOpen = false; renderProto(); }
   if (!el) return;
   const act = el.dataset.act, id = el.dataset.id;
   if ((el.classList.contains("backdrop") || el.classList.contains("drawer-wrap")) && e.target !== el) return;
@@ -1143,7 +1223,7 @@ document.addEventListener("click", (e) => {
     "unpublish-send": () => { VACANCIES = VACANCIES.filter((v) => v.id !== id); closeModal(); location.hash = "#/"; toast("Вакансия снята с публикации", "Вернуть её можно в кабинете"); },
     report: reportModal,
     "report-send": () => { closeModal(); toast("Жалоба отправлена", "Ответ придёт в уведомления"); },
-    resume: () => { if (!needAuth("resume")) location.href = STAND + "/resume/new"; },
+    resume: () => { if (!needAuth("resume")) soon("/resume/new"); },
     "auth-login": () => {
       const p = state.pendingAction || {};
       const role = p.kind === "invite" ? "employer" : "worker";
@@ -1154,10 +1234,12 @@ document.addEventListener("click", (e) => {
       if (p.kind === "fav" && p.id) { state.fav.add(p.id); refresh(); }
       state.pendingAction = null;
     },
-    "auth-register": () => { location.href = STAND + "/register"; },
+    "auth-register": () => { closeModal(); soon("/register"); },
     close: closeModal,
     "close-bg": closeModal,
-    proto: () => { state.protoOpen = !state.protoOpen; renderProto(); },
+    proto: () => { state.protoOpen = !state.protoOpen; state.pagesOpen = false; renderProto(); },
+    pages: () => { state.pagesOpen = !state.pagesOpen; state.protoOpen = false; renderProto(); },
+    "page-go": () => { state.pagesOpen = false; renderProto(); },
     role: () => { state.protoOpen = false; setRole(el.dataset.role); },
   };
   actions[act]?.();
