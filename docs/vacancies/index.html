@@ -1,0 +1,1076 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Вакансии и резюме — СОУС</title>
+<meta name="description" content="Переработанная страница вакансий и резюме платформы СОУС: структура, сценарии и состояния под роли">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ---------- Токены (из стенда, без изменений палитры) ---------- */
+:root{
+  --font-sans:"Montserrat",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-display:"Alumni Sans","Montserrat",Impact,sans-serif;
+  --primary:#ee5a20;--primary-hover:#ff6a2b;--on-primary:#fff;
+  --bg:#0a0503;--surface:#15100d;--surface-2:#1c1612;--surface-hover:#211913;--sunken:#100b08;
+  --line:#2b211c;--line-2:#443329;--line-3:#6a4a3a;
+  --text:#fff;--text-2:#d9cfc8;--text-3:#a08f85;
+  --ok:#42c97a;--danger:#ff6961;
+  --top-bg:rgba(10,5,3,.94);--backdrop:rgba(0,0,0,.66);
+  --hero-art:url("../assets/06-dark.webp");--hero-fade:linear-gradient(90deg,rgba(10,5,3,.97) 0%,rgba(10,5,3,.9) 45%,rgba(10,5,3,.55) 100%);
+  --shadow:0 12px 32px rgba(0,0,0,.28);
+  --ease:cubic-bezier(.2,0,0,1);
+  --r-control:10px;--r-card:16px;--r-panel:20px;
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --primary:#e2531b;--primary-hover:#c9470f;
+  --bg:#faf7f4;--surface:#fff;--surface-2:#fff;--surface-hover:#f6f1ec;--sunken:#f3ede7;
+  --line:#ebe2d9;--line-2:#d8cbbf;--line-3:#b4a697;
+  --text:#140d09;--text-2:#3c2d24;--text-3:#7a665a;
+  --ok:#1f9d55;--danger:#d63a32;
+  --top-bg:rgba(250,247,244,.94);--backdrop:rgba(33,20,12,.4);
+  --hero-art:url("../assets/06-light.webp");--hero-fade:linear-gradient(90deg,rgba(250,247,244,.98) 0%,rgba(250,247,244,.92) 45%,rgba(250,247,244,.6) 100%);
+  --shadow:0 12px 32px rgba(71,46,30,.12);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:80px}
+body{margin:0;background:var(--bg);color:var(--text);font:400 15px/1.5 var(--font-sans);min-height:100vh;overflow-x:hidden}
+body.lock{overflow:hidden}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+h1,h2,h3,p{margin:0}
+ul{margin:0;padding:0;list-style:none}
+[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.icon{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.icon.lg{width:20px;height:20px}
+.wrap{width:min(1240px,calc(100% - 64px));margin:0 auto}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- Кнопки и поля ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 16px;border-radius:var(--r-control);border:1px solid var(--line-2);background:var(--surface);color:var(--text);font-size:14px;font-weight:600;white-space:nowrap;transition:background-color .16s var(--ease),border-color .16s var(--ease),color .16s var(--ease),transform .12s var(--ease)}
+.btn:hover{border-color:var(--line-3);background:var(--surface-hover)}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+.btn.primary:hover{background:var(--primary-hover);border-color:var(--primary-hover)}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.ghost:hover{background:var(--surface-hover)}
+.btn.sm{min-height:36px;padding:0 12px;font-size:13px}
+.btn.lg{min-height:48px;padding:0 20px;font-size:15px}
+.btn.block{width:100%}
+.btn.icon-only{width:40px;padding:0}
+.btn.sm.icon-only{width:36px}
+.btn.done{background:transparent;border-color:var(--line);color:var(--ok);cursor:default}
+.btn.done:active{transform:none}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.link{color:var(--text-2);font-size:14px;font-weight:500;transition:color .16s var(--ease)}
+.link:hover{color:var(--text)}
+.link.accent{color:var(--primary);font-weight:600}
+.field{display:grid;gap:6px}
+.field>span{font-size:13px;font-weight:500;color:var(--text-2)}
+.field small{font-size:12px;color:var(--text-3)}
+.input,.select,.textarea{width:100%;min-height:44px;padding:0 12px;border:1px solid var(--line-2);border-radius:var(--r-control);background:var(--sunken);color:var(--text);font-size:14px;transition:border-color .16s var(--ease)}
+.input:hover,.select:hover,.textarea:hover{border-color:var(--line-3)}
+.input:focus,.select:focus,.textarea:focus{border-color:var(--primary);outline:none}
+.input::placeholder,.textarea::placeholder{color:var(--text-3)}
+.select{appearance:none;padding-right:36px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23a08f85' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.textarea{min-height:112px;padding:12px;resize:vertical;line-height:1.5}
+
+/* ---------- Шапка: 5 групп вместо 12 ссылок ---------- */
+.top{position:sticky;top:0;z-index:50;background:var(--top-bg);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.top-in{width:min(1440px,calc(100% - 48px));margin:0 auto;height:64px;display:flex;align-items:center;gap:24px}
+.logo{display:flex;align-items:center;gap:8px;font:700 28px/1 var(--font-display);color:var(--primary);letter-spacing:.01em}
+.logo img{width:32px;height:32px}
+.nav{display:flex;align-items:center;gap:4px;margin-left:8px}
+.nav-item{position:relative}
+.nav-btn{display:flex;align-items:center;gap:4px;height:40px;padding:0 12px;border-radius:var(--r-control);color:var(--text-2);font-size:14px;font-weight:500;transition:background-color .16s var(--ease),color .16s var(--ease)}
+.nav-btn:hover,.nav-item.open .nav-btn{color:var(--text);background:var(--surface-hover)}
+.nav-btn.current{color:var(--text)}
+.nav-btn.current::after{content:"";position:absolute;left:12px;right:12px;bottom:-12px;height:2px;background:var(--primary);border-radius:2px}
+.nav-btn .icon{width:14px;height:14px;color:var(--text-3)}
+.menu{position:absolute;top:calc(100% + 8px);left:0;min-width:280px;padding:8px;border:1px solid var(--line);border-radius:var(--r-card);background:var(--surface-2);box-shadow:var(--shadow);opacity:0;transform:translateY(-4px);pointer-events:none;transition:opacity .16s var(--ease),transform .16s var(--ease)}
+.nav-item.open .menu{opacity:1;transform:none;pointer-events:auto}
+.menu a{display:grid;gap:2px;padding:8px 12px;border-radius:8px;transition:background-color .16s var(--ease)}
+.menu a:hover{background:var(--surface-hover)}
+.menu a b{font-size:14px;font-weight:500}
+.menu a span{font-size:12px;color:var(--text-3)}
+.menu a.here b{color:var(--primary)}
+.top-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+.avatar{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--sunken);border:1px solid var(--line-2);font-size:12px;font-weight:600;color:var(--text-2)}
+.burger{display:none}
+
+/* ---------- Шапка страницы ---------- */
+.head{position:relative;isolation:isolate;border-bottom:1px solid var(--line);overflow:hidden}
+.head::before{content:"";position:absolute;inset:0;z-index:-2;background:var(--hero-art) right 40%/cover no-repeat;opacity:.85}
+.head::after{content:"";position:absolute;inset:0;z-index:-1;background:var(--hero-fade)}
+.head-in{padding:24px 0 28px;display:grid;gap:16px}
+.head-in>*{min-width:0}
+.l-short{display:none}
+.head-row{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.tabs{display:inline-flex;gap:24px;border-bottom:1px solid var(--line-2)}
+.tab{position:relative;display:flex;align-items:center;gap:8px;height:40px;color:var(--text-3);font-size:15px;font-weight:600;transition:color .16s var(--ease)}
+.tab:hover{color:var(--text)}
+.tab[aria-selected="true"]{color:var(--text)}
+.tab[aria-selected="true"]::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--primary);border-radius:2px}
+.tab small{font-size:13px;font-weight:500;color:var(--text-3)}
+.head h1{font:700 52px/1 var(--font-display);letter-spacing:0}
+.lead{max-width:620px;color:var(--text-2);font-size:15px}
+.search{display:flex;align-items:stretch;max-width:840px;padding:4px;border:1px solid var(--line-2);border-radius:var(--r-card);background:var(--surface)}
+.search:focus-within{border-color:var(--line-3)}
+.s-field{position:relative;display:flex;align-items:center;flex:1;min-width:0}
+.s-field .icon{position:absolute;left:12px;color:var(--text-3);pointer-events:none}
+.s-field input,.s-field select{width:100%;height:48px;padding:0 12px 0 40px;border:0;background:transparent;font-size:15px;outline:none}
+.s-field select{appearance:none;cursor:pointer}
+.s-field input::placeholder{color:var(--text-3)}
+.s-city{flex:0 0 220px;border-left:1px solid var(--line)}
+.s-field option{background:var(--surface);color:var(--text)}
+.search .btn{min-height:48px;border-radius:12px;padding:0 24px}
+
+/* ---------- Каталог ---------- */
+.catalog{display:grid;grid-template-columns:240px minmax(0,1fr);gap:40px;align-items:start;padding:28px 0 80px}
+.filters{position:sticky;top:88px;display:grid;gap:24px}
+.filters-head{display:flex;align-items:baseline;justify-content:space-between}
+.filters-head h2{font-size:16px;font-weight:600}
+.fgroup{display:grid;gap:8px}
+.fgroup>b{font-size:13px;font-weight:600;color:var(--text-2)}
+.check{display:flex;align-items:center;gap:12px;min-height:32px;font-size:14px;color:var(--text-2);cursor:pointer}
+.check:hover{color:var(--text)}
+.check input{appearance:none;width:18px;height:18px;flex:none;margin:0;border:1px solid var(--line-3);border-radius:5px;background:var(--sunken);display:grid;place-items:center;transition:background-color .16s var(--ease),border-color .16s var(--ease);cursor:pointer}
+.check input:checked{background:var(--primary);border-color:var(--primary)}
+.check input:checked::after{content:"";width:9px;height:5px;border:2px solid #fff;border-top:0;border-right:0;transform:translateY(-1px) rotate(-45deg)}
+.check .c{margin-left:auto;font-size:12px;color:var(--text-3)}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px;color:var(--text-2);cursor:pointer}
+.switch{appearance:none;width:36px;height:20px;flex:none;margin:0;border-radius:10px;background:var(--line-2);position:relative;cursor:pointer;transition:background-color .16s var(--ease)}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .16s var(--ease)}
+.switch:checked{background:var(--primary)}
+.switch:checked::after{transform:translateX(16px)}
+
+.toolbar{display:flex;align-items:center;gap:12px;min-height:40px;margin-bottom:16px;flex-wrap:wrap}
+.count{font-size:15px;color:var(--text-2)}
+.count b{color:var(--text);font-weight:600}
+.toolbar .select{width:auto;min-height:40px;margin-left:auto;background-color:var(--surface)}
+.filters-btn{display:none}
+.filters-btn .badge-n{display:grid;place-items:center;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--primary);color:#fff;font-size:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:-4px 0 16px}
+.chip{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 8px 0 12px;border:1px solid var(--line-2);border-radius:8px;background:var(--surface);font-size:13px;color:var(--text-2);transition:border-color .16s var(--ease)}
+.chip:hover{border-color:var(--line-3);color:var(--text)}
+.chip .icon{width:14px;height:14px}
+
+.note{display:flex;gap:12px;align-items:flex-start;padding:16px;margin-bottom:16px;border:1px solid var(--line);border-radius:var(--r-card);background:var(--surface);font-size:14px;color:var(--text-2)}
+.note .icon{margin-top:2px;color:var(--text-3)}
+.note a{color:var(--primary);font-weight:600}
+
+.list{display:grid;gap:12px}
+.card{position:relative;display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:16px 20px;padding:20px 24px;border:1px solid var(--line);border-radius:var(--r-card);background:var(--surface);transition:border-color .16s var(--ease),background-color .16s var(--ease)}
+.card:hover{border-color:var(--line-2);background:var(--surface-hover)}
+.card.mine{border-color:var(--line-2)}
+.tile{display:grid;place-items:center;width:48px;height:48px;border-radius:12px;border:1px solid var(--line-2);background:var(--sunken);font:700 18px/1 var(--font-display);color:var(--text-2)}
+.tile.round{border-radius:50%;font:600 14px/1 var(--font-sans)}
+.c-main{min-width:0;display:grid;gap:4px}
+.c-title{font-size:18px;font-weight:600;line-height:1.3}
+.c-title a::after{content:"";position:absolute;inset:0;border-radius:var(--r-card)}
+.c-org{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text-2)}
+.verified{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:var(--text-3)}
+.verified .icon{width:14px;height:14px;color:var(--ok)}
+.meta{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:4px;font-size:13px;color:var(--text-3)}
+.meta span{display:inline-flex;align-items:center;gap:6px}
+.meta .icon{width:14px;height:14px}
+.c-desc{margin-top:4px;font-size:14px;color:var(--text-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-width:680px}
+.mine-tag{display:inline-flex;align-items:center;gap:6px;margin-bottom:4px;font-size:13px;font-weight:500;color:var(--primary)}
+.c-side{display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:16px;text-align:right}
+.money{font:700 28px/1 var(--font-display);white-space:nowrap}
+.money small{display:block;margin-top:4px;font:400 12px/1.3 var(--font-sans);color:var(--text-3)}
+.c-actions{position:relative;z-index:1;display:flex;align-items:center;gap:8px}
+.fav[aria-pressed="true"] .icon{fill:var(--primary);stroke:var(--primary)}
+.empty{display:grid;justify-items:center;gap:8px;padding:56px 24px;border:1px dashed var(--line-2);border-radius:var(--r-card);text-align:center}
+.empty h3{font:700 28px/1.1 var(--font-display)}
+.empty p{max-width:420px;color:var(--text-2);font-size:14px}
+.empty .btn{margin-top:8px}
+
+/* ---------- Детальная вакансии ---------- */
+.detail{padding:24px 0 96px}
+.back{display:inline-flex;align-items:center;gap:6px;margin-bottom:20px;font-size:14px;color:var(--text-2)}
+.back:hover{color:var(--text)}
+.d-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start}
+.d-main{display:grid;gap:16px}
+.panel{padding:24px;border:1px solid var(--line);border-radius:var(--r-panel);background:var(--surface)}
+.d-head{display:grid;gap:16px}
+.d-head h1{font:700 48px/1 var(--font-display)}
+.d-org{display:flex;align-items:center;gap:12px}
+.d-org b{display:block;font-size:15px;font-weight:600}
+.d-org span{font-size:13px;color:var(--text-3)}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line);padding-top:16px}
+.facts div{display:grid;gap:2px;padding-right:16px}
+.facts div+div{padding-left:16px;border-left:1px solid var(--line)}
+.facts b{font-size:15px;font-weight:600}
+.facts span{font-size:12px;color:var(--text-3)}
+.panel h2{font-size:18px;font-weight:600;margin-bottom:12px}
+.prose{color:var(--text-2);font-size:15px}
+.bullets{display:grid;gap:8px;color:var(--text-2);font-size:15px}
+.bullets li{display:flex;gap:12px}
+.bullets .icon{margin-top:4px;color:var(--text-3)}
+.place{display:flex;align-items:center;gap:12px;color:var(--text-2);font-size:15px}
+.place .icon{color:var(--text-3)}
+.aside{position:sticky;top:88px;display:grid;gap:16px}
+.action-card{display:grid;gap:16px}
+.action-card .money{font-size:36px}
+.hint{display:flex;gap:8px;font-size:13px;color:var(--text-3)}
+.hint .icon{width:14px;height:14px;margin-top:2px}
+.stat-row{display:flex;gap:24px}
+.stat-row div{display:grid}
+.stat-row b{font:700 32px/1 var(--font-display)}
+.stat-row span{font-size:12px;color:var(--text-3)}
+.org-card{display:grid;gap:12px}
+.org-line{display:flex;justify-content:space-between;font-size:14px;color:var(--text-2)}
+.org-line b{color:var(--text);font-weight:600}
+.related{margin-top:40px}
+.related h2{font:700 32px/1 var(--font-display);margin-bottom:16px}
+.related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.mini{position:relative;display:grid;gap:4px;padding:20px;border:1px solid var(--line);border-radius:var(--r-card);background:var(--surface);transition:border-color .16s var(--ease)}
+.mini:hover{border-color:var(--line-2)}
+.mini b{font-size:16px;font-weight:600}
+.mini span{font-size:13px;color:var(--text-3)}
+.mini .money{font-size:24px;margin-top:8px}
+.report{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text-3)}
+.report:hover{color:var(--text-2)}
+.mbar{display:none}
+
+/* ---------- Модальные окна ---------- */
+.backdrop{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px;background:var(--backdrop);animation:fade .16s var(--ease)}
+.modal{width:min(520px,100%);max-height:min(88vh,860px);display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--r-panel);background:var(--surface-2);box-shadow:var(--shadow);animation:rise .2s var(--ease)}
+.m-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:24px 24px 0}
+.m-head h2{font:700 32px/1.05 var(--font-display)}
+.m-head p{margin-top:6px;font-size:14px;color:var(--text-2)}
+.m-body{display:grid;gap:16px;padding:20px 24px;overflow:auto}
+.m-foot{display:flex;gap:8px;justify-content:flex-end;padding:16px 24px 24px;border-top:1px solid var(--line)}
+.m-foot .btn{min-width:120px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.resume-mini{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--sunken)}
+.resume-mini b{display:block;font-size:14px;font-weight:600}
+.resume-mini span{font-size:13px;color:var(--text-3)}
+.resume-mini .link{margin-left:auto;font-size:13px}
+.success{display:grid;justify-items:center;gap:8px;padding:12px 0 4px;text-align:center}
+.success .ok-circle{display:grid;place-items:center;width:56px;height:56px;border-radius:50%;border:1px solid var(--line-2);color:var(--ok);margin-bottom:8px}
+.success .ok-circle .icon{width:24px;height:24px}
+.success h3{font:700 32px/1.05 var(--font-display)}
+.success p{max-width:360px;font-size:14px;color:var(--text-2)}
+.sheet-filters{display:grid;gap:24px}
+
+/* ---------- Тосты и панель прототипа ---------- */
+.toasts{position:fixed;right:24px;top:80px;z-index:120;display:grid;gap:8px;width:min(360px,calc(100vw - 32px))}
+.toast{display:flex;gap:12px;align-items:flex-start;padding:12px 16px;border:1px solid var(--line-2);border-radius:12px;background:var(--surface-2);box-shadow:var(--shadow);font-size:14px;animation:rise .2s var(--ease)}
+.toast .icon{margin-top:2px;color:var(--ok)}
+.toast b{display:block;font-weight:600}
+.toast span{color:var(--text-2);font-size:13px}
+.proto{position:fixed;right:16px;bottom:16px;z-index:90}
+.proto-btn{display:flex;align-items:center;gap:8px;height:36px;padding:0 12px;border:1px dashed var(--line-3);border-radius:18px;background:var(--surface-2);color:var(--text-2);font-size:12px;font-weight:500;box-shadow:var(--shadow)}
+.proto-panel{position:absolute;right:0;bottom:44px;width:280px;padding:16px;border:1px solid var(--line-2);border-radius:var(--r-card);background:var(--surface-2);box-shadow:var(--shadow);display:grid;gap:12px}
+.proto-panel h3{font-size:14px;font-weight:600}
+.proto-panel p{font-size:12px;color:var(--text-3)}
+.roles{display:grid;gap:4px}
+.roles button{display:flex;justify-content:space-between;align-items:center;height:36px;padding:0 12px;border-radius:8px;font-size:13px;color:var(--text-2);text-align:left}
+.roles button:hover{background:var(--surface-hover);color:var(--text)}
+.roles button[aria-pressed="true"]{background:var(--sunken);color:var(--text);box-shadow:inset 0 0 0 1px var(--line-2)}
+.roles button span{font-size:12px;color:var(--text-3)}
+
+.drawer-wrap{position:fixed;inset:0;z-index:100;background:var(--backdrop);animation:fade .16s var(--ease)}
+.drawer{position:absolute;top:0;right:0;bottom:0;width:min(360px,100%);display:flex;flex-direction:column;background:var(--surface-2);border-left:1px solid var(--line);animation:slide .2s var(--ease)}
+.drawer-head{display:flex;align-items:center;justify-content:space-between;height:64px;padding:0 16px;border-bottom:1px solid var(--line)}
+.drawer-body{padding:16px;overflow:auto;display:grid;gap:24px}
+.m-group b{display:block;margin-bottom:4px;font-size:12px;font-weight:500;color:var(--text-3)}
+.m-group a{display:flex;align-items:center;justify-content:space-between;min-height:44px;font-size:15px;font-weight:500;border-bottom:1px solid var(--line)}
+.m-group a.here{color:var(--primary)}
+
+.footer{border-top:1px solid var(--line);padding:24px 0 72px;font-size:13px;color:var(--text-3)}
+.footer .wrap{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.footer .logo{font-size:22px}
+.footer .logo img{width:26px;height:26px}
+.footer nav{display:flex;gap:16px}
+.footer nav a:hover{color:var(--text)}
+
+@keyframes fade{from{opacity:0}}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}}
+@keyframes slide{from{transform:translateX(24px);opacity:0}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+
+/* ---------- Планшет ---------- */
+@media (max-width:1100px){
+  .nav{display:none}.burger{display:inline-flex}
+  .d-grid{grid-template-columns:minmax(0,1fr) 300px}
+}
+@media (max-width:960px){
+  .catalog{grid-template-columns:minmax(0,1fr);padding-top:16px}
+  .filters{display:none}
+  .filters-btn{display:inline-flex}
+  .d-grid{grid-template-columns:minmax(0,1fr)}
+  .aside{position:static}
+  .aside .action-card{display:none}
+  .related-grid{grid-template-columns:1fr 1fr}
+  .mbar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:var(--top-bg);backdrop-filter:blur(12px);border-top:1px solid var(--line)}
+  .mbar .money{font-size:24px}
+  .mbar .money small{margin-top:2px}
+  .proto{bottom:88px}
+  .detail-page .proto{bottom:88px}
+}
+/* ---------- Телефон: первая вакансия на первом экране ---------- */
+@media (max-width:640px){
+  .wrap{width:calc(100% - 32px)}
+  .top-in{width:calc(100% - 32px);height:56px;gap:12px}
+  .logo{font-size:26px}.logo img{width:28px;height:28px}
+  .top-actions .hide-m{display:none}
+  .head-in{padding:12px 0 16px;gap:12px}
+  .head h1{font-size:40px}
+  .lead{display:none}
+  .head-row .btn{min-height:36px;padding:0 12px;font-size:13px}
+  .l-full{display:none}.l-short{display:inline}
+  .search{flex-wrap:wrap;padding:4px;gap:0}
+  .s-field{flex:1 1 100%}
+  .toolbar .select{display:none}
+  .filters-btn{margin-left:auto}
+  .s-field input{height:44px}
+  .s-city{flex:1 1 100%;border-left:0;border-top:1px solid var(--line)}
+  .s-city select{height:44px}
+  .search .btn{display:none}
+  .toolbar{gap:8px;margin-bottom:12px}
+  .toolbar .select{min-height:36px;font-size:13px;padding-left:10px}
+  .filters-btn{min-height:36px}
+  .card{grid-template-columns:40px minmax(0,1fr);gap:12px;padding:16px}
+  .tile{width:40px;height:40px;font-size:16px;border-radius:10px}
+  .c-title{font-size:16px}
+  .c-desc{display:none}
+  .c-side{grid-column:1/-1;flex-direction:row;align-items:center;text-align:left}
+  .money{font-size:24px}
+  .d-head h1{font-size:36px}
+  .facts{grid-template-columns:1fr 1fr;gap:12px 0}
+  .facts div:nth-child(3){padding-left:0;border-left:0}
+  .panel{padding:20px}
+  .related-grid{grid-template-columns:1fr}
+  .backdrop{place-items:end stretch;padding:0}
+  .modal{width:100%;max-height:92vh;border-radius:20px 20px 0 0;border-bottom:0}
+  .m-head h2{font-size:28px}
+  .m-foot{padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+  .m-foot .btn{flex:1}
+  .grid2{grid-template-columns:1fr}
+  .toasts{top:auto;bottom:96px;right:16px}
+  .proto{right:auto;left:16px;bottom:16px}
+  .detail-page .proto{bottom:96px}
+}
+</style>
+</head>
+<body>
+<a class="sr-only" href="#app">Перейти к содержимому</a>
+<header class="top" id="top"></header>
+<main id="app" tabindex="-1"></main>
+<footer class="footer"><div class="wrap"><a class="logo" href="#/"><img src="../assets/logo.png" alt=""><span>СОУС</span></a><span>Работа, автоуслуги, закупки и обучение для индустрии автоуслуг</span><nav><a href="https://sous-design-prototype.vercel.app/#/contacts">Контакты</a><a href="https://sous-design-prototype.vercel.app/#/terms">Оферта</a><a href="https://sous-design-prototype.vercel.app/#/privacy">Приватность</a></nav></div></footer>
+<div id="modal-root"></div>
+<div id="toast-root" class="toasts" aria-live="polite"></div>
+<div id="proto-root"></div>
+
+<script>
+/* =========================================================
+   Данные прототипа
+   ========================================================= */
+const STAND = "https://sous-design-prototype.vercel.app/#";
+
+const ROLES = {
+  guest:    { label: "Гость",        name: "",                 initials: "" },
+  worker:   { label: "Специалист",   name: "Михаил Соколов",   initials: "МС" },
+  employer: { label: "Работодатель", name: "Shine&Go",         initials: "SG" },
+  client:   { label: "Автовладелец", name: "Иван Михайлов",    initials: "ИМ" },
+  supplier: { label: "Поставщик",    name: "Koch Chemie",      initials: "KC" },
+  partner:  { label: "Партнёр",      name: "Детейлинг Партнёр", initials: "ДП" },
+};
+
+/* Шапка: 5 групп по задачам вместо 12 плоских ссылок */
+const NAV = [
+  ["Работа", [
+    ["#/", "Вакансии и резюме", "Постоянная работа и сотрудники", true],
+    [STAND + "/gigs", "Подработки", "Разовые смены и срочные подмены"],
+    [STAND + "/companies", "Компании", "Мойки, студии и автосервисы"],
+  ]],
+  ["Автоуслуги", [
+    [STAND + "/orders", "Заявки автовладельцев", "Клиенты ищут исполнителя"],
+    [STAND + "/promos", "Кешбэк и акции", "Скидки у партнёров"],
+    [STAND + "/sous-map", "Карта СОУС", "Компании и услуги на карте"],
+  ]],
+  ["Закупки", [
+    [STAND + "/suppliers", "Поставщики", "Автохимия, оборудование, расходники"],
+    [STAND + "/supply-requests", "Заявки на закупку", "Поставщики предлагают цену"],
+    [STAND + "/calculator", "Калькулятор расхода", "Сколько химии нужно"],
+  ]],
+  ["Обучение", [
+    [STAND + "/training", "Учебный центр", "Курсы и сертификаты"],
+    [STAND + "/events", "Мероприятия", "Форумы и встречи индустрии"],
+  ]],
+  ["Сообщество", [
+    [STAND + "/feed", "Лента и автоновости", "Новости и опыт коллег"],
+    [STAND + "/chats", "Чаты", "Обсуждения по специализациям"],
+  ]],
+];
+
+const SPECS = ["Мойка", "Полировка", "Химчистка", "Керамика", "Плёнки и PPF", "Администратор"];
+const EXPERIENCE = ["Без опыта", "От 1 года", "От 3 лет"];
+const SCHEDULES = ["Полный день", "Сменный", "Гибкий"];
+const CITIES = ["Все города", "Москва", "Санкт-Петербург", "Казань", "Екатеринбург"];
+const SALARY_STEPS = [["", "Любая"], ["60000", "от 60 000 ₽"], ["80000", "от 80 000 ₽"], ["100000", "от 100 000 ₽"]];
+
+let VACANCIES = [
+  { id: "vac-022", title: "Мастер по PPF", org: "Shine&Go", city: "Казань", from: 90000, to: 125000, schedule: "Полный день", exp: "От 3 лет", spec: "Плёнки и PPF", days: 0, verified: true, responses: 12, fresh: 3,
+    desc: "Ищем мастера по установке полиуретановой плёнки в действующую детейлинг-студию. Современное оборудование, стабильный поток клиентов и понятная система премирования.",
+    duties: ["Оклейка кузова полиуретановой плёнкой: полная и частичная", "Подготовка поверхности, раскрой и контроль качества", "Фотоотчёт по каждому автомобилю"],
+    terms: ["Оформление по ТК, выплаты два раза в месяц", "Пятидневка, 10:00–19:00", "Плёнка и инструмент — от студии"] , place: "Казань, ул. Сибирский тракт, филиал «Центральный»" },
+  { id: "vac-021", title: "Детейлер-полировщик", org: "АвтоПрофи", city: "Москва", from: 110000, to: null, schedule: "Сменный", exp: "От 1 года", spec: "Полировка", days: 1, verified: true,
+    desc: "Полировка кузова и фар, восстановительная и защитная обработка. Работа в команде из шести мастеров.",
+    duties: ["Абразивная и защитная полировка кузова", "Восстановление фар и оптики", "Нанесение защитных составов"],
+    terms: ["График 2/2 по 12 часов", "Оклад и процент от выработки", "Оплачиваемое обучение керамике"], place: "Москва, Варшавское шоссе" },
+  { id: "vac-020", title: "Мойщик автомобилей", org: "CleanLab", city: "Санкт-Петербург", from: 65000, to: 80000, schedule: "Сменный", exp: "Без опыта", spec: "Мойка", days: 2, verified: true,
+    desc: "Комплексная мойка, сушка и базовая уборка салона. Научим стандартам студии за первую неделю.",
+    duties: ["Двухфазная мойка кузова", "Сушка и уборка салона", "Подготовка поста к следующему автомобилю"],
+    terms: ["График 2/2", "Обучение за счёт компании", "Форма и химия выдаются"], place: "Санкт-Петербург, Приморский район" },
+  { id: "vac-019", title: "Мастер химчистки салона", org: "Detail House", city: "Екатеринбург", from: 95000, to: null, schedule: "Полный день", exp: "От 1 года", spec: "Химчистка", days: 3, verified: true,
+    desc: "Глубокая химчистка салонов, работа с профессиональной химией и оборудованием.",
+    duties: ["Химчистка текстиля, кожи и потолка", "Озонирование и устранение запахов", "Консультация клиента по уходу"],
+    terms: ["Пятидневка", "Процент от каждого заказа", "Профессиональное оборудование"], place: "Екатеринбург, ул. Малышева" },
+  { id: "vac-018", title: "Специалист по керамике", org: "Гараж 77", city: "Москва", from: 100000, to: 140000, schedule: "Полный день", exp: "От 3 лет", spec: "Керамика", days: 5, verified: false,
+    desc: "Подготовка кузова и нанесение керамических покрытий на премиальные автомобили.",
+    duties: ["Подготовка лакокрасочного покрытия", "Нанесение керамики в 2–3 слоя", "Сдача автомобиля клиенту"],
+    terms: ["Пятидневка", "Оклад и бонус за отзывы", "Работа с составами премиум-брендов"], place: "Москва, Ленинградский проспект" },
+  { id: "vac-017", title: "Администратор детейлинг-студии", org: "Shine&Go", city: "Казань", from: 60000, to: 75000, schedule: "Сменный", exp: "Без опыта", spec: "Администратор", days: 6, verified: true, responses: 5, fresh: 0,
+    desc: "Запись клиентов, приём и выдача автомобилей, работа с CRM студии.",
+    duties: ["Запись и подтверждение визитов", "Приём автомобиля и фотофиксация", "Ведение клиентской базы"],
+    terms: ["График 2/2", "Оклад и бонус от выручки", "Обучение работе с CRM"], place: "Казань, ул. Сибирский тракт, филиал «Центральный»" },
+  { id: "vac-016", title: "Оклейщик винилом и PPF", org: "Wrap Lab", city: "Санкт-Петербург", from: 120000, to: null, schedule: "Полный день", exp: "От 3 лет", spec: "Плёнки и PPF", days: 7, verified: true,
+    desc: "Полная и частичная оклейка автомобилей виниловыми и полиуретановыми плёнками.",
+    duties: ["Оклейка кузова винилом и PPF", "Демонтаж старых плёнок", "Контроль качества кромок"],
+    terms: ["Пятидневка", "Сдельная оплата с минимальной ставкой", "Плёнки ведущих производителей"], place: "Санкт-Петербург, Выборгский район" },
+  { id: "vac-015", title: "Мойщик-универсал", org: "Мойка 24", city: "Казань", from: 55000, to: 70000, schedule: "Гибкий", exp: "Без опыта", spec: "Мойка", days: 9, verified: false,
+    desc: "Мойка кузова, уборка салона, работа на круглосуточной мойке. Можно совмещать с учёбой.",
+    duties: ["Мойка кузова и дисков", "Уборка салона", "Поддержание порядка на посту"],
+    terms: ["Гибкий график, смены от 6 часов", "Выплаты каждую неделю", "Без опыта — научим"], place: "Казань, проспект Победы" },
+];
+
+const RESUMES = [
+  { id: "worker-001", name: "Михаил Соколов", role: "Детейлер: полировка и PPF", city: "Москва", from: 90000, exp: "От 3 лет", years: "Опыт 6 лет", spec: "Полировка", days: 0, verified: true, schedule: "Полный день",
+    desc: "Полировка, защитные составы и установка PPF. Портфолио — 38 работ, готов к командировкам." },
+  { id: "worker-002", name: "Александр Волков", role: "Мастер химчистки", city: "Казань", from: 75000, exp: "От 3 лет", years: "Опыт 4 года", spec: "Химчистка", days: 1, verified: true, schedule: "Полный день",
+    desc: "Химчистка текстиля и кожи, озонирование, работа со сложными загрязнениями." },
+  { id: "worker-003", name: "Дмитрий Ким", role: "Мойщик", city: "Москва", from: 60000, exp: "От 1 года", years: "Опыт 2 года", spec: "Мойка", days: 2, verified: false, schedule: "Сменный",
+    desc: "Двухфазная мойка, уборка салона. Готов к сменному графику и подменам." },
+  { id: "worker-004", name: "Руслан Галиев", role: "Специалист по керамике", city: "Казань", from: 100000, exp: "От 3 лет", years: "Опыт 5 лет", spec: "Керамика", days: 4, verified: true, schedule: "Полный день",
+    desc: "Подготовка ЛКП и керамика. Прошёл обучение у двух производителей составов." },
+  { id: "worker-005", name: "Елена Орлова", role: "Администратор студии", city: "Санкт-Петербург", from: 55000, exp: "От 1 года", years: "Опыт 1 год", spec: "Администратор", days: 6, verified: false, schedule: "Сменный",
+    desc: "Запись клиентов, работа с CRM, приём и выдача автомобилей." },
+];
+
+/* =========================================================
+   Состояние
+   ========================================================= */
+const state = {
+  role: read("sous-role", "guest"),
+  theme: read("sous-theme", "dark"),
+  tab: "vacancies",
+  q: "", city: "Все города",
+  f: { spec: new Set(), exp: new Set(), schedule: new Set(), salary: "", verified: false },
+  sort: "new",
+  applied: new Set(),
+  invited: new Set(),
+  fav: new Set(),
+  protoOpen: false,
+  pendingAction: null,
+};
+function read(k, d) { try { return localStorage.getItem(k) || d; } catch { return d; } }
+function write(k, v) { try { localStorage.setItem(k, v); } catch {} }
+
+/* =========================================================
+   Утилиты
+   ========================================================= */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const fmt = (n) => n.toLocaleString("ru-RU").replace(/ /g, " ");
+const salary = (a, b) => b ? `${fmt(a)}–${fmt(b)} ₽` : `от ${fmt(a)} ₽`;
+const ago = (d) => d === 0 ? "Сегодня" : d === 1 ? "Вчера" : d < 5 ? `${d} дня назад` : d < 7 ? `${d} дней назад` : d < 14 ? "Неделю назад" : "Две недели назад";
+const initials = (s) => s.replace(/[«»"]/g, "").split(/[\s&]+/).filter(Boolean).map((p) => p[0]).join("").slice(0, 2).toUpperCase();
+const isMine = (v) => state.role === "employer" && v.org === ROLES.employer.name;
+
+const ICONS = {
+  search: '<circle cx="7.5" cy="7.5" r="5"/><path d="m11.5 11.5 3 3"/>',
+  pin: '<path d="M8 14.5s5-4.3 5-8.2A5 5 0 0 0 3 6.3c0 3.9 5 8.2 5 8.2Z"/><circle cx="8" cy="6.3" r="1.8"/>',
+  clock: '<circle cx="8" cy="8" r="6"/><path d="M8 4.8V8l2 1.5"/>',
+  briefcase: '<rect x="2" y="5" width="12" height="9" rx="1.5"/><path d="M5.5 5V3.5A1 1 0 0 1 6.5 2.5h3a1 1 0 0 1 1 1V5M2 9h12"/>',
+  heart: '<path d="M8 13.5S2 10 2 6a3 3 0 0 1 6-1 3 3 0 0 1 6 1c0 4-6 7.5-6 7.5Z"/>',
+  shield: '<path d="M8 1.8 13 3.6v4c0 3.2-2.2 5.6-5 6.6-2.8-1-5-3.4-5-6.6v-4Z"/><path d="m5.8 8 1.6 1.6 2.9-3"/>',
+  down: '<path d="m4 6 4 4 4-4"/>',
+  back: '<path d="M10 3.5 5.5 8l4.5 4.5"/>',
+  right: '<path d="M6 3.5 10.5 8 6 12.5"/>',
+  x: '<path d="m4 4 8 8M12 4l-8 8"/>',
+  sliders: '<path d="M2.5 4.5h7M12.5 4.5h1M2.5 11.5h1M6.5 11.5h7"/><circle cx="11" cy="4.5" r="1.5"/><circle cx="5" cy="11.5" r="1.5"/>',
+  plus: '<path d="M8 3v10M3 8h10"/>',
+  sun: '<circle cx="8" cy="8" r="2.8"/><path d="M8 1.5v1.3M8 13.2v1.3M1.5 8h1.3M13.2 8h1.3M3.4 3.4l.9.9M11.7 11.7l.9.9M3.4 12.6l.9-.9M11.7 4.3l.9-.9"/>',
+  moon: '<path d="M13.5 9.5A5.5 5.5 0 0 1 6.5 2.5a5.5 5.5 0 1 0 7 7Z"/>',
+  bell: '<path d="M4 6.5a4 4 0 0 1 8 0c0 4 1.5 5 1.5 5h-11S4 10.5 4 6.5ZM6.5 13.5a1.6 1.6 0 0 0 3 0"/>',
+  message: '<path d="M2.5 4a1.5 1.5 0 0 1 1.5-1.5h8A1.5 1.5 0 0 1 13.5 4v6a1.5 1.5 0 0 1-1.5 1.5H6.5L3.5 14v-2.5H4A1.5 1.5 0 0 1 2.5 10Z"/>',
+  menu: '<path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11"/>',
+  check: '<path d="m3.5 8.5 3 3 6-7"/>',
+  dot: '<circle cx="8" cy="8" r="1.5"/>',
+  info: '<circle cx="8" cy="8" r="6"/><path d="M8 7.2v3.6M8 5.2v.1"/>',
+  flag: '<path d="M3.5 14V2.5M3.5 3h8l-1.5 3 1.5 3h-8"/>',
+  send: '<path d="m2.5 8 11-5.5-3.5 11-2-4.5Z"/><path d="m8 9 2.2-2.2"/>',
+  users: '<circle cx="6" cy="5.5" r="2.5"/><path d="M1.5 13.5a4.5 4.5 0 0 1 9 0M10.5 3.2a2.5 2.5 0 0 1 0 4.6M12 9.5a4.5 4.5 0 0 1 2.5 4"/>',
+  edit: '<path d="M10.5 2.5 13.5 5.5 6 13H3v-3Z"/>',
+};
+const icon = (n, cls = "") => `<svg class="icon ${cls}" viewBox="0 0 16 16" aria-hidden="true">${ICONS[n]}</svg>`;
+
+/* =========================================================
+   Шапка
+   ========================================================= */
+function renderHeader() {
+  const r = state.role;
+  const user = ROLES[r];
+  const right = r === "guest"
+    ? `<a class="link hide-m" href="#" data-act="login">Войти</a><button class="btn sm hide-m" data-act="register">Регистрация</button>`
+    : `<a class="btn ghost icon-only hide-m" href="${STAND}/messages" aria-label="Сообщения">${icon("message", "lg")}</a>
+       <a class="btn ghost icon-only hide-m" href="${STAND}/notifications" aria-label="Уведомления">${icon("bell", "lg")}</a>
+       <a class="avatar" href="${STAND}/dashboard" title="Кабинет: ${esc(user.name)}">${user.initials}</a>`;
+  $("#top").innerHTML = `<div class="top-in">
+    <a class="logo" href="#/"><img src="../assets/logo.png" alt=""><span>СОУС</span></a>
+    <nav class="nav" aria-label="Разделы">${NAV.map(([title, items], i) => `
+      <div class="nav-item" data-nav="${i}">
+        <button class="nav-btn ${i === 0 ? "current" : ""}" aria-expanded="false" data-act="nav" data-i="${i}">${title}${icon("down")}</button>
+        <div class="menu" role="menu">${items.map(([href, label, sub, here]) => `<a role="menuitem" class="${here ? "here" : ""}" href="${href}"><b>${label}</b><span>${sub}</span></a>`).join("")}</div>
+      </div>`).join("")}
+    </nav>
+    <div class="top-actions">
+      <button class="btn ghost icon-only" data-act="theme" aria-label="${state.theme === "dark" ? "Светлая тема" : "Тёмная тема"}">${icon(state.theme === "dark" ? "sun" : "moon", "lg")}</button>
+      ${right}
+      <button class="btn icon-only burger" data-act="burger" aria-label="Меню">${icon("menu", "lg")}</button>
+    </div>
+  </div>`;
+}
+
+/* =========================================================
+   Каталог
+   ========================================================= */
+function source() { return state.tab === "vacancies" ? VACANCIES : RESUMES; }
+
+function filtered() {
+  const q = state.q.trim().toLowerCase();
+  const { spec, exp, schedule, salary: min, verified } = state.f;
+  let items = source().filter((it) => {
+    if (q && ![it.title, it.name, it.org, it.role, it.spec, it.desc].filter(Boolean).join(" ").toLowerCase().includes(q)) return false;
+    if (state.city !== "Все города" && it.city !== state.city) return false;
+    if (spec.size && !spec.has(it.spec)) return false;
+    if (exp.size && !exp.has(it.exp)) return false;
+    if (schedule.size && !schedule.has(it.schedule)) return false;
+    if (min && (it.to || it.from) < Number(min)) return false;
+    if (verified && !it.verified) return false;
+    return true;
+  });
+  items = [...items].sort((a, b) => state.sort === "salary" ? (b.to || b.from) - (a.to || a.from) : a.days - b.days);
+  if (state.tab === "vacancies" && state.role === "employer") items.sort((a, b) => isMine(b) - isMine(a));
+  return items;
+}
+
+function activeChips() {
+  const chips = [];
+  if (state.city !== "Все города") chips.push(["city", state.city, state.city]);
+  for (const key of ["spec", "exp", "schedule"]) state.f[key].forEach((v) => chips.push([key, v, v]));
+  if (state.f.salary) chips.push(["salary", state.f.salary, SALARY_STEPS.find(([v]) => v === state.f.salary)[1]]);
+  if (state.f.verified) chips.push(["verified", "1", state.tab === "vacancies" ? "Проверенные компании" : "Документы проверены"]);
+  return chips;
+}
+
+function plural(n, one, few, many) {
+  const m10 = n % 10, m100 = n % 100;
+  return `${n} ${m10 === 1 && m100 !== 11 ? one : m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20) ? few : many}`;
+}
+
+function headAction() {
+  const r = state.role, vac = state.tab === "vacancies";
+  if (r === "employer") return `<button class="btn primary" data-act="create">${icon("plus")}<span class="l-full">Разместить вакансию</span><span class="l-short">Вакансия</span></button>`;
+  if (r === "worker") return `<a class="btn" href="${STAND}/resume/resume-001/edit">${icon("edit")}<span class="l-full">Моё резюме</span><span class="l-short">Резюме</span></a>`;
+  if (r === "guest") return vac
+    ? `<button class="btn" data-act="create">${icon("plus")}<span class="l-full">Разместить вакансию</span><span class="l-short">Вакансия</span></button>`
+    : `<button class="btn" data-act="resume">${icon("plus")}<span class="l-full">Создать резюме</span><span class="l-short">Резюме</span></button>`;
+  return "";
+}
+
+function roleNote() {
+  const notes = {
+    client: `Здесь ищут работу и сотрудников. Чтобы найти мастера для своего автомобиля, <a href="${STAND}/orders">оставьте заявку автовладельца</a>`,
+    supplier: `Здесь ищут работу и сотрудников. Чтобы предложить товары студиям, откройте <a href="${STAND}/supply-requests">заявки на закупку</a>`,
+    partner: `Здесь ищут работу и сотрудников. Акции и кешбэк для клиентов настраиваются в <a href="${STAND}/promos">разделе акций</a>`,
+  };
+  return notes[state.role] ? `<div class="note">${icon("info")}<p>${notes[state.role]}</p></div>` : "";
+}
+
+function filtersMarkup(prefix = "") {
+  const all = source();
+  const counter = (key, v) => all.filter((it) => it[key] === v).length;
+  const group = (title, key, values) => `<fieldset class="fgroup" style="border:0;margin:0;padding:0"><legend class="sr-only">${title}</legend><b>${title}</b>${values.filter((v) => counter(key, v) || state.f[key].has(v)).map((v) => `
+    <label class="check"><input type="checkbox" data-filter="${key}" value="${esc(v)}" ${state.f[key].has(v) ? "checked" : ""}><span>${v}</span><span class="c num">${counter(key, v)}</span></label>`).join("")}</fieldset>`;
+  return `${group("Специализация", "spec", SPECS)}
+    ${group("Опыт", "exp", EXPERIENCE)}
+    ${group("График", "schedule", SCHEDULES)}
+    <label class="field"><span>${state.tab === "vacancies" ? "Зарплата" : "Ожидания по зарплате"}</span><select class="select" data-filter="salary">${SALARY_STEPS.map(([v, l]) => `<option value="${v}" ${state.f.salary === v ? "selected" : ""}>${l}</option>`).join("")}</select></label>
+    <label class="toggle-row"><span>${state.tab === "vacancies" ? "Только проверенные компании" : "Документы проверены"}</span><input class="switch" type="checkbox" data-filter="verified" ${state.f.verified ? "checked" : ""}></label>`;
+}
+
+function vacancyCard(v) {
+  const r = state.role, mine = isMine(v);
+  let action = "";
+  if (mine) action = `<a class="btn sm" href="#/v/${v.id}">${icon("users")}Отклики · ${v.responses}</a>`;
+  else if (r === "guest" || r === "worker") action = state.applied.has(v.id)
+    ? `<span class="btn sm done">${icon("check")}Отклик отправлен</span>`
+    : `<button class="btn sm" data-act="apply" data-id="${v.id}">Откликнуться</button>`;
+  const fav = mine ? "" : `<button class="btn sm ghost icon-only fav" data-act="fav" data-id="${v.id}" aria-pressed="${state.fav.has(v.id)}" aria-label="В избранное">${icon("heart", "lg")}</button>`;
+  return `<article class="card ${mine ? "mine" : ""}">
+    <span class="tile" aria-hidden="true">${initials(v.org)}</span>
+    <div class="c-main">
+      ${mine ? `<span class="mine-tag">${icon("dot")}Ваша вакансия${v.fresh ? ` · ${plural(v.fresh, "новый отклик", "новых отклика", "новых откликов")}` : ""}</span>` : ""}
+      <h2 class="c-title"><a href="#/v/${v.id}">${esc(v.title)}</a></h2>
+      <div class="c-org">${esc(v.org)}${v.verified ? `<span class="verified" title="Документы компании проверены">${icon("shield")}Проверена</span>` : ""}</div>
+      <div class="meta"><span>${icon("pin")}${v.city}</span><span>${icon("clock")}${v.schedule}</span><span>${icon("briefcase")}${v.exp}</span><span>${v.days === 0 ? "Сегодня" : ago(v.days)}</span></div>
+      <p class="c-desc">${esc(v.desc)}</p>
+    </div>
+    <div class="c-side">
+      <div class="money num">${salary(v.from, v.to)}<small>в месяц на руки</small></div>
+      <div class="c-actions">${fav}${action}</div>
+    </div>
+  </article>`;
+}
+
+function resumeCard(p) {
+  const r = state.role, mine = r === "worker" && p.name === ROLES.worker.name;
+  let action = "";
+  if (mine) action = `<a class="btn sm" href="${STAND}/resume/resume-001/edit">${icon("edit")}Редактировать</a>`;
+  else if (r === "guest" || r === "employer") action = state.invited.has(p.id)
+    ? `<span class="btn sm done">${icon("check")}Приглашение отправлено</span>`
+    : `<button class="btn sm" data-act="invite" data-id="${p.id}">Пригласить</button>`;
+  return `<article class="card ${mine ? "mine" : ""}">
+    <span class="tile round" aria-hidden="true">${initials(p.name)}</span>
+    <div class="c-main">
+      ${mine ? `<span class="mine-tag">${icon("dot")}Ваше резюме · заполнено на 82%</span>` : ""}
+      <h2 class="c-title"><a href="${STAND}/specialists/${p.id}">${esc(p.name)}</a></h2>
+      <div class="c-org">${esc(p.role)}${p.verified ? `<span class="verified" title="Документы специалиста проверены">${icon("shield")}Документы проверены</span>` : ""}</div>
+      <div class="meta"><span>${icon("pin")}${p.city}</span><span>${icon("briefcase")}${p.years}</span><span>${icon("clock")}${p.schedule}</span><span>Обновлено: ${ago(p.days).toLowerCase()}</span></div>
+      <p class="c-desc">${esc(p.desc)}</p>
+    </div>
+    <div class="c-side">
+      <div class="money num">от ${fmt(p.from)} ₽<small>ожидания в месяц</small></div>
+      <div class="c-actions">${action}</div>
+    </div>
+  </article>`;
+}
+
+function resultsMarkup() {
+  const items = filtered();
+  const chips = activeChips();
+  const vac = state.tab === "vacancies";
+  const word = vac ? plural(items.length, "вакансия", "вакансии", "вакансий") : plural(items.length, "резюме", "резюме", "резюме");
+  const list = items.length
+    ? `<div class="list">${items.map(vac ? vacancyCard : resumeCard).join("")}</div>`
+    : `<div class="empty">${icon("search", "lg")}<h3>Ничего не нашлось</h3><p>Попробуйте другой город, уберите требования к опыту или сбросьте фильтры</p><button class="btn" data-act="reset">Сбросить фильтры</button></div>`;
+  return `<div class="toolbar">
+      <p class="count"><b class="num">${word.split(" ")[0]}</b> ${word.split(" ").slice(1).join(" ")}</p>
+      <button class="btn sm filters-btn" data-act="sheet">${icon("sliders")}Фильтры${chips.length ? `<span class="badge-n num">${chips.length}</span>` : ""}</button>
+      <select class="select" data-act-change="sort" aria-label="Сортировка"><option value="new" ${state.sort === "new" ? "selected" : ""}>Сначала новые</option><option value="salary" ${state.sort === "salary" ? "selected" : ""}>Сначала с большей зарплатой</option></select>
+    </div>
+    ${chips.length ? `<div class="chips">${chips.map(([k, v, l]) => `<button class="chip" data-act="unchip" data-k="${k}" data-v="${esc(v)}">${esc(l)}${icon("x")}</button>`).join("")}<button class="link" data-act="reset" style="font-size:13px">Сбросить всё</button></div>` : ""}
+    ${roleNote()}
+    ${list}`;
+}
+
+function catalogView() {
+  const vac = state.tab === "vacancies";
+  document.body.className = "catalog-page";
+  document.title = `${vac ? "Вакансии" : "Резюме специалистов"} — СОУС`;
+  return `<section class="head"><div class="wrap head-in">
+      <div class="head-row">
+        <div class="tabs" role="tablist" aria-label="Вакансии или резюме">
+          <button class="tab" role="tab" aria-selected="${vac}" data-act="tab" data-tab="vacancies">Вакансии <small class="num">${VACANCIES.length}</small></button>
+          <button class="tab" role="tab" aria-selected="${!vac}" data-act="tab" data-tab="resumes">Резюме <small class="num">${RESUMES.length}</small></button>
+        </div>
+        ${headAction()}
+      </div>
+      <h1>${vac ? "Вакансии" : "Резюме специалистов"}</h1>
+      <p class="lead">${vac ? "Постоянная работа в автомойках, детейлинг-студиях и автосервисах. Разовые смены — в разделе <a class=\"link accent\" href=\"" + STAND + "/gigs\">Подработки</a>" : "Мастера, которые ищут постоянную работу. Опыт, ожидания и проверка документов видны сразу"}</p>
+      <form class="search" role="search" data-act-submit="search">
+        <label class="s-field"><span class="sr-only">Поиск</span>${icon("search", "lg")}<input id="q" type="search" value="${esc(state.q)}" placeholder="${vac ? "Должность или компания" : "Специализация или имя"}" autocomplete="off"></label>
+        <label class="s-field s-city"><span class="sr-only">Город</span>${icon("pin", "lg")}<select id="city">${CITIES.map((c) => `<option ${state.city === c ? "selected" : ""}>${c}</option>`).join("")}</select></label>
+        <button class="btn primary" type="submit">Найти</button>
+      </form>
+    </div></section>
+    <div class="wrap catalog">
+      <aside class="filters" aria-label="Фильтры">
+        <div class="filters-head"><h2>Фильтры</h2>${activeChips().length ? `<button class="link" data-act="reset" style="font-size:13px">Сбросить</button>` : ""}</div>
+        ${filtersMarkup()}
+      </aside>
+      <section id="results" aria-live="polite">${resultsMarkup()}</section>
+    </div>`;
+}
+
+/* =========================================================
+   Детальная вакансии
+   ========================================================= */
+function detailView(id) {
+  const v = VACANCIES.find((x) => x.id === id);
+  if (!v) return `<div class="wrap detail"><a class="back" href="#/">${icon("back")}Все вакансии</a><div class="empty"><h3>Вакансия снята с публикации</h3><p>Посмотрите похожие предложения в каталоге</p><a class="btn" href="#/">К вакансиям</a></div></div>`;
+  document.body.className = "detail-page";
+  document.title = `${v.title} — ${v.org} — СОУС`;
+  const r = state.role, mine = isMine(v), applied = state.applied.has(v.id);
+  const related = VACANCIES.filter((x) => x.id !== v.id && (x.spec === v.spec || x.city === v.city)).slice(0, 3);
+  while (related.length < 3) { const extra = VACANCIES.find((x) => x.id !== v.id && !related.includes(x)); if (!extra) break; related.push(extra); }
+
+  let card, mbar;
+  if (mine) {
+    card = `<section class="panel action-card">
+      <span class="mine-tag">${icon("dot")}Ваша вакансия</span>
+      <div class="stat-row"><div><b class="num">${v.responses}</b><span>откликов</span></div><div><b class="num">${v.fresh}</b><span>новых</span></div></div>
+      <a class="btn primary lg block" href="${STAND}/dashboard">Смотреть отклики</a>
+      <div class="grid2"><a class="btn" href="#" data-act="create" data-edit="${v.id}">${icon("edit")}Изменить</a><button class="btn" data-act="unpublish" data-id="${v.id}">Снять</button></div>
+      <p class="hint">${icon("info")}Отклики приходят в «Сообщения» и в кабинет</p>
+    </section>`;
+    mbar = `<a class="btn primary" href="${STAND}/dashboard">Отклики · ${v.responses}</a>`;
+  } else if (r === "guest" || r === "worker") {
+    const btn = applied ? `<span class="btn lg block done">${icon("check")}Отклик отправлен</span>` : `<button class="btn primary lg block" data-act="apply" data-id="${v.id}">Откликнуться</button>`;
+    card = `<section class="panel action-card">
+      <div class="money num">${salary(v.from, v.to)}<small>в месяц на руки</small></div>
+      ${btn}
+      <button class="btn block fav" data-act="fav" data-id="${v.id}" aria-pressed="${state.fav.has(v.id)}">${icon("heart")}${state.fav.has(v.id) ? "В избранном" : "Сохранить"}</button>
+      <p class="hint">${icon("message")}${applied ? "Ответ работодателя придёт в «Сообщения»" : "Отклик придёт работодателю в личные сообщения. Отозвать его можно в любой момент"}</p>
+    </section>`;
+    mbar = applied ? `<span class="btn done">${icon("check")}Отправлен</span>` : `<button class="btn primary" data-act="apply" data-id="${v.id}">Откликнуться</button>`;
+  } else {
+    const why = r === "employer" ? "Работодатели не откликаются на вакансии. Ваши вакансии и отклики — в кабинете" : "Откликаться на вакансии могут специалисты";
+    card = `<section class="panel action-card">
+      <div class="money num">${salary(v.from, v.to)}<small>в месяц на руки</small></div>
+      <p class="hint">${icon("info")}${why}</p>
+      ${r === "employer" ? `<button class="btn primary block" data-act="create">${icon("plus")}Разместить свою вакансию</button>` : ""}
+    </section>`;
+    mbar = r === "employer" ? `<button class="btn primary" data-act="create">Разместить вакансию</button>` : "";
+  }
+
+  return `<div class="wrap detail">
+    <a class="back" href="#/">${icon("back")}Все вакансии</a>
+    <div class="d-grid">
+      <div class="d-main">
+        <section class="panel d-head">
+          <h1>${esc(v.title)}</h1>
+          <div class="d-org"><span class="tile">${initials(v.org)}</span><div><b>${esc(v.org)}</b><span>${v.verified ? `<span class="verified">${icon("shield")}Документы проверены</span> · ` : ""}${v.city}</span></div></div>
+          <div class="facts">
+            <div><b class="num">${salary(v.from, v.to)}</b><span>в месяц на руки</span></div>
+            <div><b>${v.schedule}</b><span>график</span></div>
+            <div><b>${v.exp}</b><span>опыт</span></div>
+            <div><b>${ago(v.days)}</b><span>опубликована</span></div>
+          </div>
+        </section>
+        <section class="panel"><h2>О работе</h2><p class="prose">${esc(v.desc)}</p></section>
+        <section class="panel"><h2>Что делать</h2><ul class="bullets">${v.duties.map((d) => `<li>${icon("right")}<span>${esc(d)}</span></li>`).join("")}</ul></section>
+        <section class="panel"><h2>Условия</h2><ul class="bullets">${v.terms.map((d) => `<li>${icon("check")}<span>${esc(d)}</span></li>`).join("")}</ul></section>
+        <section class="panel"><h2>Где работать</h2><p class="place">${icon("pin", "lg")}<span>${esc(v.place)}. Точный адрес работодатель пришлёт после отклика</span></p></section>
+        <button class="report" data-act="report">${icon("flag")}Пожаловаться на вакансию</button>
+      </div>
+      <aside class="aside">
+        ${card}
+        <section class="panel org-card">
+          <div class="d-org"><span class="tile">${initials(v.org)}</span><div><b>${esc(v.org)}</b><span>${v.city}</span></div></div>
+          <div class="org-line"><span>Рейтинг</span><b class="num">${v.verified ? "9,8 из 10" : "Пока нет отзывов"}</b></div>
+          <div class="org-line"><span>Открытых вакансий</span><b class="num">${VACANCIES.filter((x) => x.org === v.org).length}</b></div>
+          <a class="btn block" href="${STAND}/companies/company-001">Профиль компании</a>
+        </section>
+      </aside>
+    </div>
+    <section class="related">
+      <h2>Похожие вакансии</h2>
+      <div class="related-grid">${related.map((x) => `<a class="mini" href="#/v/${x.id}"><b>${esc(x.title)}</b><span>${esc(x.org)} · ${x.city}</span><span class="money num">${salary(x.from, x.to)}</span></a>`).join("")}</div>
+    </section>
+  </div>
+  ${mbar ? `<div class="mbar"><div class="money num">${salary(v.from, v.to)}<small>в месяц</small></div>${mbar}</div>` : ""}`;
+}
+
+/* =========================================================
+   Модальные окна
+   ========================================================= */
+function openModal(html) {
+  $("#modal-root").innerHTML = `<div class="backdrop" data-act="close-bg"><div class="modal" role="dialog" aria-modal="true">${html}</div></div>`;
+  document.body.classList.add("lock");
+  setTimeout(() => ($("#modal-root [autofocus]") || $("#modal-root .modal button, #modal-root .modal input"))?.focus(), 30);
+}
+function closeModal() { $("#modal-root").innerHTML = ""; document.body.classList.remove("lock"); }
+const mHead = (title, sub = "") => `<div class="m-head"><div><h2>${title}</h2>${sub ? `<p>${sub}</p>` : ""}</div><button class="btn sm ghost icon-only" data-act="close" aria-label="Закрыть">${icon("x", "lg")}</button></div>`;
+
+function authModal(kind, id) {
+  const text = {
+    apply: ["Войдите, чтобы откликнуться", `После входа вернём вас к вакансии «${esc(VACANCIES.find((v) => v.id === id)?.title || "")}» — отклик можно будет отправить сразу`],
+    fav: ["Войдите, чтобы сохранить", "Избранные вакансии будут в кабинете на любом устройстве"],
+    invite: ["Войдите как работодатель", "Пригласить специалиста можно после входа в аккаунт компании"],
+    resume: ["Создайте аккаунт специалиста", "Резюме увидят компании, а вы сможете откликаться на вакансии"],
+  }[kind];
+  state.pendingAction = { kind, id };
+  openModal(`${mHead(text[0], text[1])}
+    <div class="m-body"><p class="hint">${icon("info")}Смотреть вакансии и резюме можно без регистрации. Вход нужен для отклика, сообщения и публикации</p></div>
+    <div class="m-foot"><button class="btn" data-act="auth-register">Регистрация</button><button class="btn primary" data-act="auth-login" autofocus>Войти по телефону</button></div>`);
+}
+
+function applyModal(id) {
+  const v = VACANCIES.find((x) => x.id === id);
+  openModal(`${mHead("Отклик на вакансию", `${esc(v.title)} · ${esc(v.org)}`)}
+    <form class="m-body" id="mform">
+      <div class="resume-mini"><span class="tile round">МС</span><div><b>Михаил Соколов</b><span>Детейлер · опыт 6 лет · резюме заполнено на 82%</span></div><a class="link" href="${STAND}/resume/resume-001/edit">Изменить</a></div>
+      <label class="field"><span>Сообщение работодателю</span><textarea class="textarea" name="msg" placeholder="Коротко о себе и когда готовы выйти" autofocus></textarea><small>Необязательно. Резюме и портфолио прикрепятся автоматически</small></label>
+    </form>
+    <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="apply-send" data-id="${id}">${icon("send")}Отправить отклик</button></div>`);
+}
+
+function applySuccess(id) {
+  const v = VACANCIES.find((x) => x.id === id);
+  $("#modal-root .modal").innerHTML = `${mHead("", "")}<div class="m-body"><div class="success"><span class="ok-circle">${icon("check")}</span><h3>Отклик отправлен</h3><p>${esc(v.org)} получит ваше резюме в личных сообщениях. Ответ придёт туда же — мы пришлём уведомление</p></div></div>
+    <div class="m-foot"><button class="btn" data-act="close">К вакансиям</button><a class="btn primary" href="${STAND}/messages">Открыть сообщения</a></div>`;
+}
+
+function createModal(editId) {
+  const guest = state.role === "guest";
+  const v = editId ? VACANCIES.find((x) => x.id === editId) : null;
+  openModal(`${mHead(v ? "Изменить вакансию" : "Новая вакансия", guest ? "Заполните без регистрации — черновик сохранится, а опубликовать можно после входа" : "После проверки вакансия появится в каталоге и в поиске")}
+    <form class="m-body" id="mform">
+      <label class="field"><span>Должность</span><input class="input" name="title" required placeholder="Например, детейлер-полировщик" value="${v ? esc(v.title) : ""}" autofocus></label>
+      <div class="grid2">
+        <label class="field"><span>Специализация</span><select class="select" name="spec">${SPECS.map((s) => `<option ${v?.spec === s ? "selected" : ""}>${s}</option>`).join("")}</select></label>
+        ${guest ? `<label class="field"><span>Город</span><select class="select" name="city">${CITIES.slice(1).map((c) => `<option>${c}</option>`).join("")}</select></label>`
+                : `<label class="field"><span>Филиал</span><select class="select" name="city"><option>Казань, «Центральный»</option><option>Казань, «Северный»</option></select></label>`}
+      </div>
+      <div class="grid2">
+        <label class="field"><span>График</span><select class="select" name="schedule">${SCHEDULES.map((s) => `<option ${v?.schedule === s ? "selected" : ""}>${s}</option>`).join("")}</select></label>
+        <label class="field"><span>Опыт</span><select class="select" name="exp">${EXPERIENCE.map((s) => `<option ${v?.exp === s ? "selected" : ""}>${s}</option>`).join("")}</select></label>
+      </div>
+      <div class="grid2">
+        <label class="field"><span>Зарплата от, ₽</span><input class="input num" name="from" inputmode="numeric" required placeholder="80 000" value="${v ? v.from : ""}"></label>
+        <label class="field"><span>Зарплата до, ₽</span><input class="input num" name="to" inputmode="numeric" placeholder="120 000" value="${v?.to || ""}"></label>
+      </div>
+      <label class="field"><span>Что делать и какие условия</span><textarea class="textarea" name="desc" required placeholder="Обязанности, график, что даёт компания">${v ? esc(v.desc) : ""}</textarea></label>
+    </form>
+    <div class="m-foot">${guest ? `<button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="create-send">Сохранить и войти</button>`
+      : `<button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="create-send" data-edit="${editId || ""}">${v ? "Сохранить" : "Разместить"}</button>`}</div>`);
+}
+
+function inviteModal(id) {
+  const p = RESUMES.find((x) => x.id === id);
+  const mine = VACANCIES.filter((v) => v.org === ROLES.employer.name);
+  openModal(`${mHead("Пригласить на вакансию", `${esc(p.name)} · ${esc(p.role)}`)}
+    <form class="m-body" id="mform">
+      <label class="field"><span>Вакансия</span><select class="select">${mine.map((v) => `<option>${esc(v.title)} · ${salary(v.from, v.to)}</option>`).join("")}</select></label>
+      <label class="field"><span>Сообщение</span><textarea class="textarea" placeholder="Чем заинтересовал опыт и что предлагаете" autofocus></textarea><small>Приглашение придёт специалисту в личные сообщения</small></label>
+    </form>
+    <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="invite-send" data-id="${id}">${icon("send")}Отправить</button></div>`);
+}
+
+function unpublishModal(id) {
+  const v = VACANCIES.find((x) => x.id === id);
+  openModal(`${mHead("Снять вакансию с публикации?", `«${esc(v.title)}» исчезнет из каталога. Отклики сохранятся в кабинете, вакансию можно вернуть`)}
+    <div class="m-foot"><button class="btn" data-act="close" autofocus>Отмена</button><button class="btn primary" data-act="unpublish-send" data-id="${id}">Снять</button></div>`);
+}
+
+function reportModal() {
+  openModal(`${mHead("Пожаловаться на вакансию", "Модерация рассмотрит жалобу в течение 24 часов")}
+    <form class="m-body" id="mform">
+      ${["Недостоверные условия", "Просят оплату за трудоустройство", "Компания не существует", "Другое"].map((t, i) => `<label class="check"><input type="radio" name="r" style="border-radius:50%" ${i === 0 ? "checked" : ""}><span>${t}</span></label>`).join("")}
+      <label class="field"><span>Комментарий</span><textarea class="textarea" placeholder="Что не так"></textarea></label>
+    </form>
+    <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="report-send">Отправить</button></div>`);
+}
+
+function filtersSheet() {
+  openModal(`${mHead("Фильтры")}<div class="m-body"><div class="sheet-filters" id="sheet"><label class="field"><span>Сортировка</span><select class="select" data-act-change="sort"><option value="new" ${state.sort === "new" ? "selected" : ""}>Сначала новые</option><option value="salary" ${state.sort === "salary" ? "selected" : ""}>Сначала с большей зарплатой</option></select></label>${filtersMarkup("m")}</div></div>
+    <div class="m-foot"><button class="btn" data-act="reset">Сбросить</button><button class="btn primary" data-act="close" id="sheet-apply">Показать: ${filtered().length}</button></div>`);
+}
+
+function mobileMenu() {
+  const wrap = document.createElement("div");
+  wrap.className = "drawer-wrap";
+  wrap.dataset.act = "close-drawer";
+  const r = state.role;
+  wrap.innerHTML = `<aside class="drawer" role="dialog" aria-modal="true" aria-label="Меню">
+    <div class="drawer-head"><a class="logo" href="#/"><img src="../assets/logo.png" alt=""><span>СОУС</span></a><button class="btn icon-only" data-act="close-drawer" aria-label="Закрыть">${icon("x", "lg")}</button></div>
+    <div class="drawer-body">
+      ${r === "guest" ? `<div class="grid2"><button class="btn" data-act="login">Войти</button><button class="btn primary" data-act="register">Регистрация</button></div>`
+        : `<div class="grid2"><a class="btn" href="${STAND}/messages">${icon("message")}Сообщения</a><a class="btn" href="${STAND}/dashboard">Кабинет</a></div>`}
+      ${NAV.map(([t, items]) => `<div class="m-group"><b>${t}</b>${items.map(([h, l, , here]) => `<a href="${h}" class="${here ? "here" : ""}">${l}${icon("right")}</a>`).join("")}</div>`).join("")}
+    </div></aside>`;
+  document.body.appendChild(wrap);
+  document.body.classList.add("lock");
+}
+
+function toast(title, text = "") {
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.innerHTML = `${icon("check")}<div><b>${title}</b>${text ? `<span>${text}</span>` : ""}</div>`;
+  $("#toast-root").appendChild(el);
+  setTimeout(() => el.remove(), 3600);
+}
+
+/* =========================================================
+   Панель прототипа (служебная, в продукт не входит)
+   ========================================================= */
+function renderProto() {
+  const hints = { guest: "смотрит без входа", worker: "ищет работу", employer: "ищет сотрудников", client: "не целевая роль", supplier: "не целевая роль", partner: "не целевая роль" };
+  $("#proto-root").innerHTML = `<div class="proto">
+    ${state.protoOpen ? `<section class="proto-panel"><h3>Роль пользователя</h3><p>Служебная панель прототипа. Показывает, как страница меняется для каждой роли</p>
+      <div class="roles">${Object.entries(ROLES).map(([id, r]) => `<button data-act="role" data-role="${id}" aria-pressed="${state.role === id}">${r.label}<span>${hints[id]}</span></button>`).join("")}</div></section>` : ""}
+    <button class="proto-btn" data-act="proto">Прототип · ${ROLES[state.role].label}${icon("down")}</button>
+  </div>`;
+}
+
+/* =========================================================
+   Рендер и роутинг
+   ========================================================= */
+function route() { const h = location.hash.replace(/^#/, "") || "/"; return h; }
+function render() {
+  const h = route();
+  renderHeader();
+  renderProto();
+  const m = h.match(/^\/v\/([\w-]+)/);
+  $("#app").innerHTML = m ? detailView(m[1]) : catalogView();
+}
+function renderResults() {
+  const el = $("#results");
+  if (el) el.innerHTML = resultsMarkup();
+  const fh = $(".filters-head");
+  if (fh) fh.innerHTML = `<h2>Фильтры</h2>${activeChips().length ? `<button class="link" data-act="reset" style="font-size:13px">Сбросить</button>` : ""}`;
+  const sa = $("#sheet-apply");
+  if (sa) sa.textContent = `Показать: ${filtered().length}`;
+}
+function syncFilterInputs() {
+  $$("[data-filter]").forEach((el) => {
+    const k = el.dataset.filter;
+    if (k === "salary") el.value = state.f.salary;
+    else if (k === "verified") el.checked = state.f.verified;
+    else el.checked = state.f[k].has(el.value);
+  });
+  const c = $("#city"); if (c) c.value = state.city;
+}
+function resetFilters() {
+  state.f = { spec: new Set(), exp: new Set(), schedule: new Set(), salary: "", verified: false };
+  state.city = "Все города"; state.q = "";
+  const q = $("#q"); if (q) q.value = "";
+  syncFilterInputs(); renderResults();
+}
+
+window.addEventListener("hashchange", () => { closeModal(); render(); window.scrollTo(0, 0); });
+
+/* =========================================================
+   События
+   ========================================================= */
+document.addEventListener("input", (e) => {
+  if (e.target.id === "q") { state.q = e.target.value; renderResults(); }
+});
+document.addEventListener("change", (e) => {
+  const t = e.target;
+  if (t.id === "city") { state.city = t.value; renderResults(); return; }
+  if (t.dataset.actChange === "sort") { state.sort = t.value; renderResults(); return; }
+  const k = t.dataset.filter;
+  if (!k) return;
+  if (k === "salary") state.f.salary = t.value;
+  else if (k === "verified") state.f.verified = t.checked;
+  else t.checked ? state.f[k].add(t.value) : state.f[k].delete(t.value);
+  syncFilterInputs(); renderResults();
+});
+document.addEventListener("submit", (e) => { e.preventDefault(); if (e.target.dataset.actSubmit === "search") { $("#results")?.scrollIntoView({ behavior: "smooth", block: "start" }); } });
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") { closeModal(); $(".drawer-wrap")?.remove(); document.body.classList.remove("lock"); closeNav(); }
+});
+function closeNav() { $$(".nav-item.open").forEach((n) => { n.classList.remove("open"); $("button", n).setAttribute("aria-expanded", "false"); }); }
+
+function needAuth(kind, id) { if (state.role === "guest") { authModal(kind, id); return true; } return false; }
+
+function setRole(role) {
+  state.role = role; write("sous-role", role);
+  render();
+}
+
+document.addEventListener("click", (e) => {
+  const el = e.target.closest("[data-act]");
+  if (!e.target.closest(".nav-item")) closeNav();
+  if (!e.target.closest(".proto") && state.protoOpen) { state.protoOpen = false; renderProto(); }
+  if (!el) return;
+  const act = el.dataset.act, id = el.dataset.id;
+  if ((el.classList.contains("backdrop") || el.classList.contains("drawer-wrap")) && e.target !== el) return;
+  const actions = {
+    nav: () => { const item = el.closest(".nav-item"); const open = !item.classList.contains("open"); closeNav(); if (open) { item.classList.add("open"); el.setAttribute("aria-expanded", "true"); } },
+    theme: () => { state.theme = state.theme === "dark" ? "light" : "dark"; document.documentElement.dataset.theme = state.theme; write("sous-theme", state.theme); renderHeader(); },
+    burger: mobileMenu,
+    "close-drawer": () => { $(".drawer-wrap")?.remove(); document.body.classList.remove("lock"); },
+    login: () => { e.preventDefault(); $(".drawer-wrap")?.remove(); state.pendingAction = null; authModal("apply", null); $(".m-head h2").textContent = "Вход"; $(".m-head p").textContent = "По номеру телефона, без пароля"; },
+    register: () => { $(".drawer-wrap")?.remove(); authModal("resume"); },
+    tab: () => { state.tab = el.dataset.tab; state.f.spec.clear(); render(); },
+    reset: resetFilters,
+    unchip: () => {
+      const { k, v } = el.dataset;
+      if (k === "city") state.city = "Все города";
+      else if (k === "salary") state.f.salary = "";
+      else if (k === "verified") state.f.verified = false;
+      else state.f[k].delete(v);
+      syncFilterInputs(); renderResults();
+    },
+    sheet: filtersSheet,
+    apply: () => { if (!needAuth("apply", id)) applyModal(id); },
+    "apply-send": () => { state.applied.add(id); applySuccess(id); refresh(); },
+    fav: () => {
+      if (needAuth("fav", id)) return;
+      state.fav.has(id) ? state.fav.delete(id) : state.fav.add(id);
+      toast(state.fav.has(id) ? "Сохранено в избранное" : "Убрано из избранного", state.fav.has(id) ? "Избранное — в личном кабинете" : "");
+      refresh();
+    },
+    invite: () => { if (!needAuth("invite", id)) inviteModal(id); },
+    "invite-send": () => { state.invited.add(id); closeModal(); toast("Приглашение отправлено", "Ответ придёт в «Сообщения»"); refresh(); },
+    create: () => { e.preventDefault(); if (["guest", "employer"].includes(state.role)) createModal(el.dataset.edit); },
+    "create-send": () => {
+      const f = $("#mform");
+      if (!f.reportValidity()) return;
+      if (state.role === "guest") { closeModal(); state.pendingAction = null; toast("Черновик сохранён", "Войдите как работодатель, чтобы опубликовать"); setTimeout(() => setRole("employer"), 400); return; }
+      const d = Object.fromEntries(new FormData(f));
+      const num = (s) => Number(String(s).replace(/\D/g, "")) || 0;
+      if (el.dataset.edit) {
+        Object.assign(VACANCIES.find((v) => v.id === el.dataset.edit), { title: d.title, spec: d.spec, schedule: d.schedule, exp: d.exp, from: num(d.from), to: num(d.to) || null, desc: d.desc });
+        closeModal(); toast("Вакансия обновлена", "Изменения появятся в каталоге через 1–2 минуты"); render(); return;
+      }
+      VACANCIES.unshift({ id: "vac-" + Date.now(), title: d.title, org: "Shine&Go", city: "Казань", from: num(d.from), to: num(d.to) || null, schedule: d.schedule, exp: d.exp, spec: d.spec, days: 0, verified: true, responses: 0, fresh: 0,
+        desc: d.desc, duties: [d.desc], terms: ["Условия уточняются у работодателя"], place: d.city });
+      closeModal(); state.tab = "vacancies"; location.hash = "#/"; render(); toast("Вакансия размещена", "Она уже в каталоге, отклики придут в «Сообщения»");
+    },
+    unpublish: () => unpublishModal(id),
+    "unpublish-send": () => { VACANCIES = VACANCIES.filter((v) => v.id !== id); closeModal(); location.hash = "#/"; toast("Вакансия снята с публикации", "Вернуть её можно в кабинете"); },
+    report: reportModal,
+    "report-send": () => { closeModal(); toast("Жалоба отправлена", "Ответ придёт в уведомления"); },
+    resume: () => { if (!needAuth("resume")) location.href = STAND + "/resume/new"; },
+    "auth-login": () => {
+      const p = state.pendingAction || {};
+      const role = p.kind === "invite" ? "employer" : "worker";
+      closeModal(); setRole(role);
+      toast("Вы вошли", role === "worker" ? "Михаил Соколов, специалист" : "Shine&Go, работодатель");
+      if (p.kind === "apply" && p.id) setTimeout(() => applyModal(p.id), 200);
+      if (p.kind === "invite" && p.id) setTimeout(() => inviteModal(p.id), 200);
+      if (p.kind === "fav" && p.id) { state.fav.add(p.id); refresh(); }
+      state.pendingAction = null;
+    },
+    "auth-register": () => { location.href = STAND + "/register"; },
+    close: closeModal,
+    "close-bg": closeModal,
+    proto: () => { state.protoOpen = !state.protoOpen; renderProto(); },
+    role: () => { state.protoOpen = false; setRole(el.dataset.role); },
+  };
+  actions[act]?.();
+});
+function refresh() { if (route().startsWith("/v/")) render(); else renderResults(); }
+
+document.documentElement.dataset.theme = state.theme;
+render();
+</script>
+</body>
+</html>
