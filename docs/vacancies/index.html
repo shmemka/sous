@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Вакансии и резюме — СОУС</title>
+<title>Вакансии и резюме · СОУС</title>
 <meta name="description" content="Переработанная страница вакансий и резюме платформы СОУС: структура, сценарии и состояния под роли">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -478,7 +478,7 @@ let VACANCIES = [
   { id: "vac-022", title: "Мастер по PPF", org: "Shine&Go", city: "Казань", from: 90000, to: 125000, schedule: "Полный день", exp: "От 3 лет", spec: "Плёнки и PPF", days: 0, verified: true, responses: 12, fresh: 3,
     desc: "Ищем мастера по установке полиуретановой плёнки в действующую детейлинг-студию. Современное оборудование, стабильный поток клиентов и понятная система премирования.",
     duties: ["Оклейка кузова полиуретановой плёнкой: полная и частичная", "Подготовка поверхности, раскрой и контроль качества", "Фотоотчёт по каждому автомобилю"],
-    terms: ["Оформление по ТК, выплаты два раза в месяц", "Пятидневка, 10:00–19:00", "Плёнка и инструмент — от студии"] , place: "Казань, ул. Сибирский тракт, филиал «Центральный»" },
+    terms: ["Оформление по ТК, выплаты два раза в месяц", "Пятидневка, 10:00–19:00", "Плёнку и инструмент даёт студия"] , place: "Казань, ул. Сибирский тракт, филиал «Центральный»" },
   { id: "vac-021", title: "Детейлер-полировщик", org: "АвтоПрофи", city: "Москва", from: 110000, to: null, schedule: "Сменный", exp: "От 1 года", spec: "Полировка", days: 1, verified: true,
     desc: "Полировка кузова и фар, восстановительная и защитная обработка. Работа в команде из шести мастеров.",
     duties: ["Абразивная и защитная полировка кузова", "Восстановление фар и оптики", "Нанесение защитных составов"],
@@ -506,12 +506,12 @@ let VACANCIES = [
   { id: "vac-015", title: "Мойщик-универсал", org: "Мойка 24", city: "Казань", from: 55000, to: 70000, schedule: "Гибкий", exp: "Без опыта", spec: "Мойка", days: 9, verified: false,
     desc: "Мойка кузова, уборка салона, работа на круглосуточной мойке. Можно совмещать с учёбой.",
     duties: ["Мойка кузова и дисков", "Уборка салона", "Поддержание порядка на посту"],
-    terms: ["Гибкий график, смены от 6 часов", "Выплаты каждую неделю", "Без опыта — научим"], place: "Казань, проспект Победы" },
+    terms: ["Гибкий график, смены от 6 часов", "Выплаты каждую неделю", "Можно без опыта, научим"], place: "Казань, проспект Победы" },
 ];
 
 const RESUMES = [
   { id: "worker-001", name: "Михаил Соколов", role: "Детейлер: полировка и PPF", city: "Москва", from: 90000, exp: "От 3 лет", years: "Опыт 6 лет", spec: "Полировка", days: 0, verified: true, schedule: "Полный день",
-    desc: "Полировка, защитные составы и установка PPF. Портфолио — 38 работ, готов к командировкам." },
+    desc: "Полировка, защитные составы и установка PPF. В портфолио 38 работ, готов к командировкам." },
   { id: "worker-002", name: "Александр Волков", role: "Мастер химчистки", city: "Казань", from: 75000, exp: "От 3 лет", years: "Опыт 4 года", spec: "Химчистка", days: 1, verified: true, schedule: "Полный день",
     desc: "Химчистка текстиля и кожи, озонирование, работа со сложными загрязнениями." },
   { id: "worker-003", name: "Дмитрий Ким", role: "Мойщик", city: "Москва", from: 60000, exp: "От 1 года", years: "Опыт 2 года", spec: "Мойка", days: 2, verified: false, schedule: "Сменный",
@@ -806,7 +806,7 @@ function resultsMarkup() {
 function catalogView() {
   const vac = state.tab === "vacancies";
   document.body.className = "catalog-page";
-  document.title = `${vac ? "Вакансии" : "Резюме специалистов"} — СОУС`;
+  document.title = `${vac ? "Вакансии" : "Резюме специалистов"} · СОУС`;
   return `<section class="head"><div class="wrap head-in">
       <div class="head-row">
         <div class="tabs" role="tablist" aria-label="Вакансии или резюме">
@@ -816,7 +816,7 @@ function catalogView() {
         ${headAction()}
       </div>
       <h1>${vac ? "Вакансии" : "Резюме специалистов"}</h1>
-      <p class="lead">${vac ? "Постоянная работа в автомойках, детейлинг-студиях и автосервисах. Разовые смены — в разделе <a class=\"link accent\" href=\"" + STAND + "/gigs\">Подработки</a>" : "Мастера, которые ищут постоянную работу. Опыт, ожидания и проверка документов видны сразу"}</p>
+      <p class="lead">${vac ? "Постоянная работа в автомойках, детейлинг-студиях и автосервисах. Разовые смены ищите в разделе <a class=\"link accent\" href=\"" + STAND + "/gigs\">Подработки</a>" : "Мастера, которые ищут постоянную работу. Опыт, ожидания и проверка документов видны сразу"}</p>
       <form class="search" role="search" data-act-submit="search">
         <label class="s-field"><span class="sr-only">Поиск</span>${icon("search", "lg")}<input id="q" type="search" value="${esc(state.q)}" placeholder="${vac ? "Должность или компания" : "Специализация или имя"}" autocomplete="off"></label>
         <div class="s-field s-city">${dd({ key: "search-city", name: "city", value: state.city, options: CITIES, variant: "bare", iconName: "pin", label: "Город" })}</div>
@@ -839,7 +839,7 @@ function detailView(id) {
   const v = VACANCIES.find((x) => x.id === id);
   if (!v) return `<div class="wrap detail"><a class="back" href="#/">${icon("back")}Все вакансии</a><div class="empty"><h3>Вакансия снята с публикации</h3><p>Посмотрите похожие предложения в каталоге</p><a class="btn" href="#/">К вакансиям</a></div></div>`;
   document.body.className = "detail-page";
-  document.title = `${v.title} — ${v.org} — СОУС`;
+  document.title = `${v.title} · ${v.org} · СОУС`;
   const r = state.role, mine = isMine(v), applied = state.applied.has(v.id);
   const related = VACANCIES.filter((x) => x.id !== v.id && (x.spec === v.spec || x.city === v.city)).slice(0, 3);
   while (related.length < 3) { const extra = VACANCIES.find((x) => x.id !== v.id && !related.includes(x)); if (!extra) break; related.push(extra); }
@@ -864,7 +864,7 @@ function detailView(id) {
     </section>`;
     mbar = applied ? `<span class="btn done">${icon("check")}Отправлен</span>` : `<button class="btn primary" data-act="apply" data-id="${v.id}">Откликнуться</button>`;
   } else {
-    const why = r === "employer" ? "Работодатели не откликаются на вакансии. Ваши вакансии и отклики — в кабинете" : "Откликаться на вакансии могут специалисты";
+    const why = r === "employer" ? "Работодатели не откликаются на вакансии. Ваши вакансии и отклики находятся в кабинете" : "Откликаться на вакансии могут специалисты";
     card = `<section class="panel action-card">
       <div class="money num">${salary(v.from, v.to)}<small>в месяц на руки</small></div>
       <p class="hint">${icon("info")}${why}</p>
@@ -924,7 +924,7 @@ const mHead = (title, sub = "") => `<div class="m-head"><div><h2>${title}</h2>${
 
 function authModal(kind, id) {
   const text = {
-    apply: ["Войдите, чтобы откликнуться", `После входа вернём вас к вакансии «${esc(VACANCIES.find((v) => v.id === id)?.title || "")}» — отклик можно будет отправить сразу`],
+    apply: ["Войдите, чтобы откликнуться", `После входа вернём вас к вакансии «${esc(VACANCIES.find((v) => v.id === id)?.title || "")}», и отклик можно будет отправить сразу`],
     fav: ["Войдите, чтобы сохранить", "Избранные вакансии будут в кабинете на любом устройстве"],
     invite: ["Войдите как работодатель", "Пригласить специалиста можно после входа в аккаунт компании"],
     resume: ["Создайте аккаунт специалиста", "Резюме увидят компании, а вы сможете откликаться на вакансии"],
@@ -947,14 +947,14 @@ function applyModal(id) {
 
 function applySuccess(id) {
   const v = VACANCIES.find((x) => x.id === id);
-  $("#modal-root .modal").innerHTML = `${mHead("", "")}<div class="m-body"><div class="success"><span class="ok-circle">${icon("check")}</span><h3>Отклик отправлен</h3><p>${esc(v.org)} получит ваше резюме в личных сообщениях. Ответ придёт туда же — мы пришлём уведомление</p></div></div>
+  $("#modal-root .modal").innerHTML = `${mHead("", "")}<div class="m-body"><div class="success"><span class="ok-circle">${icon("check")}</span><h3>Отклик отправлен</h3><p>${esc(v.org)} получит ваше резюме в личных сообщениях. Ответ придёт туда же, мы пришлём уведомление</p></div></div>
     <div class="m-foot"><button class="btn" data-act="close">К вакансиям</button><a class="btn primary" href="${STAND}/messages">Открыть сообщения</a></div>`;
 }
 
 function createModal(editId) {
   const guest = state.role === "guest";
   const v = editId ? VACANCIES.find((x) => x.id === editId) : null;
-  openModal(`${mHead(v ? "Изменить вакансию" : "Новая вакансия", guest ? "Заполните без регистрации — черновик сохранится, а опубликовать можно после входа" : "После проверки вакансия появится в каталоге и в поиске")}
+  openModal(`${mHead(v ? "Изменить вакансию" : "Новая вакансия", guest ? "Заполните без регистрации: черновик сохранится, а опубликовать можно после входа" : "После проверки вакансия появится в каталоге и в поиске")}
     <form class="m-body" id="mform">
       <label class="field"><span>Должность</span><input class="input" name="title" required placeholder="Например, детейлер-полировщик" value="${v ? esc(v.title) : ""}" autofocus></label>
       <div class="grid2">
@@ -1162,7 +1162,7 @@ function setRole(role) {
 function soon(path) {
   const page = window.SOUS_FIND_PAGE(path);
   const name = page ? page.title : "Этот экран";
-  toast(`«${name}» ещё в работе`, "Экран появится в прототипе после согласования. Список всех страниц — в круглой кнопке внизу", "info");
+  toast(`«${name}» ещё в работе`, "Экран появится в прототипе после согласования. Список всех страниц открывается круглой кнопкой внизу", "info");
 }
 document.addEventListener("click", (e) => {
   const link = e.target.closest('a[href^="#!"]');
@@ -1199,7 +1199,7 @@ document.addEventListener("click", (e) => {
     fav: () => {
       if (needAuth("fav", id)) return;
       state.fav.has(id) ? state.fav.delete(id) : state.fav.add(id);
-      toast(state.fav.has(id) ? "Сохранено в избранное" : "Убрано из избранного", state.fav.has(id) ? "Избранное — в личном кабинете" : "");
+      toast(state.fav.has(id) ? "Сохранено в избранное" : "Убрано из избранного", state.fav.has(id) ? "Избранное хранится в личном кабинете" : "");
       refresh();
     },
     invite: () => { if (!needAuth("invite", id)) inviteModal(id); },
