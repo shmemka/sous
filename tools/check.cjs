@@ -42,6 +42,8 @@ fs.mkdirSync(out, { recursive: true });
       console.log(`${mode} ${r}: ${shot}`);
       if (overflow.length) { failed = true; console.log("  выходит за край экрана:", overflow.join(", ")); }
       if (dashes) { failed = true; console.log("  длинных тире в тексте:", dashes); }
+      const dots = await p.evaluate(() => (document.body.innerText.match(/·/g) || []).length);
+      if (dots) { failed = true; console.log("  точек-разделителей «·» в тексте:", dots); }
       if (selects) { failed = true; console.log("  системных <select>:", selects); }
     }
     if (errors.length) { failed = true; console.log(`  ошибки (${mode}):`, errors); }

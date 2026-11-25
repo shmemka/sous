@@ -90,6 +90,8 @@ ul{margin:0;padding:0;list-style:none}
 .dd-opt:hover,.dd-opt.active{background:var(--fill-2);color:var(--text)}
 .dd-opt[aria-selected="true"]{color:var(--text);font-weight:500}
 .dd-opt .icon{color:var(--primary);visibility:hidden}
+.dd-opt small{display:block;margin-top:2px;font-size:12px;color:var(--text-3)}
+.dd-opt:has(small){padding-top:8px;padding-bottom:8px}
 .dd-opt[aria-selected="true"] .icon{visibility:visible}
 
 /* ---------- Шапка: 5 групп вместо 12 ссылок ---------- */
@@ -271,6 +273,8 @@ ul{margin:0;padding:0;list-style:none}
 .d-person .tile{width:88px;height:88px;border-radius:50%;font:600 28px/1 var(--font-sans)}
 .d-person h1{font:700 48px/1 var(--font-display)}
 .d-person p{margin-top:6px;font-size:15px;color:var(--text-2)}
+.parts{display:flex;flex-wrap:wrap;align-items:center;gap:2px 12px}
+.count{margin-left:8px;font-weight:500;opacity:.6}
 .d-person .sub{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;margin-top:6px;font-size:13px;color:var(--text-3)}
 .status-line{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:14px;font-weight:500;color:var(--text-2)}
 .status-line span{display:inline-flex;align-items:center;gap:6px}
@@ -293,10 +297,11 @@ ul{margin:0;padding:0;list-style:none}
 .cert>.icon{width:24px;height:24px;color:var(--text-3);justify-self:center}
 .cert b{display:block;font-size:15px;font-weight:600}
 .cert>div>span{display:block;margin-top:2px;font-size:13px;color:var(--text-3)}
+.cert>div>.parts{display:flex}
 .cert b .v-mark{margin-left:4px;vertical-align:-5px}
-.rating-sum{display:flex;align-items:baseline;gap:12px;margin-bottom:16px}
+.rating-sum{display:flex;align-items:center;gap:16px;margin-bottom:16px}
 .rating-sum b{font:700 40px/1 var(--font-display)}
-.rating-sum span{font-size:13px;color:var(--text-3)}
+.rating-sum span{font-size:13px;line-height:1.45;color:var(--text-3)}
 .reviews{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
 .review{display:flex;flex-direction:column;gap:16px;padding:20px;border-radius:var(--r-card);background:var(--fill)}
 .review p{font-size:14px;line-height:1.55;color:var(--text)}

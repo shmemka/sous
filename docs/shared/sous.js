@@ -169,7 +169,7 @@ function openDD(el) {
   const btn = $(".dd-btn", el), opts = DD[el.dataset.dd];
   const pop = document.createElement("div");
   pop.className = "dd-pop"; pop.setAttribute("role", "listbox");
-  pop.innerHTML = opts.map(([v, l]) => `<button type="button" class="dd-opt" role="option" data-act="dd-opt" data-v="${esc(v)}" aria-selected="${v === el.dataset.value}">${esc(l)}${icon("check")}</button>`).join("");
+  pop.innerHTML = opts.map(([v, l, sub]) => `<button type="button" class="dd-opt" role="option" data-act="dd-opt" data-v="${esc(v)}" aria-selected="${v === el.dataset.value}"><span>${esc(l)}${sub ? `<small>${esc(sub)}</small>` : ""}</span>${icon("check")}</button>`).join("");
   document.body.appendChild(pop);
   el.classList.add("open"); btn.setAttribute("aria-expanded", "true");
   ddOpen = { el, pop };
@@ -290,7 +290,7 @@ function pagesPanel() {
   const cur = PAGE.currentPath?.() || PAGE.section;
   const label = { done: "Готово", wip: "В работе" };
   return `<section class="pages-panel" role="dialog" aria-label="Страницы прототипа">
-    <div class="pp-head"><h3>Страницы</h3><p class="num">Готово ${done} из ${all.length} · в работе ${wip}</p>
+    <div class="pp-head"><h3>Страницы</h3><p class="num">Готово ${done} из ${all.length}, в работе ${wip}</p>
       <div class="pp-bar" aria-hidden="true"><i style="width:${done / all.length * 100}%"></i><i class="wip" style="width:${wip / all.length * 100}%"></i></div>
       <div class="pp-legend"><span><i class="st done"></i>Готово</span><span><i class="st wip"></i>В работе</span><span><i class="st todo"></i>Не начато</span><span><i class="st here"></i>Вы здесь</span></div>
     </div>
@@ -311,7 +311,7 @@ function renderProto() {
       <div class="roles">${Object.entries(ROLES).map(([id, r]) => `<button data-act="role" data-role="${id}" aria-pressed="${state.role === id}">${r.label}<span>${hints[id] || ""}</span></button>`).join("")}</div></section>` : ""}
     ${state.pagesOpen ? pagesPanel() : ""}
     <button class="proto-pages" data-act="pages" aria-label="Все страницы прототипа" aria-expanded="${state.pagesOpen}">${icon("pages", "lg")}</button>
-    <button class="proto-btn" data-act="proto" aria-expanded="${state.protoOpen}">Прототип · ${ROLES[state.role].label}${icon("down")}</button>
+    <button class="proto-btn" data-act="proto" aria-expanded="${state.protoOpen}">Роль: ${ROLES[state.role].label}${icon("down")}</button>
   </div>`;
   const list = $(".pp-list"), here = $(".pp-row.here");
   if (list && here) list.scrollTop = here.offsetTop - list.offsetTop - list.clientHeight / 2 + here.offsetHeight / 2;

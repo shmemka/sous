@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css?v=202611250104">
+<link rel="stylesheet" href="../shared/sous.css?v=202611250109">
 <style>
 .meta .on{color:var(--ok)}
 .action-card .status-line{font-size:13px}
@@ -23,8 +23,8 @@
 <div id="toast-root" class="toasts" aria-live="polite"></div>
 <div id="proto-root"></div>
 
-<script src="../shared/pages.js?v=202611250104"></script>
-<script src="../shared/sous.js?v=202611250104"></script>
+<script src="../shared/pages.js?v=202611250109"></script>
+<script src="../shared/sous.js?v=202611250109"></script>
 <script>
 /* =========================================================
    Специалисты: данные
@@ -205,10 +205,10 @@ function card(s) {
   return `<article class="card person ${mine ? "mine" : ""}">
     <span class="tile round" aria-hidden="true">${initials(s.name)}</span>
     <div class="c-main">
-      ${mine ? `<span class="mine-tag">${icon("dot")}${state.visible ? "Ваше резюме · так его видят работодатели" : "Ваше резюме скрыто из поиска"}</span>` : ""}
+      ${mine ? `<span class="mine-tag">${icon("dot")}${state.visible ? "Ваше резюме: так его видят работодатели" : "Ваше резюме скрыто из поиска"}</span>` : ""}
       <h2 class="c-title"><a href="#/v/${s.id}">${esc(s.name)}</a></h2>
       <div class="c-org">${esc(s.role)}${s.verified ? verifiedMark("person") : ""}</div>
-      <div class="meta">${statusMarkup(s)}<span>${icon("pin")}${s.city}</span><span>${icon("briefcase")}Опыт ${yearsText(s.years)}</span><span>${icon("star")}${s.rating}/10 · ${plural(s.reviews, "отзыв", "отзыва", "отзывов")}</span></div>
+      <div class="meta">${statusMarkup(s)}<span>${icon("pin")}${s.city}</span><span>${icon("briefcase")}Опыт ${yearsText(s.years)}</span><span>${icon("star")}${s.rating}/10, ${plural(s.reviews, "отзыв", "отзыва", "отзывов")}</span></div>
       <p class="c-desc">${esc(s.desc)}</p>
     </div>
     <div class="c-side">
@@ -339,10 +339,10 @@ function detailView(id) {
         </section>
         <section class="panel"><h2>О себе</h2><p class="prose">${esc(s.desc)}</p><div class="skills">${s.skills.map((k) => `<span>${esc(k)}</span>`).join("")}</div></section>
         <section class="panel"><h2>Опыт работы</h2><div class="timeline">${s.jobs.map(([p, t, o, d]) => `<article><time>${p}</time><div><b>${esc(t)}</b><span>${esc(o)}</span><p>${esc(d)}</p></div></article>`).join("")}</div></section>
-        ${s.works && gallery.length ? `<section class="panel"><h2>Портфолио · ${plural(s.works, "работа", "работы", "работ")}</h2><div class="gallery">${gallery.map((c) => `<figure>${icon("image")}<figcaption>${esc(c)}</figcaption></figure>`).join("")}</div></section>` : ""}
-        ${s.certs.length ? `<section class="panel"><h2>Сертификаты</h2>${s.certs.map(([n, by, d, num]) => `<div class="cert">${icon("award")}<div><b>${esc(n)}${by.includes("СОУС") ? verifiedMark("cert") : ""}</b><span>${by} · ${d} · № ${num}</span></div>${by.includes("СОУС") ? `<a class="btn sm" href="${pageHref(`/training/certificate/${num}`)}">Проверить</a>` : `<span></span>`}</div>`).join("")}</section>` : ""}
+        ${s.works && gallery.length ? `<section class="panel"><h2>Портфолио<span class="count">${s.works}</span></h2><div class="gallery">${gallery.map((c) => `<figure>${icon("image")}<figcaption>${esc(c)}</figcaption></figure>`).join("")}</div></section>` : ""}
+        ${s.certs.length ? `<section class="panel"><h2>Сертификаты</h2>${s.certs.map(([n, by, d, num]) => `<div class="cert">${icon("award")}<div><b>${esc(n)}${by.includes("СОУС") ? verifiedMark("cert") : ""}</b><span class="parts"><span>${by}, ${d}</span><span class="num">№ ${num}</span></span></div>${by.includes("СОУС") ? `<a class="btn sm" href="${pageHref(`/training/certificate/${num}`)}">Проверить</a>` : `<span></span>`}</div>`).join("")}</section>` : ""}
         <section class="panel"><h2>Отзывы работодателей</h2>
-          <div class="rating-sum"><b class="num">${s.rating}/10</b><span>${plural(s.reviews, "отзыв", "отзыва", "отзывов")} · ${s.positive}% положительных</span></div>
+          <div class="rating-sum"><b class="num">${s.rating}/10</b><span>${plural(s.reviews, "отзыв", "отзыва", "отзывов")}<br>${s.positive}% положительных</span></div>
           <div class="reviews">${reviewsOf(s).map(([au, d, t]) => `<article class="review"><p>${esc(t)}</p><footer><b>${esc(au)}</b><span>${d}</span></footer></article>`).join("")}</div>
         </section>
         <section class="panel"><h2>Дополнительно</h2><div class="lines">${extraOf(s).map(([k, v]) => `<div class="org-line"><span>${k}</span><b>${v}</b></div>`).join("")}</div></section>
@@ -352,7 +352,7 @@ function detailView(id) {
     </div>
     <section class="related">
       <h2>Похожие специалисты</h2>
-      <div class="related-grid">${related.map((x) => `<a class="mini" href="#/v/${x.id}"><b>${esc(x.name)}</b><span>${esc(x.role)} · ${x.city}</span><span class="money num">${moneyMarkup(x).replace(/<small>.*<\/small>/, "")}</span></a>`).join("")}</div>
+      <div class="related-grid">${related.map((x) => `<a class="mini" href="#/v/${x.id}"><b>${esc(x.name)}</b><span>${esc(x.role)}, ${x.city}</span><span class="money num">${moneyMarkup(x).replace(/<small>.*<\/small>/, "")}</span></a>`).join("")}</div>
     </section>
   </div>
   ${mbar ? `<div class="mbar"><div class="money num">${fact1[0]}<small>${fact1[1]}</small></div>${mbar}</div>` : ""}`;
@@ -365,9 +365,9 @@ const byId = (id) => SPECIALISTS.find((x) => x.id === id);
 
 function inviteModal(id) {
   const s = byId(id);
-  openModal(`${mHead("Пригласить на вакансию", `${esc(s.name)} · ${esc(s.role)} · от ${fmt(s.salary)} ₽`)}
+  openModal(`${mHead("Пригласить на вакансию", `${esc(s.name)}. ${esc(s.role)}, от ${fmt(s.salary)} ₽ в месяц`)}
     <form class="m-body" id="mform">
-      <div class="field"><span>Вакансия</span>${dd({ key: "f-vacancy", name: "vacancy", value: MY_VACANCIES[0][0], options: MY_VACANCIES.map(([v, t, m]) => [v, `${t} · ${m}`]) })}</div>
+      <div class="field"><span>Вакансия</span>${dd({ key: "f-vacancy", name: "vacancy", value: MY_VACANCIES[0][0], options: MY_VACANCIES.map(([v, t, m]) => [v, t, m]) })}</div>
       <label class="field"><span>Сообщение</span><textarea class="textarea" placeholder="Добавьте пару слов: почему зовёте именно этого специалиста" autofocus></textarea><small>Необязательно. Приглашение придёт в личные сообщения, специалист сможет откликнуться в один клик</small></label>
     </form>
     <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="invite-send" data-id="${id}">${icon("send")}Отправить приглашение</button></div>`);
@@ -375,9 +375,9 @@ function inviteModal(id) {
 
 function offerModal(id) {
   const s = byId(id);
-  openModal(`${mHead("Предложить смену", `${esc(s.name)} · свободен ${s.gigWhen} · от ${fmt(s.gigRate)} ₽`)}
+  openModal(`${mHead("Предложить смену", `${esc(s.name)}. Свободен ${s.gigWhen}, от ${fmt(s.gigRate)} ₽ за смену`)}
     <form class="m-body" id="mform">
-      <div class="field"><span>Подработка</span>${dd({ key: "f-gig", name: "gig", value: MY_GIGS[0][0], options: MY_GIGS.map(([g, t, w, m]) => [g, `${t} · ${w} · ${m}`]) })}</div>
+      <div class="field"><span>Подработка</span>${dd({ key: "f-gig", name: "gig", value: MY_GIGS[0][0], options: MY_GIGS.map(([g, t, w, m]) => [g, t, `${w}, ${m}`]) })}</div>
       <label class="field"><span>Сообщение</span><textarea class="textarea" placeholder="Когда и куда выйти, что важно знать" autofocus></textarea><small>Если специалист согласится, смена закрепится за ним</small></label>
     </form>
     <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="offer-send" data-id="${id}">${icon("send")}Предложить</button></div>`);

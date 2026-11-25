@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css?v=202611250104">
+<link rel="stylesheet" href="../shared/sous.css?v=202611250109">
 </head>
 <body>
 <a class="sr-only" href="#app">Перейти к содержимому</a>
@@ -19,8 +19,8 @@
 <div id="toast-root" class="toasts" aria-live="polite"></div>
 <div id="proto-root"></div>
 
-<script src="../shared/pages.js?v=202611250104"></script>
-<script src="../shared/sous.js?v=202611250104"></script>
+<script src="../shared/pages.js?v=202611250109"></script>
+<script src="../shared/sous.js?v=202611250109"></script>
 <script>
 /* =========================================================
    Вакансии и резюме: данные
@@ -141,14 +141,14 @@ function filtersMarkup(prefix = "") {
 function vacancyCard(v) {
   const r = state.role, mine = isMine(v);
   let action = "";
-  if (mine) action = `<a class="btn sm" href="#/v/${v.id}">${icon("users")}Отклики · ${v.responses}</a>`;
+  if (mine) action = `<a class="btn sm" href="#/v/${v.id}">${icon("users")}Отклики<span class="count">${v.responses}</span></a>`;
   else if (r === "guest" || r === "worker") action = state.applied.has(v.id)
     ? `<span class="btn sm done">${icon("check")}Отклик отправлен</span>`
     : `<button class="btn sm" data-act="apply" data-id="${v.id}">Откликнуться</button>`;
   const fav = mine ? "" : `<button class="btn sm ghost icon-only fav" data-act="fav" data-id="${v.id}" aria-pressed="${state.fav.has(v.id)}" aria-label="В избранное">${icon("heart", "lg")}</button>`;
   return `<article class="card ${mine ? "mine" : ""}">
     <div class="c-main">
-      ${mine ? `<span class="mine-tag">${icon("dot")}Ваша вакансия${v.fresh ? ` · ${plural(v.fresh, "новый отклик", "новых отклика", "новых откликов")}` : ""}</span>` : ""}
+      ${mine ? `<span class="mine-tag">${icon("dot")}Ваша вакансия${v.fresh ? `: ${plural(v.fresh, "новый отклик", "новых отклика", "новых откликов")}` : ""}</span>` : ""}
       <h2 class="c-title"><a href="#/v/${v.id}">${esc(v.title)}</a></h2>
       <div class="c-org">${esc(v.org)}${v.verified ? `${verifiedMark()}` : ""}</div>
       <div class="meta"><span>${icon("pin")}${v.city}</span><span>${icon("clock")}${v.schedule}</span><span>${icon("briefcase")}${v.exp}</span><span>${v.days === 0 ? "Сегодня" : ago(v.days)}</span></div>
@@ -220,7 +220,7 @@ function detailView(id) {
       <div class="grid2"><a class="btn" href="#" data-act="create" data-edit="${v.id}">${icon("edit")}Изменить</a><button class="btn" data-act="unpublish" data-id="${v.id}">Снять</button></div>
       <p class="hint">${icon("info")}Отклики приходят в «Сообщения» и в кабинет</p>
     </section>`;
-    mbar = `<a class="btn primary" href="${pageHref(`/dashboard`)}">Отклики · ${v.responses}</a>`;
+    mbar = `<a class="btn primary" href="${pageHref(`/dashboard`)}">Отклики<span class="count">${v.responses}</span></a>`;
   } else if (r === "guest" || r === "worker") {
     const btn = applied ? `<span class="btn lg block done">${icon("check")}Отклик отправлен</span>` : `<button class="btn primary lg block" data-act="apply" data-id="${v.id}">Откликнуться</button>`;
     card = `<section class="panel action-card">
@@ -246,7 +246,7 @@ function detailView(id) {
       <div class="d-main">
         <section class="panel d-head">
           <h1>${esc(v.title)}</h1>
-          <div class="d-org"><div><b>${esc(v.org)}</b><span>${v.verified ? `<span class="verified">${icon("badge")}Документы проверены</span> · ` : ""}${v.city}</span></div></div>
+          <div class="d-org"><div><b>${esc(v.org)}</b><span class="parts">${v.verified ? `<span class="verified">${icon("badge")}Документы проверены</span>` : ""}<span>${v.city}</span></span></div></div>
           <div class="facts">
             <div><b class="num">${salary(v.from, v.to)}</b><span>в месяц на руки</span></div>
             <div><b>${v.schedule}</b><span>график</span></div>
@@ -272,7 +272,7 @@ function detailView(id) {
     </div>
     <section class="related">
       <h2>Похожие вакансии</h2>
-      <div class="related-grid">${related.map((x) => `<a class="mini" href="#/v/${x.id}"><b>${esc(x.title)}</b><span>${esc(x.org)} · ${x.city}</span><span class="money num">${salary(x.from, x.to)}</span></a>`).join("")}</div>
+      <div class="related-grid">${related.map((x) => `<a class="mini" href="#/v/${x.id}"><b>${esc(x.title)}</b><span>${esc(x.org)}, ${x.city}</span><span class="money num">${salary(x.from, x.to)}</span></a>`).join("")}</div>
     </section>
   </div>
   ${mbar ? `<div class="mbar"><div class="money num">${salary(v.from, v.to)}<small>в месяц</small></div>${mbar}</div>` : ""}`;
@@ -284,9 +284,9 @@ function detailView(id) {
    ========================================================= */
 function applyModal(id) {
   const v = VACANCIES.find((x) => x.id === id);
-  openModal(`${mHead("Отклик на вакансию", `${esc(v.title)} · ${esc(v.org)}`)}
+  openModal(`${mHead("Отклик на вакансию", `${esc(v.title)}, ${esc(v.org)}`)}
     <form class="m-body" id="mform">
-      <div class="resume-mini"><span class="tile round">МС</span><div><b>Михаил Соколов</b><span>Детейлер · опыт 6 лет · резюме заполнено на 82%</span></div><a class="link" href="${pageHref(`/resume/resume-001/edit`)}">Изменить</a></div>
+      <div class="resume-mini"><span class="tile round">МС</span><div><b>Михаил Соколов</b><span>Детейлер, опыт 6 лет. Резюме заполнено на 82%</span></div><a class="link" href="${pageHref(`/resume/resume-001/edit`)}">Изменить</a></div>
       <label class="field"><span>Сообщение работодателю</span><textarea class="textarea" name="msg" placeholder="Коротко о себе и когда готовы выйти" autofocus></textarea><small>Необязательно. Резюме и портфолио прикрепятся автоматически</small></label>
     </form>
     <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="apply-send" data-id="${id}">${icon("send")}Отправить отклик</button></div>`);

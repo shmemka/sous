@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css?v=202611250104">
+<link rel="stylesheet" href="../shared/sous.css?v=202611250109">
 <style>
 .when-line{display:flex;align-items:center;gap:12px;color:var(--text-2);font-size:15px;margin-top:12px}
 .when-line .icon{color:var(--text-3)}
@@ -25,8 +25,8 @@
 <div id="toast-root" class="toasts" aria-live="polite"></div>
 <div id="proto-root"></div>
 
-<script src="../shared/pages.js?v=202611250104"></script>
-<script src="../shared/sous.js?v=202611250104"></script>
+<script src="../shared/pages.js?v=202611250109"></script>
+<script src="../shared/sous.js?v=202611250109"></script>
 <script>
 /* =========================================================
    Подработки и подмены: данные
@@ -123,7 +123,7 @@ const isMine = (g) => state.role === "employer" && g.org === MY_ORG;
 const myGigs = () => GIGS.filter((g) => g.org === MY_ORG);
 const perHour = (g) => Math.round(g.pay / g.hours / 10) * 10;
 const respWord = (n) => n ? plural(n, "отклик", "отклика", "откликов") : "Пока никто";
-const gigMoney = (g) => `${fmt(g.pay)} ₽<small>${g.unit} · ${fmt(perHour(g))} ₽/ч</small>`;
+const gigMoney = (g) => `${fmt(g.pay)} ₽<small>${g.unit}, ${fmt(perHour(g))} ₽/ч</small>`;
 const workers = () => WORKERS.filter((w) => !w.me || (state.role === "worker" && state.ready));
 
 /* =========================================================
@@ -214,7 +214,7 @@ function filtersMarkup() {
 function gigCard(g) {
   const r = state.role, mine = isMine(g);
   let action = "";
-  if (mine) action = `<a class="btn sm" href="#/v/${g.id}">${icon("users")}Отклики · ${g.responses}</a>`;
+  if (mine) action = `<a class="btn sm" href="#/v/${g.id}">${icon("users")}Отклики<span class="count">${g.responses}</span></a>`;
   else if (r === "guest" || r === "worker") action = state.applied.has(g.id)
     ? `<span class="btn sm done">${icon("check")}Отклик отправлен</span>`
     : `<button class="btn sm" data-act="apply" data-id="${g.id}">Откликнуться</button>`;
@@ -223,7 +223,7 @@ function gigCard(g) {
   let tag = "";
   if (mine) {
     const fresh = responses(g).filter((x) => x.fresh).length;
-    tag = `<span class="mine-tag">${icon("dot")}Ваша подработка${chosen ? " · исполнитель выбран" : fresh ? ` · ${plural(fresh, "новый отклик", "новых отклика", "новых откликов")}` : ""}</span>`;
+    tag = `<span class="mine-tag">${icon("dot")}Ваша подработка${chosen ? ": исполнитель выбран" : fresh ? `: ${plural(fresh, "новый отклик", "новых отклика", "новых откликов")}` : ""}</span>`;
   } else if (g.urgent) tag = `<span class="urgent">${icon("zap")}Срочно</span>`;
   return `<article class="card ${mine ? "mine" : ""}">
     <div class="c-main">
@@ -253,7 +253,7 @@ function workerCard(w) {
       ${mine ? `<span class="mine-tag">${icon("dot")}Вас видят студии</span>` : ""}
       <h2 class="c-title"><a href="${pageHref(`/specialists/${w.id}`)}">${esc(w.name)}</a></h2>
       <div class="c-org">${esc(w.role)}${w.verified ? `${verifiedMark("person")}` : ""}</div>
-      <div class="meta"><span class="ready-on">${icon("zap")}${w.freeText}</span><span>${icon("pin")}${w.city}</span><span>${icon("star")}${w.rating}/10 · ${plural(w.shifts, "смена", "смены", "смен")}</span></div>
+      <div class="meta"><span class="ready-on">${icon("zap")}${w.freeText}</span><span>${icon("pin")}${w.city}</span><span>${icon("star")}${w.rating}/10</span><span>${icon("check")}${plural(w.shifts, "смена", "смены", "смен")}</span></div>
     </div>
     <div class="c-side">
       <div class="money num">от ${fmt(w.rate)} ₽<small>желаемая ставка за смену</small></div>
@@ -319,7 +319,7 @@ function catalogView() {
 function respMarkup(g) {
   const list = responses(g), chosen = state.chosen[g.id];
   if (!list.length) return `<section class="panel"><h2>Отклики</h2><p class="hint">${icon("info")}Пока никто не откликнулся. Предложите смену исполнителям, которые свободны в этот день</p><a class="btn" href="#/workers" style="margin-top:12px">${icon("users")}Исполнители</a></section>`;
-  return `<section class="panel" id="resp"><h2>Отклики · ${list.length}</h2><div class="resp">${list.map((x) => `
+  return `<section class="panel" id="resp"><h2>Отклики<span class="count">${list.length}</span></h2><div class="resp">${list.map((x) => `
     <div class="resp-row">
       <span class="tile round" aria-hidden="true">${initials(x.name)}</span>
       <div><b>${esc(x.name)}</b><div class="sub"><span>${esc(x.role)}</span><span>${icon("star")}${x.rating}/10</span><span>${plural(x.shifts, "смена", "смены", "смен")} на СОУС</span>${x.fresh && !chosen ? `<span class="mine-tag" style="margin:0">новый</span>` : ""}</div><p>${esc(x.msg)}</p></div>
@@ -349,7 +349,7 @@ function detailView(id) {
     card = who
       ? `<section class="panel action-card">
           <span class="mine-tag">${icon("dot")}Исполнитель выбран</span>
-          <div class="resume-mini"><span class="tile round">${initials(who.name)}</span><div><b>${esc(who.name)}</b><span>${fmt(who.rate)} ₽ · ${g.when}</span></div></div>
+          <div class="resume-mini"><span class="tile round">${initials(who.name)}</span><div><b>${esc(who.name)}</b><span>${fmt(who.rate)} ₽, ${g.when}</span></div></div>
           <a class="btn primary lg block" href="${pageHref("/messages")}">${icon("message")}Написать исполнителю</a>
           <p class="hint">${icon("info")}Адрес и контакт руководителя смены отправлены исполнителю. Остальным откликнувшимся пришло уведомление, что смена занята</p>
         </section>`
@@ -360,7 +360,7 @@ function detailView(id) {
           <div class="grid2"><button class="btn" data-act="create" data-edit="${g.id}">${icon("edit")}Изменить</button><button class="btn" data-act="close-gig" data-id="${g.id}">Закрыть</button></div>
           <p class="hint">${icon("info")}Отклики приходят сюда и в «Сообщения». Выбранный исполнитель получит адрес и контакт</p>
         </section>`;
-    mbar = who ? `<a class="btn primary" href="${pageHref("/messages")}">Написать</a>` : list.length ? `<button class="btn primary" data-act="to-resp">Отклики · ${list.length}</button>` : `<a class="btn primary" href="#/workers">Исполнители</a>`;
+    mbar = who ? `<a class="btn primary" href="${pageHref("/messages")}">Написать</a>` : list.length ? `<button class="btn primary" data-act="to-resp">Отклики<span class="count">${list.length}</span></button>` : `<a class="btn primary" href="#/workers">Исполнители</a>`;
   } else if (r === "guest" || r === "worker") {
     const btn = applied
       ? `<span class="btn lg block done">${icon("check")}Отклик отправлен</span><a class="btn block" href="${pageHref("/messages")}">${icon("message")}Перейти к диалогу</a>`
@@ -388,7 +388,7 @@ function detailView(id) {
         <section class="panel d-head">
           ${g.urgent && !mine ? `<span class="urgent">${icon("zap")}Срочно</span>` : ""}
           <h1>${esc(g.title)}</h1>
-          <div class="d-org"><div><b>${esc(g.org)}</b><span>${g.verified ? `<span class="verified">${icon("badge")}Документы проверены</span> · ` : ""}${g.city}</span></div></div>
+          <div class="d-org"><div><b>${esc(g.org)}</b><span class="parts">${g.verified ? `<span class="verified">${icon("badge")}Документы проверены</span>` : ""}<span>${g.city}</span></span></div></div>
           <div class="facts">
             <div><b class="num">${fmt(g.pay)} ₽</b><span>${g.unit}</span></div>
             <div><b>${g.when.split(",")[0]}</b><span>${g.time}</span></div>
@@ -417,7 +417,7 @@ function detailView(id) {
     </div>
     <section class="related">
       <h2>Другие смены рядом</h2>
-      <div class="related-grid">${related.map((x) => `<a class="mini" href="#/v/${x.id}"><b>${esc(x.title)}</b><span>${esc(x.org)} · ${x.city}</span><span>${x.when}, ${x.time}</span><span class="money num">${fmt(x.pay)} ₽</span></a>`).join("")}</div>
+      <div class="related-grid">${related.map((x) => `<a class="mini" href="#/v/${x.id}"><b>${esc(x.title)}</b><span>${esc(x.org)}, ${x.city}</span><span>${x.when}, ${x.time}</span><span class="money num">${fmt(x.pay)} ₽</span></a>`).join("")}</div>
     </section>
   </div>
   ${mbar ? `<div class="mbar"><div class="money num">${fmt(g.pay)} ₽<small>${g.unit}</small></div>${mbar}</div>` : ""}`;
@@ -428,9 +428,9 @@ function detailView(id) {
    ========================================================= */
 function applyModal(id) {
   const g = GIGS.find((x) => x.id === id);
-  openModal(`${mHead("Отклик на смену", `${esc(g.title)} · ${esc(g.org)} · ${g.when}, ${g.time}`)}
+  openModal(`${mHead("Отклик на смену", `${esc(g.title)}, ${esc(g.org)}. ${g.when}, ${g.time}`)}
     <form class="m-body" id="mform">
-      <div class="resume-mini"><span class="tile round">МС</span><div><b>Михаил Соколов</b><span>Полировка и PPF · ${plural(23, "смена", "смены", "смен")} на СОУС · рейтинг 4,9</span></div><a class="link" href="${pageHref("/resume/resume-001/edit")}">Профиль</a></div>
+      <div class="resume-mini"><span class="tile round">МС</span><div><b>Михаил Соколов</b><span>Полировка и PPF, ${plural(23, "смена", "смены", "смен")} на СОУС, рейтинг 9,8/10</span></div><a class="link" href="${pageHref("/resume/resume-001/edit")}">Профиль</a></div>
       <label class="field"><span>Ваша ставка за смену, ₽</span><input class="input num" name="rate" inputmode="numeric" value="${fmt(g.pay)}"><small>Заказчик предлагает ${fmt(g.pay)} ₽ ${g.unit}. Можно назвать свою</small></label>
       <label class="field"><span>Сообщение заказчику</span><textarea class="textarea" name="msg" placeholder="Расскажите о себе и почему вы подходите" autofocus></textarea><small>Необязательно. Профиль и портфолио прикрепятся автоматически</small></label>
     </form>
@@ -481,9 +481,9 @@ function offerModal(id) {
   const w = WORKERS.find((x) => x.id === id);
   const mine = myGigs().filter((g) => !state.chosen[g.id]);
   if (!mine.length) { createModal(); return; }
-  openModal(`${mHead("Предложить смену", `${esc(w.name)} · ${esc(w.role)} · от ${fmt(w.rate)} ₽`)}
+  openModal(`${mHead("Предложить смену", `${esc(w.name)}. ${esc(w.role)}, от ${fmt(w.rate)} ₽ за смену`)}
     <form class="m-body" id="mform">
-      <div class="field"><span>Подработка</span>${dd({ key: "f-gig", name: "gig", value: mine[0].id, options: mine.map((g) => [g.id, `${g.title} · ${g.when.split(",")[0]} · ${fmt(g.pay)} ₽`]) })}</div>
+      <div class="field"><span>Подработка</span>${dd({ key: "f-gig", name: "gig", value: mine[0].id, options: mine.map((g) => [g.id, g.title, `${g.when.split(",")[0]}, ${fmt(g.pay)} ₽`]) })}</div>
       <label class="field"><span>Сообщение</span><textarea class="textarea" placeholder="Когда и куда выйти, что важно знать" autofocus></textarea><small>Предложение придёт исполнителю в личные сообщения. Если он согласится, смена закрепится за ним</small></label>
     </form>
     <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="offer-send" data-id="${id}">${icon("send")}Предложить</button></div>`);
@@ -492,7 +492,7 @@ function offerModal(id) {
 function chooseModal(gid, wid) {
   const g = GIGS.find((x) => x.id === gid), x = responses(g).find((y) => y.id === wid);
   const others = responses(g).length - 1;
-  openModal(`${mHead(`Выбрать ${esc(x.name)}?`, `${esc(g.title)} · ${g.when}, ${g.time} · ${fmt(x.rate)} ₽`)}
+  openModal(`${mHead(`Выбрать ${esc(x.name)}?`, `${esc(g.title)}, ${g.when}, ${g.time}. Ставка ${fmt(x.rate)} ₽`)}
     <div class="m-body"><p class="hint">${icon("info")}Исполнитель получит адрес филиала и контакт руководителя смены.${others ? ` ${plural(others, "откликнувшемуся", "откликнувшимся", "откликнувшимся")} придёт уведомление, что смена занята` : ""}</p></div>
     <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="choose-send" data-id="${gid}" data-w="${wid}" autofocus>Подтвердить смену</button></div>`);
 }
