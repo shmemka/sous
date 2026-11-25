@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css?v=202611250109">
+<link rel="stylesheet" href="../shared/sous.css?v=202611250126">
 <style>
 .when-line{display:flex;align-items:center;gap:12px;color:var(--text-2);font-size:15px;margin-top:12px}
 .when-line .icon{color:var(--text-3)}
@@ -25,8 +25,8 @@
 <div id="toast-root" class="toasts" aria-live="polite"></div>
 <div id="proto-root"></div>
 
-<script src="../shared/pages.js?v=202611250109"></script>
-<script src="../shared/sous.js?v=202611250109"></script>
+<script src="../shared/pages.js?v=202611250126"></script>
+<script src="../shared/sous.js?v=202611250126"></script>
 <script>
 /* =========================================================
    Подработки и подмены: данные
@@ -455,7 +455,7 @@ function createModal(editId) {
                 : `<div class="field"><span>Филиал</span>${dd({ key: "f-branch", name: "city", value: "Казань, «Центральный»", options: ["Казань, «Центральный»", "Казань, «Северный»"] })}<small>Адрес придёт исполнителю после подтверждения</small></div>`}
       </div>
       <div class="grid2">
-        <label class="field"><span>Дата смены</span><input class="input" type="date" name="date" required value="2026-11-26" min="2026-11-25"></label>
+        <div class="field"><span>Дата смены</span>${datePick({ key: "f-date", name: "date", value: "2026-11-26", min: "2026-11-25", label: "Дата смены" })}</div>
         <label class="field"><span>Время</span><input class="input num" name="time" required placeholder="09:00–18:00" value="${g ? g.time : "09:00–18:00"}"></label>
       </div>
       <label class="field"><span>Оплата за смену, ₽</span><input class="input num" name="pay" inputmode="numeric" required placeholder="5 000" value="${g ? g.pay : ""}"></label>
@@ -641,8 +641,8 @@ const PAGE = {
       const pay = Number(String(d.pay).replace(/\D/g, "")) || 0;
       const [a, b] = String(d.time).split(/[–-]/).map((s) => parseInt(s, 10));
       const hours = a >= 0 && b >= 0 ? ((b - a + 24) % 24) || 8 : 8;
-      const day = Math.max(0, Math.round((new Date(d.date) - new Date("2026-11-25")) / 864e5));
-      const dt = new Date(d.date);
+      const dt = parseDate(d.date);
+      const day = Math.max(0, Math.round((dt - parseDate("2026-11-25")) / 864e5));
       const when = day === 0 ? "Сегодня" : day === 1 ? "Завтра" : dt.toLocaleDateString("ru-RU", { weekday: "short" }).replace(/^./, (c) => c.toUpperCase());
       const fields = { title: d.title, spec: d.spec, time: d.time, hours, pay, urgent: !!d.urgent, desc: d.desc, day, when: `${when}, ${dt.toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}` };
       if (el.dataset.edit) {

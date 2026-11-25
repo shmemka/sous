@@ -180,10 +180,10 @@ function placeDD() {
   if (!ddOpen) return;
   const { el, pop } = ddOpen, r = $(".dd-btn", el).getBoundingClientRect();
   if (r.bottom < 0 || r.top > window.innerHeight) return closeDD();
-  const w = Math.max(r.width, 200), below = window.innerHeight - r.bottom;
-  pop.style.minWidth = w + "px";
+  const w = ddOpen.dp ? pop.offsetWidth : Math.max(r.width, 200), below = window.innerHeight - r.bottom;
+  if (!ddOpen.dp) pop.style.minWidth = w + "px";
   pop.style.left = Math.max(8, Math.min(r.left, window.innerWidth - w - 8)) + "px";
-  const up = below < Math.min(pop.offsetHeight + 12, 240) && r.top > below;
+  const up = below < (ddOpen.dp ? pop.offsetHeight + 12 : Math.min(pop.offsetHeight + 12, 240)) && r.top > below;
   pop.style.top = up ? "" : (r.bottom + 6) + "px";
   pop.style.bottom = up ? (window.innerHeight - r.top + 6) + "px" : "";
 }
@@ -203,6 +203,78 @@ function pickDD(v) {
   closeDD(); $(".dd-btn", el).focus();
   if (!PAGE.onDD?.(key, v, el)) setDD(el, v);
 }
+
+/* ---------- Кастомный выбор даты: datePick({ key, name, value, min, max }) ----------
+   Значение в скрытом поле в формате ГГГГ-ММ-ДД, на кнопке «Чт, 26 ноября».
+   Окно календаря живёт в той же системе, что и dd: позиция, закрытие кликом мимо, Esc. */
+const MONTHS = ["январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"];
+const WEEKDAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+const isoDate = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+const parseDate = (v) => { const [y, m, d] = v.split("-").map(Number); return new Date(y, m - 1, d); };
+const addDays = (v, n) => { const d = parseDate(v); d.setDate(d.getDate() + n); return isoDate(d); };
+function dateLabel(v) {
+  const d = parseDate(v), wd = d.toLocaleDateString("ru-RU", { weekday: "short" });
+  const opts = { day: "numeric", month: "long" };
+  if (d.getFullYear() !== new Date().getFullYear()) opts.year = "numeric";
+  return `${wd[0].toUpperCase()}${wd.slice(1)}, ${d.toLocaleDateString("ru-RU", opts).replace(" г.", "")}`;
+}
+function datePick({ key, name = key, value, min = "", max = "", label = "" }) {
+  return `<div class="dd dp" data-dp="${key}" data-value="${value}" data-min="${min}" data-max="${max}">
+    <input type="hidden" name="${name}" value="${value}">
+    <button type="button" class="dd-btn" data-act="dp" aria-haspopup="dialog" aria-expanded="false"${label ? ` aria-label="${label}"` : ""}>${icon("calendar", "lg")}<span class="dd-val">${dateLabel(value)}</span>${icon("down", "chev")}</button>
+  </div>`;
+}
+function openDP(el) {
+  closeDD();
+  const pop = document.createElement("div");
+  pop.className = "dd-pop dp-pop"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", "Выбор даты");
+  document.body.appendChild(pop);
+  el.classList.add("open"); $(".dd-btn", el).setAttribute("aria-expanded", "true");
+  ddOpen = { el, pop, dp: true, focus: el.dataset.value };
+  renderDP();
+  placeDD();
+}
+const dpAllowed = (el, v) => (!el.dataset.min || v >= el.dataset.min) && (!el.dataset.max || v <= el.dataset.max);
+function renderDP(keepFocus) {
+  const { el, pop, focus } = ddOpen, f = parseDate(focus), today = isoDate(new Date());
+  const first = new Date(f.getFullYear(), f.getMonth(), 1);
+  const start = new Date(first); start.setDate(1 - ((first.getDay() + 6) % 7));
+  const prevEnd = isoDate(new Date(f.getFullYear(), f.getMonth(), 0)), nextStart = isoDate(new Date(f.getFullYear(), f.getMonth() + 1, 1));
+  let cells = "";
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(start); d.setDate(start.getDate() + i);
+    const v = isoDate(d), out = d.getMonth() !== f.getMonth(), ok = dpAllowed(el, v);
+    cells += `<button type="button" class="dp-day${out ? " out" : ""}${v === today ? " today" : ""}" data-act="dp-day" data-v="${v}" tabindex="${v === focus ? 0 : -1}" aria-selected="${v === el.dataset.value}" aria-label="${dateLabel(v)}"${ok ? "" : " disabled"}>${d.getDate()}</button>`;
+  }
+  const tomorrow = addDays(today, 1);
+  const quick = [[today, "Сегодня"], [tomorrow, "Завтра"]].filter(([v]) => dpAllowed(el, v));
+  pop.innerHTML = `<div class="dp-head"><b>${MONTHS[f.getMonth()][0].toUpperCase()}${MONTHS[f.getMonth()].slice(1)} ${f.getFullYear()}</b>
+      <button type="button" class="btn sm ghost icon-only" data-act="dp-month" data-v="-1" aria-label="Предыдущий месяц"${dpAllowed(el, prevEnd) ? "" : " disabled"}>${icon("back")}</button>
+      <button type="button" class="btn sm ghost icon-only" data-act="dp-month" data-v="1" aria-label="Следующий месяц"${dpAllowed(el, nextStart) ? "" : " disabled"}>${icon("right")}</button></div>
+    <div class="dp-grid">${WEEKDAYS.map((w, i) => `<span class="dp-wd${i > 4 ? " we" : ""}">${w}</span>`).join("")}${cells}</div>
+    ${quick.length ? `<div class="dp-quick">${quick.map(([v, l]) => `<button type="button" class="btn sm" data-act="dp-day" data-v="${v}">${l}</button>`).join("")}</div>` : ""}`;
+  if (keepFocus) $(`.dp-day[data-v="${focus}"]`, pop)?.focus();
+}
+function moveDP(v) {
+  if (!dpAllowed(ddOpen.el, v)) return;
+  ddOpen.focus = v; renderDP(true);
+}
+function setDP(el, v) { el.dataset.value = v; $("input", el).value = v; $(".dd-val", el).textContent = dateLabel(v); }
+function pickDP(v) {
+  const { el } = ddOpen; const key = el.dataset.dp;
+  closeDD(); $(".dd-btn", el).focus();
+  if (!PAGE.onDD?.(key, v, el)) setDP(el, v);
+}
+function dpKey(e) {
+  const f = ddOpen.focus, step = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 }[e.key];
+  if (step) { e.preventDefault(); moveDP(addDays(f, step)); return true; }
+  if (e.key === "PageUp" || e.key === "PageDown") {
+    e.preventDefault(); const d = parseDate(f); d.setMonth(d.getMonth() + (e.key === "PageUp" ? -1 : 1)); moveDP(isoDate(d)); return true;
+  }
+  if ((e.key === "Enter" || e.key === " ") && e.target.classList?.contains("dp-day")) { e.preventDefault(); pickDP(e.target.dataset.v); return true; }
+  return false;
+}
+
 window.addEventListener("resize", closeDD);
 document.addEventListener("scroll", (e) => { if (ddOpen && !ddOpen.pop.contains(e.target)) placeDD(); }, true);
 
@@ -323,7 +395,10 @@ function setRole(role) { state.role = role; write("sous-role", role); render(); 
 
 /* ---------- События ---------- */
 document.addEventListener("keydown", (e) => {
-  if (ddOpen) {
+  if (ddOpen?.dp) {
+    if (dpKey(e)) return;
+    if (e.key === "Escape") { const b = $(".dd-btn", ddOpen.el); closeDD(); b.focus(); return; }
+  } else if (ddOpen) {
     const opts = $$(".dd-opt", ddOpen.pop), i = opts.findIndex((o) => o.classList.contains("active"));
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       e.preventDefault();
@@ -333,13 +408,20 @@ document.addEventListener("keydown", (e) => {
     }
     if (e.key === "Enter") { e.preventDefault(); pickDD(opts[i].dataset.v); return; }
     if (e.key === "Escape" || e.key === "Tab") { const b = $(".dd-btn", ddOpen.el); closeDD(); if (e.key === "Escape") { b.focus(); return; } }
-  } else if (e.key === "ArrowDown" && e.target.classList?.contains("dd-btn")) { e.preventDefault(); openDD(e.target.closest(".dd")); return; }
+  } else if (e.key === "ArrowDown" && e.target.classList?.contains("dd-btn")) {
+    e.preventDefault(); const box = e.target.closest(".dd");
+    if (box.classList.contains("dp")) { openDP(box); $(`.dp-day[tabindex="0"]`, ddOpen.pop)?.focus(); } else openDD(box);
+    return;
+  }
   if (e.key === "Escape") { closeModal(); closeDrawer(); closeNav(); }
 });
 
 const SHARED_ACTIONS = {
   dd: (el) => { const box = el.closest(".dd"); ddOpen?.el === box ? closeDD() : openDD(box); },
   "dd-opt": (el) => pickDD(el.dataset.v),
+  dp: (el) => { const box = el.closest(".dd"); ddOpen?.el === box ? closeDD() : openDP(box); },
+  "dp-day": (el) => pickDP(el.dataset.v),
+  "dp-month": (el) => { const d = parseDate(ddOpen.focus); d.setDate(1); d.setMonth(d.getMonth() + Number(el.dataset.v)); const v = isoDate(d); ddOpen.focus = dpAllowed(ddOpen.el, v) ? v : ddOpen.el.dataset.min; renderDP(); },
   nav: (el) => { const item = el.closest(".nav-item"); const open = !item.classList.contains("open"); closeNav(); if (open) { item.classList.add("open"); el.setAttribute("aria-expanded", "true"); } },
   /* Светлая тема пока не прорабатывается: кнопка есть, но только сообщает об этом */
   theme: () => toast("Светлая тема ещё в работе", "Пока прототип показываем только в тёмной теме", "info"),

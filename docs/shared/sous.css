@@ -58,7 +58,7 @@ ul{margin:0;padding:0;list-style:none}
 .link{color:var(--text-2);font-size:14px;font-weight:500;transition:color .16s var(--ease)}
 .link:hover{color:var(--text)}
 .link.accent{color:var(--primary);font-weight:600}
-.field{display:grid;gap:6px}
+.field{display:grid;gap:6px;align-content:start}
 .field>span{font-size:13px;font-weight:500;color:var(--text-2)}
 .field small{font-size:12px;color:var(--text-3)}
 .input,.select,.textarea{width:100%;min-height:44px;padding:0 12px;border:0;border-radius:var(--r-control);background:var(--fill);color:var(--text);font-size:14px;transition:background-color .16s var(--ease),box-shadow .16s var(--ease)}
@@ -93,6 +93,22 @@ ul{margin:0;padding:0;list-style:none}
 .dd-opt small{display:block;margin-top:2px;font-size:12px;color:var(--text-3)}
 .dd-opt:has(small){padding-top:8px;padding-bottom:8px}
 .dd-opt[aria-selected="true"] .icon{visibility:visible}
+.dp-pop{width:296px;max-height:none;padding:12px}
+.dp-head{display:flex;align-items:center;gap:4px;margin-bottom:8px;padding-left:6px}
+.dp-head b{margin-right:auto;font-size:15px;font-weight:600}
+.dp-head .btn:disabled{opacity:.3;pointer-events:none}
+.dp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.dp-wd{display:grid;place-items:center;height:28px;font-size:12px;font-weight:500;color:var(--text-3)}
+.dp-day{position:relative;display:grid;place-items:center;height:36px;border-radius:8px;font-size:14px;color:var(--text);font-variant-numeric:tabular-nums;transition:background-color .12s var(--ease),color .12s var(--ease)}
+.dp-day:hover{background:var(--fill-2)}
+.dp-day.out{color:var(--text-3)}
+.dp-day.today::after{content:"";position:absolute;bottom:4px;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--primary)}
+.dp-day.today[aria-selected="true"]::after{background:var(--on-primary)}
+.dp-day[aria-selected="true"]{background:var(--primary);color:var(--on-primary);font-weight:600}
+.dp-day:disabled{color:var(--text-3);opacity:.35;pointer-events:none}
+.dp-day:focus-visible{outline:2px solid var(--primary);outline-offset:-2px}
+.dp-quick{display:flex;gap:8px;margin-top:12px}
+.dp-quick .btn{flex:1}
 
 /* ---------- Шапка: 5 групп вместо 12 ссылок ---------- */
 .top{position:sticky;top:0;z-index:50;background:var(--top-bg);backdrop-filter:blur(12px)}
