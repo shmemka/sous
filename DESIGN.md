@@ -43,7 +43,8 @@
 | Чекбокс, переключатель | `label.check > input + span + .c`, `input.switch` |
 | Шапка страницы | `section.head > .wrap.head-in`: `.head-row` (`.tabs` + действие), `h1`, `.lead`, `form.search` |
 | Каталог | `.catalog` = `aside.filters` + `#results`: `.toolbar`, `.chips`, `.note`, `.list` из `.card`, `.empty` |
-| Карточка | `.card`: `.tile` (логотип, `.round` для людей), `.c-main` (`.c-title`, `.c-org`, `.meta`, `.c-desc`), `.c-side` (`.money`, `.c-actions`) |
+| Карточка | `.card`: без логотипа, акцент на заголовке: `.c-main` (`.c-title`, `.c-org`, `.meta`, `.c-desc`), `.c-side` (`.money`, `.c-actions`). Карточка человека `.card.person` с аватаркой `.tile.round` первой колонкой |
+| Проверка в карточке | `verifiedMark()` или `verifiedMark("person")`: только зелёный щит, подсказка с заголовком и пояснением на наведении и фокусе. На детальной остаётся текст `.verified` |
 | Детальная | `.detail > .back`, `.d-grid` = `.d-main` (`.panel`, `.d-head`, `.facts`, `.bullets`) + `.aside` (`.action-card`, `.org-card`), `.related`, мобильная `.mbar` |
 | Метки и отклики | `.urgent` (Срочно с молнией), список откликов у владельца `.resp > .resp-row` (`.tile.round`, `b`, `.sub`, `p`, `.resp-side`) |
 | Окна | `openModal(mHead(заголовок, подзаголовок) + .m-body + .m-foot)`, `closeModal()`, успех `.success` |

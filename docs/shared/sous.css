@@ -188,22 +188,30 @@ ul{margin:0;padding:0;list-style:none}
 .note .icon{margin-top:2px;color:var(--text-3)}
 .note a{color:var(--primary);font-weight:600}
 
-.list{display:grid;gap:12px}
-.card{position:relative;display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:16px 20px;padding:20px 24px;border-radius:var(--r-card);background:var(--surface);transition:background-color .16s var(--ease)}
+.list{display:grid;gap:16px}
+/* Карточка без логотипа: акцент на заголовке. .card.person: карточка человека с аватаркой */
+.card{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px 32px;padding:28px 32px;border-radius:var(--r-card);background:var(--surface);transition:background-color .16s var(--ease)}
 .card:hover{background:var(--surface-hover)}
+.card.person{grid-template-columns:48px minmax(0,1fr) auto;gap:20px 24px}
 
 .tile{display:grid;place-items:center;width:48px;height:48px;border-radius:12px;background:var(--fill-2);font:700 18px/1 var(--font-display);color:var(--text-2)}
 .tile.round{border-radius:50%;font:600 14px/1 var(--font-sans)}
-.c-main{min-width:0;display:grid;gap:4px}
-.c-title{font-size:18px;font-weight:600;line-height:1.3}
+.c-main{min-width:0;display:grid;gap:6px}
+.c-title{font-size:21px;font-weight:600;line-height:1.25}
 .c-title a::after{content:"";position:absolute;inset:0;border-radius:var(--r-card)}
 .c-org{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text-2)}
 .verified{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:var(--text-3)}
 .verified .icon{width:14px;height:14px;color:var(--ok)}
-.meta{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:4px;font-size:13px;color:var(--text-3)}
+/* Отметка проверки в карточке: только иконка, подсказка на наведении и фокусе (verifiedMark в sous.js) */
+.v-mark{position:relative;z-index:2;display:inline-grid;place-items:center;width:22px;height:22px;border-radius:6px;color:var(--ok);cursor:help}
+.v-mark:focus-visible{outline:2px solid var(--primary);outline-offset:1px}
+.v-mark .tip{position:absolute;left:-8px;top:calc(100% + 8px);width:max-content;max-width:min(280px,80vw);padding:12px 14px;border-radius:12px;background:var(--surface-2);box-shadow:var(--shadow),0 0 0 1px var(--fill);font-size:13px;line-height:1.45;font-weight:400;color:var(--text-2);text-align:left;opacity:0;visibility:hidden;transition:opacity .16s var(--ease),visibility .16s;pointer-events:none}
+.v-mark .tip b{display:block;margin-bottom:4px;font-size:14px;font-weight:600;color:var(--text)}
+.v-mark:hover .tip,.v-mark:focus .tip{opacity:1;visibility:visible}
+.meta{display:flex;flex-wrap:wrap;gap:6px 20px;margin-top:6px;font-size:13px;color:var(--text-3)}
 .meta span{display:inline-flex;align-items:center;gap:6px}
 .meta .icon{width:14px;height:14px}
-.c-desc{margin-top:4px;font-size:14px;color:var(--text-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-width:680px}
+.c-desc{margin-top:6px;line-height:1.55;font-size:14px;color:var(--text-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-width:680px}
 .mine-tag{display:inline-flex;align-items:center;gap:6px;margin-bottom:4px;font-size:13px;font-weight:500;color:var(--primary)}
 .urgent{display:inline-flex;align-items:center;gap:6px;margin-bottom:4px;font-size:13px;font-weight:600;color:var(--text)}
 .urgent .icon{width:14px;height:14px;color:var(--primary)}
@@ -405,9 +413,10 @@ a.pp-row:hover{background:var(--fill)}
   .toolbar{gap:8px;margin-bottom:12px}
 
   .filters-btn{min-height:36px}
-  .card{grid-template-columns:40px minmax(0,1fr);gap:12px;padding:16px}
+  .card{grid-template-columns:minmax(0,1fr);gap:16px;padding:20px}
+  .card.person{grid-template-columns:40px minmax(0,1fr);gap:16px 12px}
   .tile{width:40px;height:40px;font-size:16px;border-radius:10px}
-  .c-title{font-size:16px}
+  .c-title{font-size:18px}
   .c-desc{display:none}
   .c-side{grid-column:1/-1;flex-direction:row;align-items:center;text-align:left}
   .money{font-size:24px}

@@ -117,6 +117,16 @@ const ICONS = {
 };
 const icon = (n, cls = "") => `<svg class="icon ${cls}" viewBox="0 0 16 16" aria-hidden="true">${ICONS[n] || ""}</svg>`;
 
+/* Отметка проверки в карточке списка: иконка с подсказкой вместо слова «Проверена» */
+const VERIFIED = {
+  company: ["Компания проверена", "Модерация СОУС сверила документы компании с данными ЕГРЮЛ"],
+  person: ["Документы проверены", "Модерация СОУС проверила документы специалиста"],
+};
+function verifiedMark(kind = "company") {
+  const [title, text] = VERIFIED[kind];
+  return `<span class="v-mark" tabindex="0" aria-label="${title}. ${text}">${icon("shield", "lg")}<span class="tip" role="tooltip" aria-hidden="true"><b>${title}</b>${text}</span></span>`;
+}
+
 /* ---------- Ссылки на экраны ---------- */
 /* ссылка на экран в этой же папке превращается в якорь, чтобы не перезагружать страницу */
 function localHref(href) {
