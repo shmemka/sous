@@ -36,10 +36,10 @@ ul{margin:0;padding:0;list-style:none}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .icon{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 .icon.lg{width:20px;height:20px}
-/* Иконки в кнопках: filled. Поле выбора (.dd-btn) по виду поле, в нём линейные */
+/* Иконки в кнопках и выпадающих списках: filled */
 .icon .i-f{display:none;fill:currentColor;stroke:none}
-:is(button,.btn,[role="button"]):not(.dd-btn) .icon .i-o{display:none}
-:is(button,.btn,[role="button"]):not(.dd-btn) .icon .i-f{display:inline}
+:is(button,.btn,[role="button"]) .icon .i-o{display:none}
+:is(button,.btn,[role="button"]) .icon .i-f{display:inline}
 .wrap{width:min(1240px,calc(100% - 64px));margin:0 auto}
 .num{font-variant-numeric:tabular-nums}
 
