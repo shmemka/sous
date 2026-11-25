@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css?v=202611251524">
+<link rel="stylesheet" href="../shared/sous.css?v=202611251529">
 <style>
 /* Быстрый старт */
 .rs-new{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start;padding:8px 0 96px}
@@ -79,10 +79,10 @@
 .item p{margin-top:6px;font-size:14px;color:var(--text-2)}
 .item-acts{display:flex;gap:4px;margin:-4px -4px 0 0}
 .item.locked{background:transparent;box-shadow:inset 0 0 0 1px var(--fill-2)}
-.rs-edit .gallery figure .del{position:absolute;top:8px;right:8px;z-index:1;border-radius:50%;background:rgba(10,5,3,.7);opacity:0;transition:opacity .16s var(--ease),background-color .16s var(--ease)}
+.rs-edit .gallery figure .del{position:absolute;top:8px;right:8px;z-index:1;border-radius:50%;background:transparent;color:var(--text-2);opacity:0;transition:opacity .16s var(--ease),background-color .16s var(--ease),color .16s var(--ease)}
 .rs-edit .gallery figure:hover .del,.rs-edit .gallery figure:focus-within .del{opacity:1}
 @media (hover:none){.rs-edit .gallery figure .del{opacity:1}}
-.rs-edit .gallery figure .del:hover{background:rgba(10,5,3,.85)}
+.rs-edit .gallery figure .del:hover,.rs-edit .gallery figure .del:focus-visible{background:rgba(10,5,3,.8);color:var(--text)}
 .rs-edit .gallery figure button.open{position:absolute;inset:0;border-radius:12px}
 .work-add{display:grid;place-content:center;justify-items:center;gap:6px;aspect-ratio:4/3;border-radius:12px;background:var(--fill);font-size:13px;font-weight:600;color:var(--text-2);transition:background-color .16s var(--ease),color .16s var(--ease)}
 .work-add:hover{background:var(--fill-2);color:var(--text)}
@@ -94,7 +94,9 @@
 
 /* Боковая карточка: заполненность, разделы, видимость */
 .rs-card{display:grid;gap:16px}
-.rs-score{font:700 44px/1 var(--font-display)}
+.rs-score{display:grid;gap:4px}
+.rs-score b{font:700 44px/1 var(--font-display)}
+.rs-score span{font-size:13px;color:var(--text-3)}
 .meter{height:6px;border-radius:3px;background:var(--fill-2);overflow:hidden}
 .meter i{display:block;height:100%;border-radius:3px;background:var(--primary);transition:width .3s var(--ease)}
 .rs-nav{display:grid;gap:2px;margin:0 -8px}
@@ -127,8 +129,8 @@
 <div id="toast-root" class="toasts" aria-live="polite"></div>
 <div id="proto-root"></div>
 
-<script src="../shared/pages.js?v=202611251524"></script>
-<script src="../shared/sous.js?v=202611251524"></script>
+<script src="../shared/pages.js?v=202611251529"></script>
+<script src="../shared/sous.js?v=202611251529"></script>
 <script>
 /* =========================================================
    Резюме: быстрый старт (#/new) и редактор (#/edit)
@@ -278,7 +280,7 @@ function asideCard() {
     <a class="btn block" href="${pageHref(MY_PROFILE)}">Как видят работодатели</a>
   </section>
   <section class="panel rs-card">
-    <b class="rs-score num" aria-label="Резюме заполнено на ${s}%">${s}%</b>
+    <div class="rs-score"><b class="num">${s}%</b><span>Заполнение резюме</span></div>
     <div class="meter" aria-hidden="true"><i style="width:${s}%"></i></div>
     <nav class="rs-nav" aria-label="Разделы резюме">${SECTIONS.map(([id, t, f]) => { const x = f(r), ok = x.got >= x.max; return `<button class="${ok ? "ok" : ""}" data-act="goto" data-id="${id}">${icon(ok ? "check" : "circle")}<span>${t}</span></button>`; }).join("")}</nav>
   </section>`;

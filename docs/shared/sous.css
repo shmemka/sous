@@ -306,7 +306,7 @@ ul{margin:0;padding:0;list-style:none}
 .timeline p{margin-top:6px;font-size:14px;color:var(--text-2)}
 .gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .gallery figure{position:relative;margin:0;aspect-ratio:4/3;border-radius:12px;overflow:hidden;background:linear-gradient(135deg,var(--fill-2),var(--fill))}
-.gallery figure .icon{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);width:24px;height:24px;color:var(--text-3)}
+.gallery figure>.icon{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);width:24px;height:24px;color:var(--text-3)}
 .gallery figcaption{position:absolute;left:0;right:0;bottom:0;padding:10px 12px;font-size:12px;color:var(--text-2)}
 .cert{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px 16px;align-items:center;padding:16px;border-radius:var(--r-card);background:var(--fill)}
 .cert+.cert{margin-top:8px}
