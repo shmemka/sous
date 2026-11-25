@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css?v=202611251513">
+<link rel="stylesheet" href="../shared/sous.css?v=202611251515">
 <style>
 /* Быстрый старт */
 .rs-new{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start;padding:8px 0 96px}
@@ -94,9 +94,8 @@
 
 /* Боковая карточка: заполненность, разделы, видимость */
 .rs-card{display:grid;gap:16px}
-.rs-score{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
-.rs-score b{font:700 44px/1 var(--font-display)}
-.rs-score span{font-size:13px;color:var(--text-3);text-align:right}
+.rs-score{font:700 44px/1 var(--font-display)}
+.rs-status{margin-top:-8px;font-size:13px;color:var(--text-3)}
 .meter{height:6px;border-radius:3px;background:var(--fill-2);overflow:hidden}
 .meter i{display:block;height:100%;border-radius:3px;background:var(--primary);transition:width .3s var(--ease)}
 .rs-nav{display:grid;gap:2px;margin:0 -8px}
@@ -105,15 +104,11 @@
 .rs-nav .icon{margin-top:2px;color:var(--text-3)}
 .rs-nav .ok .icon{color:var(--ok)}
 .rs-nav small{grid-column:2;font-size:12px;color:var(--text-3)}
-.rs-live{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:var(--text-2)}
-.rs-live .icon{color:var(--ok)}
-.rs-live.off .icon{color:var(--text-3)}
-.saved{font-size:12px;color:var(--text-3)}
 
 @media (max-width:960px){
   .rs-new{grid-template-columns:minmax(0,1fr)}
   .rs-edit .aside{order:-1}
-  .rs-edit .aside .rs-nav,.rs-edit .aside .saved{display:none}
+  .rs-edit .aside .rs-nav{display:none}
 }
 @media (max-width:640px){
   .seek{grid-template-columns:1fr}
@@ -134,8 +129,8 @@
 <div id="toast-root" class="toasts" aria-live="polite"></div>
 <div id="proto-root"></div>
 
-<script src="../shared/pages.js?v=202611251513"></script>
-<script src="../shared/sous.js?v=202611251513"></script>
+<script src="../shared/pages.js?v=202611251515"></script>
+<script src="../shared/sous.js?v=202611251515"></script>
 <script>
 /* =========================================================
    Резюме: быстрый старт (#/new) и редактор (#/edit)
@@ -180,7 +175,7 @@ const myResume = () => ({
   visible: true,
 });
 
-Object.assign(state, { resume: myResume(), draft: null, savedAt: null });
+Object.assign(state, { resume: myResume(), draft: null });
 const R = () => state.resume;
 
 /* ---------- Заполненность: 100 баллов по разделам ---------- */
@@ -273,15 +268,17 @@ function newView() {
 
 /* ---------- Редактор ---------- */
 function asideCard() {
-  const r = R(), s = score(r), live = required(r) && r.visible;
+  const r = R(), s = score(r);
+  const status = !required(r) ? "Заполните основное, чтобы резюме появилось в каталоге" : r.visible ? "Студии видят резюме в каталоге" : "Студии не видят резюме. Отклики на вакансии работают";
   return `<section class="panel rs-card">
-    <div class="rs-score"><b class="num">${s}%</b><span>резюме заполнено</span></div>
-    <div class="meter" aria-hidden="true"><i style="width:${s}%"></i></div>
-    <nav class="rs-nav" aria-label="Разделы резюме">${SECTIONS.map(([id, t, f]) => { const x = f(r), ok = x.got >= x.max; return `<button class="${ok ? "ok" : ""}" data-act="goto" data-id="${id}">${icon(ok ? "done" : "circle")}<span>${t}</span>${ok ? "" : `<small>${x.tip}</small>`}</button>`; }).join("")}</nav>
-    <div class="rs-live ${live ? "" : "off"}">${icon(live ? "done" : "circle")}${live ? "Опубликовано, студии видят резюме" : required(r) ? "Скрыто из поиска" : "Не опубликовано: заполните основное"}</div>
     <label class="toggle-row"><span>Показывать в поиске</span><input class="switch" type="checkbox" data-act="visible" ${r.visible ? "checked" : ""}></label>
+    <p class="rs-status">${status}</p>
     <a class="btn block" href="${pageHref(MY_PROFILE)}">Как видят работодатели</a>
-    <p class="saved" aria-live="polite">${state.savedAt ? `Изменения сохранены в ${state.savedAt}` : "Изменения сохраняются сами"}</p>
+  </section>
+  <section class="panel rs-card">
+    <b class="rs-score num" aria-label="Резюме заполнено на ${s}%">${s}%</b>
+    <div class="meter" aria-hidden="true"><i style="width:${s}%"></i></div>
+    <nav class="rs-nav" aria-label="Разделы резюме">${SECTIONS.map(([id, t, f]) => { const x = f(r), ok = x.got >= x.max; return `<button class="${ok ? "ok" : ""}" data-act="goto" data-id="${id}">${icon(ok ? "check" : "circle")}<span>${t}</span>${ok ? "" : `<small>${x.tip}</small>`}</button>`; }).join("")}</nav>
   </section>`;
 }
 
@@ -443,10 +440,8 @@ function formData(id = "mform") {
   return Object.fromEntries(new FormData(f));
 }
 
-/* ---------- Сохранение и перерисовка ---------- */
+/* ---------- Сохранение и перерисовка: правки сохраняются сразу, обновляем карточку справа ---------- */
 function saved() {
-  const d = new Date();
-  state.savedAt = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
   const a = $("#rs-aside");
   if (a) a.innerHTML = asideCard();
 }
@@ -564,7 +559,7 @@ const PAGE = {
     const d = state.draft;
     state.resume = { ...myResume(), photo: false, name: d.name, role: d.role, spec: d.spec, city: d.city, years: d.years || "0", job: !!d.job, gig: !!d.gig,
       salary: "", schedule: "Полный день", gigWhen: "на выходных", gigRate: "", desc: "", skills: [], jobs: [], certs: [], works: [], email: "", tg: "", langs: "", trips: false };
-    state.draft = null; state.savedAt = null;
+    state.draft = null;
     location.hash = "#/edit";
     setTimeout(() => toast("Резюме опубликовано", "Оно уже в каталоге. Дополните опыт и портфолио: так студии пригласят быстрее"), 50);
   },
