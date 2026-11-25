@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Резюме · СОУС</title>
+<meta name="description" content="Переработанное создание и редактирование резюме специалиста СОУС: быстрый старт без регистрации и редактор с автосохранением">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/sous.css?v=202611251454">
+<style>
+/* Быстрый старт */
+.rs-new{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start;padding:8px 0 96px}
+.rs-form{display:grid;gap:20px}
+.rs-form .rs-send{display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px}
+.rs-next{display:grid;gap:16px}
+.rs-next h2{font-size:18px;font-weight:600}
+.rs-next ol{display:grid;gap:16px;list-style:none;margin:0;padding:0}
+.rs-next li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:12px;font-size:14px;color:var(--text-2)}
+.rs-next li b{display:block;color:var(--text);font-weight:600}
+.rs-next .n{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--fill-2);font-size:13px;font-weight:600;color:var(--text)}
+.rs-state{padding:24px 0 96px}
+
+/* Что ищу: две карточки-переключателя */
+.seek{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.check.seek-opt{align-items:flex-start;padding:16px;border-radius:12px;background:var(--fill);transition:background-color .16s var(--ease)}
+.check.seek-opt:hover{background:var(--fill-2)}
+.check.seek-opt:has(input:checked){background:rgba(238,90,32,.12)}
+.check.seek-opt input{margin-top:1px}
+.seek-opt b{display:block;color:var(--text);font-weight:600}
+.seek-opt small{display:block;margin-top:2px;font-size:13px;color:var(--text-3)}
+
+/* Редактор */
+.rs-top{margin-bottom:24px}
+.rs-top h1{font:700 48px/1 var(--font-display)}
+.rs-top p{margin-top:8px;font-size:15px;color:var(--text-2)}
+.rs-edit .panel{scroll-margin-top:88px}
+.rs-edit .panel h2{display:flex;align-items:center;gap:8px}
+.sec-sub{margin:-4px 0 16px;font-size:14px;color:var(--text-3)}
+.fields{display:grid;gap:16px}
+.sub-block{display:grid;gap:12px;padding-top:16px;border-top:1px solid var(--line)}
+.sub-block h3{font-size:14px;font-weight:600;color:var(--text-2)}
+.checks{display:flex;flex-wrap:wrap;gap:4px 24px}
+.rs-photo{display:flex;align-items:center;gap:16px}
+.rs-photo .tile{width:72px;height:72px;border-radius:50%;font:600 24px/1 var(--font-sans)}
+.rs-photo .tile.ph{background:linear-gradient(135deg,#8a4524,#2b1a11);color:rgba(255,255,255,.85)}
+.rs-photo .btns{display:flex;flex-wrap:wrap;gap:8px}
+.skill-edit{display:flex;flex-wrap:wrap;gap:8px}
+.add-row{display:flex;gap:8px}
+.add-row .input{flex:1}
+.suggest{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px;color:var(--text-3)}
+.suggest .chip{padding:0 12px 0 8px}
+.items{display:grid;gap:8px;margin-bottom:12px}
+.item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:start;padding:16px;border-radius:12px;background:var(--fill)}
+.item b{display:flex;align-items:center;gap:4px;font-size:15px;font-weight:600}
+.item .parts{margin-top:2px;font-size:13px;color:var(--text-3)}
+.item p{margin-top:6px;font-size:14px;color:var(--text-2)}
+.item-acts{display:flex;gap:4px;margin:-4px -4px 0 0}
+.item.locked{background:transparent;box-shadow:inset 0 0 0 1px var(--fill-2)}
+.rs-edit .gallery figure .del{position:absolute;top:8px;right:8px;background:rgba(10,5,3,.6)}
+.rs-edit .gallery figure .del:hover{background:rgba(10,5,3,.85)}
+.rs-edit .gallery figure button.open{position:absolute;inset:0;border-radius:12px}
+.work-add{display:grid;place-content:center;justify-items:center;gap:6px;aspect-ratio:4/3;border-radius:12px;background:var(--fill);font-size:13px;font-weight:600;color:var(--text-2);transition:background-color .16s var(--ease),color .16s var(--ease)}
+.work-add:hover{background:var(--fill-2);color:var(--text)}
+.work-add .icon{width:20px;height:20px}
+.file-btn{position:relative;cursor:pointer}
+.file-btn:focus-within{box-shadow:var(--ring)}
+.input[readonly]{color:var(--text-2);cursor:default}
+.input[readonly]:hover{background:var(--fill)}
+
+/* Боковая карточка: заполненность, разделы, видимость */
+.rs-card{display:grid;gap:16px}
+.rs-score{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.rs-score b{font:700 44px/1 var(--font-display)}
+.rs-score span{font-size:13px;color:var(--text-3);text-align:right}
+.meter{height:6px;border-radius:3px;background:var(--fill-2);overflow:hidden}
+.meter i{display:block;height:100%;border-radius:3px;background:var(--primary);transition:width .3s var(--ease)}
+.rs-nav{display:grid;gap:2px;margin:0 -8px}
+.rs-nav button{display:grid;grid-template-columns:16px minmax(0,1fr);gap:2px 10px;padding:8px;border-radius:8px;text-align:left;font-size:14px;color:var(--text-2);transition:background-color .16s var(--ease)}
+.rs-nav button:hover{background:var(--fill);color:var(--text)}
+.rs-nav .icon{margin-top:2px;color:var(--text-3)}
+.rs-nav .ok .icon{color:var(--ok)}
+.rs-nav small{grid-column:2;font-size:12px;color:var(--text-3)}
+.rs-live{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:var(--text-2)}
+.rs-live .icon{color:var(--ok)}
+.rs-live.off .icon{color:var(--text-3)}
+.saved{font-size:12px;color:var(--text-3)}
+
+@media (max-width:960px){
+  .rs-new{grid-template-columns:minmax(0,1fr)}
+  .rs-edit .aside{order:-1}
+  .rs-edit .aside .rs-nav,.rs-edit .aside .saved{display:none}
+}
+@media (max-width:640px){
+  .seek{grid-template-columns:1fr}
+  .rs-top h1{font-size:40px}
+  .item{padding:14px}
+}
+</style>
+</head>
+<body>
+<a class="sr-only" href="#app">Перейти к содержимому</a>
+<header class="top" id="top"></header>
+<main id="app" tabindex="-1"></main>
+<footer class="footer" id="footer"></footer>
+<div id="modal-root"></div>
+<div id="toast-root" class="toasts" aria-live="polite"></div>
+<div id="proto-root"></div>
+
+<script src="../shared/pages.js?v=202611251454"></script>
+<script src="../shared/sous.js?v=202611251454"></script>
+<script>
+/* =========================================================
+   Резюме: быстрый старт (#/new) и редактор (#/edit)
+   /resume/:id и /resumes ведут в раздел «Специалисты»
+   ========================================================= */
+const SPECS = ["Мойка", "Полировка", "Химчистка", "Керамика", "Оклейка и PPF", "Администратор"];
+const SUGGEST = {
+  "Мойка": ["Двухфазная мойка", "Уборка салона", "Мойка дисков", "Мойка двигателя", "Сушка без разводов"],
+  "Полировка": ["Абразивная полировка", "Восстановление фар", "Работа с толщиномером", "Антидождь", "Полировка стёкол"],
+  "Химчистка": ["Химчистка текстиля", "Уход за кожей", "Озонирование", "Чистка потолка"],
+  "Керамика": ["Подготовка ЛКП", "Керамика в 2–3 слоя", "Керамика на диски", "Работа под лампами"],
+  "Оклейка и PPF": ["Полная оклейка PPF", "Винил", "Ручной раскрой", "Демонтаж плёнок"],
+  "Администратор": ["CRM", "Запись клиентов", "Приёмка с фотофиксацией", "Кассовая дисциплина"],
+};
+const WHEN = [["сегодня и завтра", "Сегодня и завтра"], ["на выходных", "На выходных"], ["по будням", "По будням"], ["со следующей недели", "Со следующей недели"]];
+const SCHEDULES = ["Полный день", "Сменный", "Совместительство"];
+const YEARS = Array.from({ length: 22 }, (_, i) => String(2026 - i));
+const MY_PROFILE = "/specialists/worker-001";
+
+/* Резюме Михаила Соколова: то же, что видно в его профиле у специалистов */
+const myResume = () => ({
+  photo: false, name: "Михаил Соколов", role: "Детейлер: полировка и PPF", spec: "Полировка", city: "Москва", years: "6",
+  job: true, salary: "90000", schedule: ["Полный день"], gig: true, gigWhen: "на выходных", gigRate: "6000",
+  desc: "Шесть лет работаю с лакокрасочными покрытиями и защитными материалами. Восстановительная полировка, керамика и установка полиуретановой плёнки. Показываю процесс, фиксирую результат и отвечаю за каждый этап.",
+  skills: ["Восстановительная полировка", "Установка PPF", "Керамические составы", "Химчистка кожи", "Матовое ЛКП", "Фотоотчёт"],
+  jobs: [
+    { from: "2022", to: "", title: "Старший детейлер", org: "АвтоПрофи, Москва", desc: "Полировка и защита премиальных автомобилей, контроль качества, обучение младших мастеров" },
+    { from: "2020", to: "2022", title: "Детейлер", org: "CleanLab, Москва", desc: "Комплексная подготовка автомобилей, химчистка салона, керамика" },
+  ],
+  certs: [
+    { name: "Мастер детейлинга", by: "Учебный центр СОУС", year: "2026", num: "UC-2026-001", sous: true },
+    { name: "Установка PPF, продвинутый курс", by: "Wrap Academy", year: "2026", num: "PPF-2026-184", file: true },
+  ],
+  works: [
+    { title: "Полировка капота", spec: "Полировка", car: "BMW X5", desc: "Восстановительная полировка в два этапа, замеры толщиномером" },
+    { title: "Восстановление фар", spec: "Полировка", car: "Toyota Camry", desc: "Шлифовка, полировка и защитный лак" },
+    { title: "Кузов до и после", spec: "Полировка", car: "Mercedes E-класс", desc: "Полировка и керамика в два слоя" },
+  ],
+  citizenship: "Россия", license: "Категория B", medbook: "Есть", trips: true, move: false, langs: "Русский, английский базовый",
+  phone: "+7 (999) 521-22-51", email: "mike@example.ru", tg: "",
+  visible: true,
+});
+
+Object.assign(state, { resume: myResume(), draft: null, savedAt: null });
+const R = () => state.resume;
+
+/* ---------- Заполненность: 100 баллов по разделам ---------- */
+const required = (r) => r.name.trim() && r.role.trim() && r.spec && r.city;
+const SECTIONS = [
+  ["s-main", "Основное", (r) => ({ got: (required(r) ? 16 : 0) + (r.photo ? 8 : 0), max: 24, tip: !required(r) ? "Заполните имя, должность и город" : "Добавьте фото: так резюме узнают в списке" })],
+  ["s-seek", "Что ищу", (r) => { const miss = (r.job && !r.salary) ? "Укажите зарплату" : (r.gig && !r.gigRate) ? "Укажите ставку за смену" : ""; return { got: miss ? 6 : 12, max: 12, tip: miss }; }],
+  ["s-about", "О себе и навыки", (r) => ({ got: (r.desc.trim().length >= 80 ? 10 : 0) + (r.skills.length >= 3 ? 8 : 0), max: 18, tip: r.desc.trim().length < 80 ? "Пара предложений о том, что умеете лучше всего" : "Добавьте хотя бы 3 навыка" })],
+  ["s-jobs", "Опыт работы", (r) => ({ got: r.jobs.length || r.years === "0" ? 14 : 0, max: 14, tip: "Добавьте место работы" })],
+  ["s-certs", "Сертификаты", (r) => ({ got: r.certs.length ? 8 : 0, max: 8, tip: "Сертификат повышает доверие студии" })],
+  ["s-works", "Портфолио", (r) => ({ got: Math.round(Math.min(r.works.length, 6) / 6 * 10), max: 10, tip: `Ещё ${plural(6 - r.works.length, "работа", "работы", "работ")}: покажите результат до и после` })],
+  ["s-extra", "Дополнительно", (r) => ({ got: r.citizenship && r.medbook ? 6 : 0, max: 6, tip: "Гражданство и медкнижка" })],
+  ["s-contacts", "Контакты", (r) => ({ got: r.email.trim() || r.tg.trim() ? 8 : 0, max: 8, tip: "Email или Telegram" })],
+];
+const score = (r = R()) => SECTIONS.reduce((s, [, , f]) => s + f(r).got, 0);
+
+/* ---------- Поля ---------- */
+const val = (v) => esc(v ?? "");
+const inp = (key, label, { ph = "", cls = "", mode = "", small = "", req = false, ro = false } = {}) =>
+  `<label class="field"><span>${label}</span><input class="input ${cls}" id="f-${key}" data-f="${key}" value="${val(R()[key])}"${ph ? ` placeholder="${ph}"` : ""}${mode ? ` inputmode="${mode}"` : ""}${req ? " required" : ""}${ro ? " readonly" : ""}>${small ? `<small>${small}</small>` : ""}</label>`;
+const chk = (key, label) => `<label class="check"><input type="checkbox" id="f-${key}" data-f="${key}" ${R()[key] ? "checked" : ""}><span>${label}</span></label>`;
+const seekCards = (job, gig, prefix = "f") => `<div class="seek">
+  <label class="check seek-opt"><input type="checkbox" id="${prefix}-job" name="job" data-f="${prefix === "f" ? "job" : ""}" ${job ? "checked" : ""}><span><b>Постоянная работа</b><small>Студии пригласят на вакансию</small></span></label>
+  <label class="check seek-opt"><input type="checkbox" id="${prefix}-gig" name="gig" data-f="${prefix === "f" ? "gig" : ""}" ${gig ? "checked" : ""}><span><b>Подработки и подмены</b><small>Предложат смену на день или выходные</small></span></label>
+</div>`;
+
+/* ---------- Быстрый старт ---------- */
+function newView() {
+  document.title = "Создать резюме · СОУС";
+  const r = state.role;
+  const head = `<section class="head"><div class="wrap head-in">
+    <h1>Создать резюме</h1>
+    <p class="lead">Пять полей, и резюме появится в каталоге специалистов. Опыт, сертификаты и портфолио добавите потом в редакторе</p>
+  </div></section>`;
+  if (r === "worker") return `${head}<div class="wrap rs-state"><div class="empty">
+    <h3>Резюме уже есть</h3>
+    <p>У специалиста одно резюме. Оно заполнено на ${score()}%: дополните его, чтобы студии чаще приглашали вас</p>
+    <div class="parts"><a class="btn primary" href="#/edit">${icon("edit")}Открыть редактор</a><a class="btn" href="${pageHref(MY_PROFILE)}">Как видят работодатели</a></div>
+  </div></div>`;
+  if (r !== "guest") return `${head}<div class="wrap rs-state"><div class="empty">
+    <h3>Резюме создают специалисты</h3>
+    <p>${r === "employer" ? "Вы вошли как работодатель. Сотрудников ищите в каталоге специалистов, а вакансию разместите в разделе «Вакансии»" : "Резюме привязано к аккаунту специалиста. Если вы ищете работу в индустрии, войдите как специалист"}</p>
+    <div class="parts"><a class="btn primary" href="${pageHref("/specialists")}">${icon("users")}Найти специалистов</a>${r === "employer" ? `<a class="btn" href="${pageHref("/vacancies")}">Разместить вакансию</a>` : ""}</div>
+  </div></div>`;
+  const d = state.draft || {};
+  return `${head}<div class="wrap rs-new">
+    <form class="panel rs-form" id="newform" novalidate>
+      <label class="field"><span>Имя и фамилия</span><input class="input" name="name" required autocomplete="name" placeholder="Например, Михаил Соколов" value="${val(d.name)}"></label>
+      <label class="field"><span>Кем работаете</span><input class="input" name="role" required placeholder="Например, детейлер: полировка и PPF" value="${val(d.role)}"><small>Эта строка стоит под именем в каталоге</small></label>
+      <div class="grid2">
+        <div class="field"><span>Специализация</span>${dd({ key: "n-spec", name: "spec", value: d.spec || "Полировка", options: SPECS })}</div>
+        <div class="field"><span>Город</span>${dd({ key: "n-city", name: "city", value: d.city || "Москва", options: CITIES.slice(1) })}</div>
+      </div>
+      <label class="field"><span>Опыт в профессии, лет</span><input class="input num" name="years" inputmode="numeric" maxlength="2" placeholder="0, если только начинаете" value="${val(d.years)}"></label>
+      <div class="field"><span>Что ищете</span>${seekCards(d.job ?? true, d.gig ?? false, "n")}<small>Можно выбрать оба или ни одного: тогда резюме будет портфолио</small></div>
+      <div class="rs-send"><button class="btn primary lg" type="button" data-act="new-send">Создать резюме</button><span class="hint">${icon("info")}Вход по телефону на следующем шаге, ответы не пропадут</span></div>
+    </form>
+    <aside class="panel rs-next">
+      <h2>Что будет дальше</h2>
+      <ol>
+        <li><span class="n">1</span><span><b>Резюме сразу в каталоге</b>Студии видят имя, специализацию, город и что вы ищете</span></li>
+        <li><span class="n">2</span><span><b>Дополните в редакторе</b>Опыт, сертификаты и фото работ: такие резюме приглашают чаще</span></li>
+        <li><span class="n">3</span><span><b>Приглашения в сообщения</b>Телефон скрыт, студии пишут вам на платформе</span></li>
+      </ol>
+    </aside>
+  </div>`;
+}
+
+/* ---------- Редактор ---------- */
+function asideCard() {
+  const r = R(), s = score(r), live = required(r) && r.visible;
+  return `<section class="panel rs-card">
+    <div class="rs-score"><b class="num">${s}%</b><span>резюме заполнено</span></div>
+    <div class="meter" aria-hidden="true"><i style="width:${s}%"></i></div>
+    <nav class="rs-nav" aria-label="Разделы резюме">${SECTIONS.map(([id, t, f]) => { const x = f(r), ok = x.got >= x.max; return `<button class="${ok ? "ok" : ""}" data-act="goto" data-id="${id}">${icon(ok ? "done" : "circle")}<span>${t}</span>${ok ? "" : `<small>${x.tip}</small>`}</button>`; }).join("")}</nav>
+    <div class="rs-live ${live ? "" : "off"}">${icon(live ? "done" : "circle")}${live ? "Опубликовано, студии видят резюме" : required(r) ? "Скрыто из поиска" : "Не опубликовано: заполните основное"}</div>
+    <label class="toggle-row"><span>Показывать в поиске</span><input class="switch" type="checkbox" data-act="visible" ${r.visible ? "checked" : ""}></label>
+    <a class="btn block" href="${pageHref(MY_PROFILE)}">Как видят работодатели</a>
+    <p class="saved" aria-live="polite">${state.savedAt ? `Изменения сохранены в ${state.savedAt}` : "Изменения сохраняются сами"}</p>
+  </section>`;
+}
+
+function editView() {
+  const r = state.role;
+  if (r !== "worker") {
+    document.title = "Редактор резюме · СОУС";
+    return `<div class="wrap rs-state"><div class="empty">
+      <h3>${r === "guest" ? "Войдите, чтобы открыть резюме" : "Редактор резюме для специалистов"}</h3>
+      <p>${r === "guest" ? "Редактор доступен специалисту, у которого уже есть резюме. Нет резюме: создайте его за пять полей" : "Сотрудников ищите в каталоге специалистов"}</p>
+      <div class="parts">${r === "guest" ? `<button class="btn primary" data-act="login">Войти</button><a class="btn" href="#/new">Создать резюме</a>` : `<a class="btn primary" href="${pageHref("/specialists")}">${icon("users")}Найти специалистов</a>`}</div>
+    </div></div>`;
+  }
+  document.title = "Редактор резюме · СОУС";
+  const m = R();
+  const sugg = (SUGGEST[m.spec] || []).filter((x) => !m.skills.includes(x));
+  return `<div class="wrap detail rs-edit">
+    <a class="back" href="${pageHref(MY_PROFILE)}">${icon("back")}Моё резюме</a>
+    <div class="rs-top"><h1>Редактор резюме</h1><p>Изменения сохраняются сами и сразу видны работодателям</p></div>
+    <div class="d-grid">
+      <div class="d-main">
+        <section class="panel" id="s-main"><h2>Основное</h2>
+          <div class="fields">
+            <div class="rs-photo"><span class="tile round ${m.photo ? "ph" : ""}" aria-hidden="true">${m.photo ? icon("user", "lg") : esc(initials(m.name || "?"))}</span>
+              <div class="btns"><button class="btn sm" data-act="photo">${icon(m.photo ? "camera" : "upload")}${m.photo ? "Заменить фото" : "Загрузить фото"}</button>${m.photo ? `<button class="btn sm ghost" data-act="photo-del">Удалить</button>` : ""}</div>
+            </div>
+            <div class="grid2">${inp("name", "Имя и фамилия", { req: true })}${inp("role", "Должность", { req: true, small: "Строка под именем в каталоге" })}</div>
+            <div class="grid2">
+              <div class="field"><span>Специализация</span>${dd({ key: "r-spec", name: "spec", value: m.spec, options: SPECS })}<small>По ней студии находят вас в фильтрах</small></div>
+              <div class="field"><span>Город</span>${dd({ key: "r-city", name: "city", value: m.city, options: CITIES.slice(1) })}</div>
+            </div>
+            <div class="grid2">${inp("years", "Опыт в профессии, лет", { cls: "num", mode: "numeric" })}<span></span></div>
+          </div>
+        </section>
+
+        <section class="panel" id="s-seek"><h2>Что ищу</h2>
+          <p class="sec-sub">От этого зависит статус в каталоге и кто вам напишет</p>
+          <div class="fields">
+            ${seekCards(m.job, m.gig)}
+            ${m.job ? `<div class="sub-block"><h3>Постоянная работа</h3>
+              <div class="grid2">${inp("salary", "Зарплата от, ₽ в месяц", { cls: "num", mode: "numeric", ph: "90 000" })}<span></span></div>
+              <div class="field"><span>График</span><div class="checks">${SCHEDULES.map((x) => `<label class="check"><input type="checkbox" data-set="schedule" value="${x}" ${m.schedule.includes(x) ? "checked" : ""}><span>${x}</span></label>`).join("")}</div></div>
+            </div>` : ""}
+            ${m.gig ? `<div class="sub-block"><h3>Подработки</h3>
+              <div class="grid2">
+                <div class="field"><span>Когда свободны</span>${dd({ key: "r-when", name: "gigWhen", value: m.gigWhen, options: WHEN })}</div>
+                ${inp("gigRate", "Ставка за смену от, ₽", { cls: "num", mode: "numeric", ph: "5 000" })}
+              </div>
+            </div>` : ""}
+            ${!m.job && !m.gig ? `<p class="hint">${icon("info")}Статус «Не ищет работу»: резюме остаётся в каталоге как портфолио, приглашения не приходят</p>` : ""}
+          </div>
+        </section>
+
+        <section class="panel" id="s-about"><h2>О себе и навыки</h2>
+          <div class="fields">
+            <label class="field"><span>О себе</span><textarea class="textarea" id="f-desc" data-f="desc" placeholder="Что умеете лучше всего, с какими авто и материалами работаете">${esc(m.desc)}</textarea><small>2–3 предложения. Конкретика работает лучше общих слов</small></label>
+            <div class="field"><span>Навыки<span class="count">${m.skills.length}</span></span>
+              ${m.skills.length ? `<div class="skill-edit">${m.skills.map((k, i) => `<button class="chip" data-act="skill-del" data-i="${i}" aria-label="Убрать навык ${esc(k)}">${esc(k)}${icon("x")}</button>`).join("")}</div>` : ""}
+              <div class="add-row"><input class="input" id="skill-in" placeholder="Например, полировка стёкол" aria-label="Новый навык"><button class="btn" data-act="skill-add">${icon("plus")}Добавить</button></div>
+              ${sugg.length ? `<div class="suggest"><span>Часто добавляют:</span>${sugg.slice(0, 4).map((x) => `<button class="chip" data-act="skill-sug" data-v="${esc(x)}">${icon("plus")}${esc(x)}</button>`).join("")}</div>` : ""}
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" id="s-jobs"><h2>Опыт работы</h2>
+          ${m.jobs.length ? `<div class="items">${m.jobs.map((j, i) => `<article class="item"><div><b>${esc(j.title)}</b><div class="parts"><span>${esc(j.org)}</span><span>${period(j)}</span></div>${j.desc ? `<p>${esc(j.desc)}</p>` : ""}</div>
+            <div class="item-acts"><button class="btn sm ghost icon-only" data-act="job" data-i="${i}" aria-label="Изменить: ${esc(j.title)}">${icon("edit")}</button><button class="btn sm ghost icon-only" data-act="job-del" data-i="${i}" aria-label="Удалить: ${esc(j.title)}">${icon("trash")}</button></div></article>`).join("")}</div>`
+            : `<p class="sec-sub">Нет опыта в индустрии? Ничего страшного: укажите 0 лет в основном, а сюда добавьте прошлую работу, если она пригодится</p>`}
+          <button class="btn" data-act="job">${icon("plus")}Добавить место работы</button>
+        </section>
+
+        <section class="panel" id="s-certs"><h2>Сертификаты</h2>
+          <p class="sec-sub">Сертификаты Учебного центра СОУС попадают сюда сами после экзамена</p>
+          ${m.certs.length ? `<div class="items">${m.certs.map((c, i) => `<article class="item ${c.sous ? "locked" : ""}"><div><b>${esc(c.name)}${c.sous ? verifiedMark("cert") : ""}</b><div class="parts"><span>${esc(c.by)}, ${c.year}</span>${c.num ? `<span class="num">№ ${esc(c.num)}</span>` : ""}${c.sous ? "" : `<span>${c.file ? "Скан приложен" : "Без скана"}</span>`}</div></div>
+            <div class="item-acts">${c.sous ? "" : `<button class="btn sm ghost icon-only" data-act="cert" data-i="${i}" aria-label="Изменить: ${esc(c.name)}">${icon("edit")}</button><button class="btn sm ghost icon-only" data-act="cert-del" data-i="${i}" aria-label="Удалить: ${esc(c.name)}">${icon("trash")}</button>`}</div></article>`).join("")}</div>` : ""}
+          <button class="btn" data-act="cert">${icon("plus")}Добавить сертификат</button>
+        </section>
+
+        <section class="panel" id="s-works"><h2>Портфолио<span class="count">${m.works.length} из 12</span></h2>
+          <p class="sec-sub">Фото и видео ваших работ. Лучше всего работают снимки до и после с одного ракурса</p>
+          <div class="gallery">
+            ${m.works.map((w, i) => `<figure>${icon("image")}<figcaption>${esc(w.title)}</figcaption><button class="open" data-act="work" data-i="${i}" aria-label="Изменить работу: ${esc(w.title)}"></button><button class="btn sm icon-only del" data-act="work-del" data-i="${i}" aria-label="Удалить работу: ${esc(w.title)}">${icon("trash")}</button></figure>`).join("")}
+            ${m.works.length < 12 ? `<button class="work-add" data-act="work">${icon("plus")}Добавить работу</button>` : ""}
+          </div>
+        </section>
+
+        <section class="panel" id="s-extra"><h2>Дополнительно</h2>
+          <div class="fields">
+            <div class="grid2">
+              <div class="field"><span>Гражданство</span>${dd({ key: "r-cit", name: "citizenship", value: m.citizenship, options: ["Россия", "Казахстан", "Беларусь", "Узбекистан", "Другое"] })}</div>
+              <div class="field"><span>Медкнижка</span>${dd({ key: "r-med", name: "medbook", value: m.medbook, options: ["Есть", "Оформляю", "Нет"] })}</div>
+            </div>
+            <div class="grid2">
+              <div class="field"><span>Водительские права</span>${dd({ key: "r-lic", name: "license", value: m.license, options: ["Нет", "Категория B", "Категории B и C"] })}</div>
+              ${inp("langs", "Языки", { ph: "Русский" })}
+            </div>
+            <div class="checks">${chk("trips", "Готов к командировкам")}${chk("move", "Готов к переезду")}</div>
+          </div>
+        </section>
+
+        <section class="panel" id="s-contacts"><h2>Контакты</h2>
+          <p class="sec-sub">Видны только работодателям с подпиской, каждый просмотр попадает в журнал. Остальные пишут вам в «Сообщения»</p>
+          <div class="fields">
+            <div class="grid2">${inp("phone", "Телефон", { cls: "num", ro: true, small: "Номер аккаунта, меняется в настройках профиля" })}${inp("email", "Email", { ph: "name@mail.ru" })}</div>
+            <div class="grid2">${inp("tg", "Telegram", { ph: "@username" })}<span></span></div>
+          </div>
+        </section>
+      </div>
+      <aside class="aside" id="rs-aside">${asideCard()}</aside>
+    </div>
+  </div>`;
+}
+const period = (j) => j.to ? (j.from === j.to ? `${j.from} год` : `${j.from}–${j.to}`) : `С ${j.from} года по настоящее время`;
+
+/* ---------- Окна: место работы, сертификат, работа в портфолио ---------- */
+const fileBtn = (label, accept, has) => `<label class="btn file-btn">${icon("upload")}<input class="sr-only" type="file" name="file" accept="${accept}" multiple data-file><span>${has ? "Файл приложен, заменить" : label}</span></label>`;
+function jobModal(i) {
+  const j = i != null ? R().jobs[i] : null;
+  openModal(`${mHead(j ? "Место работы" : "Новое место работы", "Где работали и что делали. Студии смотрят на последние 2–3 места")}
+    <form class="m-body" id="mform" novalidate>
+      <label class="field"><span>Должность</span><input class="input" name="title" required placeholder="Например, детейлер" value="${val(j?.title)}" autofocus></label>
+      <label class="field"><span>Компания и город</span><input class="input" name="org" required placeholder="Например, АвтоПрофи, Москва" value="${val(j?.org)}"></label>
+      <div class="grid2">
+        <div class="field"><span>Начало, год</span>${dd({ key: "m-from", name: "from", value: j?.from || "2024", options: YEARS })}</div>
+        <div class="field"><span>Окончание</span>${dd({ key: "m-to", name: "to", value: j?.to ?? "", options: [["", "По настоящее время"], ...YEARS] })}</div>
+      </div>
+      <label class="field"><span>Что делали</span><textarea class="textarea" name="desc" placeholder="Обязанности и результаты: какие работы, с какими авто, чему учили других">${esc(j?.desc || "")}</textarea></label>
+    </form>
+    <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="job-save" data-i="${i ?? ""}">${j ? "Сохранить" : "Добавить"}</button></div>`);
+}
+function certModal(i) {
+  const c = i != null ? R().certs[i] : null;
+  openModal(`${mHead(c ? "Сертификат" : "Новый сертификат", "Курс другой школы или производителя. Скан увидят работодатели в профиле")}
+    <form class="m-body" id="mform" novalidate>
+      <label class="field"><span>Название курса</span><input class="input" name="name" required placeholder="Например, установка PPF" value="${val(c?.name)}" autofocus></label>
+      <div class="grid2">
+        <label class="field"><span>Кто выдал</span><input class="input" name="by" required placeholder="Школа или производитель" value="${val(c?.by)}"></label>
+        <div class="field"><span>Год</span>${dd({ key: "m-year", name: "year", value: c?.year || "2026", options: YEARS })}</div>
+      </div>
+      <label class="field"><span>Номер сертификата</span><input class="input num" name="num" placeholder="Если есть" value="${val(c?.num)}"></label>
+      <div class="field"><span>Скан или фото</span><div>${fileBtn("Прикрепить файл", "image/*,application/pdf", c?.file)}</div><small>PDF или фото, до 10 МБ</small></div>
+    </form>
+    <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="cert-save" data-i="${i ?? ""}">${c ? "Сохранить" : "Добавить"}</button></div>`);
+}
+function workModal(i) {
+  const w = i != null ? R().works[i] : null;
+  openModal(`${mHead(w ? "Работа в портфолио" : "Новая работа", "Одна работа: один автомобиль и снимки до, во время и после")}
+    <form class="m-body" id="mform" novalidate>
+      <label class="field"><span>Название</span><input class="input" name="title" required placeholder="Например, полировка и керамика кузова" value="${val(w?.title)}" autofocus></label>
+      <div class="grid2">
+        <div class="field"><span>Тип работ</span>${dd({ key: "m-spec", name: "spec", value: w?.spec || R().spec, options: SPECS })}</div>
+        <label class="field"><span>Автомобиль</span><input class="input" name="car" placeholder="Например, BMW X5" value="${val(w?.car)}"></label>
+      </div>
+      <label class="field"><span>Что сделано</span><textarea class="textarea" name="desc" placeholder="Этапы, материалы, сколько заняло">${esc(w?.desc || "")}</textarea></label>
+      <div class="field"><span>Фото и видео</span><div>${fileBtn("Выбрать файлы", "image/*,video/*", !!w)}</div><small>До 10 файлов, первое фото станет обложкой</small></div>
+    </form>
+    <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="work-save" data-i="${i ?? ""}">${w ? "Сохранить" : "Добавить"}</button></div>`);
+}
+/* данные формы окна; при пустых обязательных полях показывает ошибку и возвращает null */
+function formData(id = "mform") {
+  const f = $("#" + id);
+  const bad = $$("[required]", f).find((x) => !x.value.trim());
+  if (bad) { bad.focus(); toast("Заполните поле", bad.closest(".field").querySelector("span").textContent, "info"); return null; }
+  return Object.fromEntries(new FormData(f));
+}
+
+/* ---------- Сохранение и перерисовка ---------- */
+function saved() {
+  const d = new Date();
+  state.savedAt = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  const a = $("#rs-aside");
+  if (a) a.innerHTML = asideCard();
+}
+/* перерисовать страницу, не теряя прокрутку и фокус */
+function redraw() {
+  const id = document.activeElement?.id, y = window.scrollY;
+  PAGE.render(); window.scrollTo(0, y);
+  if (id) $("#" + id)?.focus();
+}
+function change(fn, msg) { fn(R()); saved(); redraw(); if (msg) toast(...msg); }
+function addSkill(v) {
+  v = v.trim();
+  if (!v) return;
+  if (R().skills.some((x) => x.toLowerCase() === v.toLowerCase())) { toast("Такой навык уже есть", v, "info"); return; }
+  change((r) => r.skills.push(v));
+  $("#skill-in")?.focus();
+}
+
+document.addEventListener("input", (e) => {
+  const k = e.target.dataset?.f;
+  if (!k || e.target.type === "checkbox") return;
+  R()[k] = e.target.value;
+  const tile = $(".rs-photo .tile:not(.ph)");
+  if (k === "name" && tile) tile.textContent = initials(e.target.value || "?");
+  saved();
+});
+document.addEventListener("change", (e) => {
+  const t = e.target;
+  if (t.dataset?.file !== undefined && t.type === "file") { t.nextElementSibling.textContent = t.files.length ? `Выбрано: ${plural(t.files.length, "файл", "файла", "файлов")}` : "Прикрепить файл"; return; }
+  if (t.dataset?.f && t.type === "checkbox") { change((r) => { r[t.dataset.f] = t.checked; }); return; }
+  if (t.dataset?.set) change((r) => { const s = r[t.dataset.set]; t.checked ? s.push(t.value) : s.splice(s.indexOf(t.value), 1); });
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && e.target.id === "skill-in") { e.preventDefault(); addSkill(e.target.value); }
+});
+
+/* ---------- Страница ---------- */
+const isEdit = () => route().startsWith("/edit");
+const PAGE = {
+  section: "/specialists",
+  currentPath: () => isEdit() ? "/resume/:id/edit" : "/resume/new",
+  render() {
+    document.body.className = isEdit() ? "detail-page" : "";
+    $("#app").innerHTML = isEdit() ? editView() : newView();
+  },
+  onDD(key, v) {
+    const map = { "r-spec": "spec", "r-city": "city", "r-when": "gigWhen", "r-cit": "citizenship", "r-med": "medbook", "r-lic": "license" };
+    if (!map[key]) return false;
+    R()[map[key]] = v;
+    saved();
+    if (key === "r-spec") { redraw(); return true; }
+    return false;
+  },
+  authText: (kind) => kind === "resume" ? ["Последний шаг: вход", "Резюме сохранится в аккаунте специалиста. Введённые ответы не пропадут"] : null,
+  loginRole: () => "worker",
+  afterLogin(p) {
+    if (p.kind !== "resume" || !state.draft) return;
+    const d = state.draft;
+    state.resume = { ...myResume(), photo: false, name: d.name, role: d.role, spec: d.spec, city: d.city, years: d.years || "0", job: !!d.job, gig: !!d.gig,
+      salary: "", schedule: [], gigWhen: "на выходных", gigRate: "", desc: "", skills: [], jobs: [], certs: [], works: [], email: "", tg: "", langs: "", trips: false };
+    state.draft = null; state.savedAt = null;
+    location.hash = "#/edit";
+    setTimeout(() => toast("Резюме опубликовано", "Оно уже в каталоге. Дополните опыт и портфолио: так студии пригласят быстрее"), 50);
+  },
+  roleHints: { guest: "создаёт резюме", worker: "редактирует своё", employer: "не целевая роль", client: "не целевая роль", supplier: "не целевая роль", partner: "не целевая роль" },
+  actions: {
+    "new-send": () => {
+      const d = formData("newform");
+      if (!d) return;
+      d.job = $("#n-job").checked; d.gig = $("#n-gig").checked;
+      state.draft = d;
+      if (!needAuth("resume")) PAGE.afterLogin({ kind: "resume" });
+    },
+    goto: (el, e, id) => { const s = $("#" + id); s.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); s.querySelector("input:not([type=hidden]), textarea, .dd-btn, button")?.focus({ preventScroll: true }); },
+    visible: (el) => { R().visible = el.checked; saved(); toast(el.checked ? "Резюме снова в поиске" : "Резюме скрыто из поиска", el.checked ? "Студии видят его в каталоге" : "Студии его не видят. Отклики на вакансии работают как раньше"); },
+    photo: () => change((r) => { r.photo = true; }, ["Фото загружено", "Оно появится в каталоге и в профиле"]),
+    "photo-del": () => change((r) => { r.photo = false; }),
+    "skill-add": () => addSkill($("#skill-in").value),
+    "skill-sug": (el) => addSkill(el.dataset.v),
+    "skill-del": (el) => change((r) => r.skills.splice(+el.dataset.i, 1)),
+    job: (el) => jobModal(el.dataset.i !== undefined ? +el.dataset.i : null),
+    "job-save": (el) => {
+      const d = formData(); if (!d) return;
+      if (d.to && d.to < d.from) { toast("Проверьте годы", "Окончание раньше начала", "info"); return; }
+      const i = el.dataset.i; closeModal();
+      change((r) => { i ? (r.jobs[+i] = d) : r.jobs.unshift(d); r.jobs.sort((a, b) => (b.to || "9999").localeCompare(a.to || "9999") || b.from.localeCompare(a.from)); }, [i ? "Место работы сохранено" : "Место работы добавлено"]);
+    },
+    "job-del": (el) => change((r) => r.jobs.splice(+el.dataset.i, 1), ["Место работы удалено"]),
+    cert: (el) => certModal(el.dataset.i !== undefined ? +el.dataset.i : null),
+    "cert-save": (el) => {
+      const d = formData(); if (!d) return;
+      const i = el.dataset.i, f = $("#mform [data-file]");
+      const c = { name: d.name, by: d.by, year: d.year, num: d.num, file: f.files.length > 0 || (i ? R().certs[+i].file : false) };
+      closeModal();
+      change((r) => { i ? (r.certs[+i] = c) : r.certs.push(c); }, [i ? "Сертификат сохранён" : "Сертификат добавлен"]);
+    },
+    "cert-del": (el) => change((r) => r.certs.splice(+el.dataset.i, 1), ["Сертификат удалён"]),
+    work: (el) => workModal(el.dataset.i !== undefined ? +el.dataset.i : null),
+    "work-save": (el) => {
+      const d = formData(); if (!d) return;
+      const i = el.dataset.i; closeModal();
+      change((r) => { i ? (r.works[+i] = d) : r.works.push(d); }, [i ? "Работа сохранена" : "Работа добавлена в портфолио"]);
+    },
+    "work-del": (el) => change((r) => r.works.splice(+el.dataset.i, 1), ["Работа удалена"]),
+  },
+};
+
+start();
+</script>
+</body>
+</html>

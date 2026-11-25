@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css?v=202611251446">
+<link rel="stylesheet" href="../shared/sous.css?v=202611251454">
 <style>
 .meta .on{color:var(--ok)}
 .action-card .status-line{font-size:13px}
@@ -23,8 +23,8 @@
 <div id="toast-root" class="toasts" aria-live="polite"></div>
 <div id="proto-root"></div>
 
-<script src="../shared/pages.js?v=202611251446"></script>
-<script src="../shared/sous.js?v=202611251446"></script>
+<script src="../shared/pages.js?v=202611251454"></script>
+<script src="../shared/sous.js?v=202611251454"></script>
 <script>
 /* =========================================================
    Специалисты: данные
@@ -46,7 +46,7 @@ const SPECIALISTS = [
     desc: "Шесть лет работаю с лакокрасочными покрытиями и защитными материалами. Восстановительная полировка, керамика и установка полиуретановой плёнки. Показываю процесс, фиксирую результат и отвечаю за каждый этап.",
     skills: ["Восстановительная полировка", "Установка PPF", "Керамические составы", "Химчистка кожи", "Матовое ЛКП", "Фотоотчёт"],
     jobs: [["С 2022 года", "Старший детейлер", "АвтоПрофи, Москва", "Полировка и защита премиальных автомобилей, контроль качества, обучение младших мастеров"], ["2020–2022", "Детейлер", "CleanLab, Москва", "Комплексная подготовка автомобилей, химчистка салона, керамика"]],
-    certs: [["Мастер детейлинга", "Учебный центр СОУС", "12 октября 2026", "UC-2026-001"], ["Установка PPF, продвинутый курс", "Внешний курс", "24 сентября 2026", "PPF-2026-184"]],
+    certs: [["Мастер детейлинга", "Учебный центр СОУС", "12 октября 2026", "UC-2026-001"], ["Установка PPF, продвинутый курс", "Wrap Academy", "24 сентября 2026", "PPF-2026-184"]],
     reviewsList: [["АвтоПрофи", "Октябрь 2026", "Работал у нас четыре года. Аккуратен с ЛКП, сам ведёт фотоотчёт, клиенты возвращаются к нему по имени"], ["Shine&Go", "Сентябрь 2026", "Брали на подработку на выходные под оклейку капота и бампера. Сделал в срок, кромки чистые"]],
     extra: [["Гражданство", "Россия"], ["Водительские права", "Категория B"], ["Медкнижка", "Есть"], ["Командировки", "Готов"], ["Языки", "Русский, английский базовый"]] },
   { id: "worker-002", name: "Александр Волков", role: "Мастер химчистки", city: "Казань", spec: "Химчистка", years: 4, status: ["job", "gig"], gigWhen: "завтра и на выходных", salary: 75000, gigRate: 4000, schedule: "Полный день", rating: "9,6", reviews: 12, positive: 92, verified: true, works: 24, days: 1,
@@ -167,7 +167,7 @@ function activeChips() {
 function headAction() {
   const r = state.role;
   if (r === "worker") return `<a class="btn" href="#/v/${ME}" aria-label="Моё резюме">${icon("edit")}<span class="l-full">Моё резюме</span><span class="l-short">Резюме</span></a>`;
-  if (r === "guest") return `<button class="btn" data-act="resume" aria-label="Создать резюме">${icon("plus")}<span class="l-full">Создать резюме</span><span class="l-short">Резюме</span></button>`;
+  if (r === "guest") return `<a class="btn" href="${pageHref("/resume/new")}" aria-label="Создать резюме">${icon("plus")}<span class="l-full">Создать резюме</span><span class="l-short">Резюме</span></a>`;
   if (r === "employer") return `<a class="btn" href="${pageHref("/vacancies")}" aria-label="Мои вакансии">${icon("briefcase")}<span class="l-full">Мои вакансии</span><span class="l-short">Вакансии</span></a>`;
   return "";
 }
@@ -482,15 +482,13 @@ const PAGE = {
       offer: ["Войдите как работодатель", `Предложить смену ${n} можно после входа в аккаунт компании`],
       write: ["Войдите, чтобы написать", "Переписка со специалистом хранится в «Сообщениях»"],
       contacts: ["Войдите как работодатель", "Контакты специалистов доступны работодателям с подпиской"],
-      resume: ["Создайте аккаунт специалиста", "Резюме увидят компании, а вы сможете откликаться на вакансии и подработки"],
     }[kind];
   },
-  loginRole: (p) => p.kind === "resume" ? "worker" : "employer",
+  loginRole: () => "employer",
   afterLogin(p) {
     if (p.kind === "invite" && p.id) setTimeout(() => inviteModal(p.id), 200);
     if (p.kind === "offer" && p.id) setTimeout(() => offerModal(p.id), 200);
     if (p.kind === "contacts") setTimeout(contactsModal, 200);
-    if (p.kind === "resume") setTimeout(() => soon("/resume/new"), 200);
   },
   roleHints: { guest: "смотрит без входа", worker: "видит своё резюме", employer: "ищет сотрудника", client: "не целевая роль", supplier: "не целевая роль", partner: "не целевая роль" },
   actions: {
@@ -511,7 +509,6 @@ const PAGE = {
     write: (el, e, id) => { if (!needAuth("write", id)) soon("/messages"); },
     contacts: () => { if (!needAuth("contacts")) contactsModal(); },
     visible: (el) => { state.visible = el.checked; render(); toast(state.visible ? "Резюме снова в поиске" : "Резюме скрыто из поиска", state.visible ? "Работодатели видят его в каталоге" : "Работодатели его не видят. Отклики на вакансии работают как раньше"); },
-    resume: () => { if (!needAuth("resume")) soon("/resume/new"); },
     report: reportModal,
     "report-send": () => { closeModal(); toast("Жалоба отправлена", "Ответ придёт в уведомления"); },
   },

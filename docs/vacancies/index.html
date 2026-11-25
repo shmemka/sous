@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css?v=202611251446">
+<link rel="stylesheet" href="../shared/sous.css?v=202611251454">
 </head>
 <body>
 <a class="sr-only" href="#app">Перейти к содержимому</a>
@@ -19,8 +19,8 @@
 <div id="toast-root" class="toasts" aria-live="polite"></div>
 <div id="proto-root"></div>
 
-<script src="../shared/pages.js?v=202611251446"></script>
-<script src="../shared/sous.js?v=202611251446"></script>
+<script src="../shared/pages.js?v=202611251454"></script>
+<script src="../shared/sous.js?v=202611251454"></script>
 <script>
 /* =========================================================
    Вакансии и резюме: данные
@@ -286,7 +286,7 @@ function applyModal(id) {
   const v = VACANCIES.find((x) => x.id === id);
   openModal(`${mHead("Отклик на вакансию", `${esc(v.title)}, ${esc(v.org)}`)}
     <form class="m-body" id="mform">
-      <div class="resume-mini"><span class="tile round">МС</span><div><b>Михаил Соколов</b><span>Детейлер, опыт 6 лет. Резюме заполнено на 82%</span></div><a class="link" href="${pageHref(`/resume/resume-001/edit`)}">Изменить</a></div>
+      <div class="resume-mini"><span class="tile round">МС</span><div><b>Михаил Соколов</b><span>Детейлер, опыт 6 лет. Резюме заполнено на 87%</span></div><a class="link" href="${pageHref(`/resume/resume-001/edit`)}">Изменить</a></div>
       <label class="field"><span>Сообщение работодателю</span><textarea class="textarea" name="msg" placeholder="Коротко о себе и когда готовы выйти" autofocus></textarea><small>Необязательно. Резюме и портфолио прикрепятся автоматически</small></label>
     </form>
     <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="apply-send" data-id="${id}">${icon("send")}Отправить отклик</button></div>`);
