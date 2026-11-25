@@ -47,7 +47,7 @@
 | Проверка в карточке | `verifiedMark()` или `verifiedMark("person")`: только зелёный значок с галочкой (`badge`), подсказка с заголовком и пояснением на наведении и фокусе. На детальной остаётся текст `.verified` |
 | Детальная | `.detail > .back`, `.d-grid` = `.d-main` (`.panel`, `.d-head`, `.facts`, `.bullets`) + `.aside` (`.action-card`, `.org-card`), `.related`, мобильная `.mbar` |
 | Метки и отклики | `.urgent` (Срочно с молнией), список откликов у владельца `.resp > .resp-row` (`.tile.round`, `b`, `.sub`, `p`, `.resp-side`) |
-| Профиль | `.d-person` (аватар, имя, должность), `.status-line`, `.skills`, `.timeline`, `.gallery > figure`, `.cert`, `.rating-sum` + `.review`, `.lines` из `.org-line`, `.contact-mask` |
+| Профиль | `.d-person` (аватар, имя, должность), `.status-line` (статус только в карточке действия справа, в шапке профиля `.d-status` виден лишь на мобилке), `.skills`, `.timeline`, `.gallery > figure`, `.cert` (подтверждение: `verifiedMark("cert")` в конце названия), `.rating-sum` + `.reviews > .review` (каждый отзыв карточкой: текст, внизу автор и дата; без таблиц с разделителями), `.lines` из `.org-line`, `.contact-mask` |
 | Окна | `openModal(mHead(заголовок, подзаголовок) + .m-body + .m-foot)`, `closeModal()`, успех `.success` |
 | Вход | `needAuth(kind, id)` → `authModal`, тексты в `PAGE.authText` |
 | Уведомление | `toast(заголовок, текст, "ok" / "info")` |

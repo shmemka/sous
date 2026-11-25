@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css?v=202611250102">
+<link rel="stylesheet" href="../shared/sous.css?v=202611250104">
 <style>
 .meta .on{color:var(--ok)}
 .action-card .status-line{font-size:13px}
@@ -23,8 +23,8 @@
 <div id="toast-root" class="toasts" aria-live="polite"></div>
 <div id="proto-root"></div>
 
-<script src="../shared/pages.js?v=202611250102"></script>
-<script src="../shared/sous.js?v=202611250102"></script>
+<script src="../shared/pages.js?v=202611250104"></script>
+<script src="../shared/sous.js?v=202611250104"></script>
 <script>
 /* =========================================================
    Специалисты: данные
@@ -284,6 +284,7 @@ function detailView(id) {
   if (mine) {
     card = `<section class="panel action-card">
       <span class="mine-tag">${icon("dot")}Это ваше резюме</span>
+      <div class="status-line">${statusFull(s)}</div>
       <p class="hint">${icon("info")}Так его видят работодатели. Чтобы поменять данные, откройте редактор</p>
       <a class="btn primary lg block" href="${pageHref("/resume/resume-001/edit")}">${icon("edit")}Редактировать резюме</a>
       <label class="toggle-row"><span>Показывать в поиске</span><input class="switch" type="checkbox" data-act="visible" ${state.visible ? "checked" : ""}></label>
@@ -328,7 +329,7 @@ function detailView(id) {
             <p>${esc(s.role)}</p>
             <div class="sub">${s.verified ? `<span class="verified">${icon("badge")}Документы проверены</span>` : ""}<span>${s.city}</span><span>На СОУС с марта 2026</span></div>
           </div></div>
-          <div class="status-line">${statusFull(s)}</div>
+          <div class="status-line d-status">${statusFull(s)}</div>
           <div class="facts">
             <div><b class="num">${fact1[0]}</b><span>${fact1[1]}</span></div>
             <div><b>${yearsText(s.years)}</b><span>опыт работы</span></div>
@@ -339,10 +340,10 @@ function detailView(id) {
         <section class="panel"><h2>О себе</h2><p class="prose">${esc(s.desc)}</p><div class="skills">${s.skills.map((k) => `<span>${esc(k)}</span>`).join("")}</div></section>
         <section class="panel"><h2>Опыт работы</h2><div class="timeline">${s.jobs.map(([p, t, o, d]) => `<article><time>${p}</time><div><b>${esc(t)}</b><span>${esc(o)}</span><p>${esc(d)}</p></div></article>`).join("")}</div></section>
         ${s.works && gallery.length ? `<section class="panel"><h2>Портфолио · ${plural(s.works, "работа", "работы", "работ")}</h2><div class="gallery">${gallery.map((c) => `<figure>${icon("image")}<figcaption>${esc(c)}</figcaption></figure>`).join("")}</div></section>` : ""}
-        ${s.certs.length ? `<section class="panel"><h2>Сертификаты</h2>${s.certs.map(([n, by, d, num]) => `<div class="cert">${icon("award")}<div><b>${esc(n)}</b><span>${by} · ${d} · № ${num}</span>${by.includes("СОУС") ? `<div class="verified" style="display:flex;margin-top:4px">${icon("badge")}Подлинность подтверждена</div>` : ""}</div>${by.includes("СОУС") ? `<a class="btn sm" href="${pageHref(`/training/certificate/${num}`)}">Проверить</a>` : `<span></span>`}</div>`).join("")}</section>` : ""}
+        ${s.certs.length ? `<section class="panel"><h2>Сертификаты</h2>${s.certs.map(([n, by, d, num]) => `<div class="cert">${icon("award")}<div><b>${esc(n)}${by.includes("СОУС") ? verifiedMark("cert") : ""}</b><span>${by} · ${d} · № ${num}</span></div>${by.includes("СОУС") ? `<a class="btn sm" href="${pageHref(`/training/certificate/${num}`)}">Проверить</a>` : `<span></span>`}</div>`).join("")}</section>` : ""}
         <section class="panel"><h2>Отзывы работодателей</h2>
           <div class="rating-sum"><b class="num">${s.rating}/10</b><span>${plural(s.reviews, "отзыв", "отзыва", "отзывов")} · ${s.positive}% положительных</span></div>
-          ${reviewsOf(s).map(([au, d, t]) => `<div class="review"><div class="review-head"><b>${esc(au)}</b><span>${d}</span></div><p>${esc(t)}</p></div>`).join("")}
+          <div class="reviews">${reviewsOf(s).map(([au, d, t]) => `<article class="review"><p>${esc(t)}</p><footer><b>${esc(au)}</b><span>${d}</span></footer></article>`).join("")}</div>
         </section>
         <section class="panel"><h2>Дополнительно</h2><div class="lines">${extraOf(s).map(([k, v]) => `<div class="org-line"><span>${k}</span><b>${v}</b></div>`).join("")}</div></section>
         ${mine ? "" : `<button class="report" data-act="report">${icon("flag")}Пожаловаться на профиль</button>`}

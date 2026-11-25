@@ -124,6 +124,7 @@ const icon = (n, cls = "") => `<svg class="icon ${cls}" viewBox="0 0 24 24" aria
 const VERIFIED = {
   company: ["Компания проверена", "Модерация СОУС сверила документы компании с данными ЕГРЮЛ"],
   person: ["Документы проверены", "Модерация СОУС проверила документы специалиста"],
+  cert: ["Подлинность подтверждена", "Сертификат выдан Учебным центром СОУС, номер есть в реестре"],
 };
 function verifiedMark(kind = "company") {
   const [title, text] = VERIFIED[kind];

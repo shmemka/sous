@@ -275,6 +275,7 @@ ul{margin:0;padding:0;list-style:none}
 .status-line{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:14px;font-weight:500;color:var(--text-2)}
 .status-line span{display:inline-flex;align-items:center;gap:6px}
 .status-line .on{color:var(--ok)}
+.d-head .d-status{display:none}
 .skills{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
 .skills span{padding:6px 12px;border-radius:999px;background:var(--fill);font-size:13px;color:var(--text-2)}
 .timeline{display:grid;gap:20px}
@@ -291,14 +292,16 @@ ul{margin:0;padding:0;list-style:none}
 .cert+.cert{margin-top:8px}
 .cert>.icon{width:24px;height:24px;color:var(--text-3);justify-self:center}
 .cert b{display:block;font-size:15px;font-weight:600}
-.cert span{font-size:13px;color:var(--text-3)}
+.cert>div>span{display:block;margin-top:2px;font-size:13px;color:var(--text-3)}
+.cert b .v-mark{margin-left:4px;vertical-align:-5px}
 .rating-sum{display:flex;align-items:baseline;gap:12px;margin-bottom:16px}
 .rating-sum b{font:700 40px/1 var(--font-display)}
 .rating-sum span{font-size:13px;color:var(--text-3)}
-.review{padding:16px 0;border-top:1px solid var(--line)}
-.review-head{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--text-3)}
-.review-head b{font-size:14px;font-weight:600;color:var(--text)}
-.review p{margin-top:6px;font-size:14px;color:var(--text-2)}
+.reviews{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.review{display:flex;flex-direction:column;gap:16px;padding:20px;border-radius:var(--r-card);background:var(--fill)}
+.review p{font-size:14px;line-height:1.55;color:var(--text)}
+.review footer{display:flex;flex-direction:column;gap:2px;margin-top:auto;font-size:13px;color:var(--text-3)}
+.review footer b{font-size:14px;font-weight:600;color:var(--text-2)}
 .lines{display:grid;gap:10px}
 .contact-mask{display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;background:var(--fill);font-size:14px;color:var(--text-2)}
 .contact-mask .icon{color:var(--text-3)}
@@ -413,6 +416,7 @@ a.pp-row:hover{background:var(--fill)}
   .d-grid{grid-template-columns:minmax(0,1fr)}
   .aside{position:static}
   .aside .action-card{display:none}
+  .d-head .d-status{display:flex}
   .related-grid{grid-template-columns:1fr 1fr}
   .mbar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:var(--top-bg);backdrop-filter:blur(12px)}
   .mbar .money{font-size:24px}
