@@ -110,6 +110,9 @@ const ICONS = {
   send: '<path d="m2.5 8 11-5.5-3.5 11-2-4.5Z"/><path d="m8 9 2.2-2.2"/>',
   users: '<circle cx="6" cy="5.5" r="2.5"/><path d="M1.5 13.5a4.5 4.5 0 0 1 9 0M10.5 3.2a2.5 2.5 0 0 1 0 4.6M12 9.5a4.5 4.5 0 0 1 2.5 4"/>',
   edit: '<path d="M10.5 2.5 13.5 5.5 6 13H3v-3Z"/>',
+  zap: '<path d="M9 1.5 3.5 9H8l-1 5.5L12.5 7H8l1-5.5Z"/>',
+  calendar: '<rect x="2.5" y="3.5" width="11" height="10" rx="2"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3"/>',
+  star: '<path d="m8 2 1.8 3.8 4.1.5-3 2.8.8 4.1L8 11.2l-3.7 2 .8-4.1-3-2.8 4.1-.5Z"/>',
   pages: '<path d="M5.5 2.5h6a1 1 0 0 1 1 1v8"/><rect x="3.5" y="4.5" width="7" height="9" rx="1"/><path d="M5.5 7.5h3M5.5 10h3"/>',
 };
 const icon = (n, cls = "") => `<svg class="icon ${cls}" viewBox="0 0 16 16" aria-hidden="true">${ICONS[n] || ""}</svg>`;

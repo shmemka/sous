@@ -1,0 +1,670 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Подработки · СОУС</title>
+<meta name="description" content="Переработанная страница подработок и срочных подмен платформы СОУС: смены, исполнители и сценарии под роли">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/sous.css">
+<style>
+.when-line{display:flex;align-items:center;gap:12px;color:var(--text-2);font-size:15px;margin-top:12px}
+.when-line .icon{color:var(--text-3)}
+.ready-on{color:var(--ok)}
+.c-checks{display:flex;flex-wrap:wrap;gap:8px 20px}
+/* две вкладки и действие в одну строку: на телефоне у действия остаётся иконка */
+@media (max-width:640px){.head-row .btn{width:40px;padding:0;justify-content:center}.head-row .btn .l-short,.head-row .btn .l-full{display:none}}
+</style>
+</head>
+<body>
+<a class="sr-only" href="#app">Перейти к содержимому</a>
+<header class="top" id="top"></header>
+<main id="app" tabindex="-1"></main>
+<footer class="footer" id="footer"></footer>
+<div id="modal-root"></div>
+<div id="toast-root" class="toasts" aria-live="polite"></div>
+<div id="proto-root"></div>
+
+<script src="../shared/pages.js"></script>
+<script src="../shared/sous.js"></script>
+<script>
+/* =========================================================
+   Подработки и подмены: данные
+   Общие функции, шапка, окна и списки в ../shared/sous.js
+   Сегодня в прототипе: среда, 25 ноября
+   ========================================================= */
+const SPECS = ["Мойка", "Полировка", "Химчистка", "Керамика", "Оклейка и PPF", "Прочее"];
+const WHEN = [["today", "Сегодня"], ["tomorrow", "Завтра"], ["weekend", "На выходных"], ["later", "Позже"]];
+const whenKey = (day) => day === 0 ? "today" : day === 1 ? "tomorrow" : day === 3 || day === 4 ? "weekend" : "later";
+const PAY_STEPS = [["", "Любая"], ["3000", "от 3 000 ₽"], ["5000", "от 5 000 ₽"], ["8000", "от 8 000 ₽"]];
+const MY_ORG = "Shine&Go";
+
+let GIGS = [
+  { id: "gig-016", title: "Универсал на выходные", org: "Shine&Go", city: "Казань", area: "Сибирский тракт", spec: "Мойка", day: 3, when: "Сб и Вс, 28–29 ноября", time: "09:00–18:00", hours: 18, pay: 9500, unit: "за 2 смены", urgent: false, verified: true, posted: 3,
+    desc: "Нужен универсальный детейлер на два дня: комплексная мойка, уборка салона и помощь мастерам. Работа по регламенту студии, старший мастер покажет пост и стандарт сдачи.",
+    tasks: ["Комплексная мойка кузова и дисков", "Уборка салона и багажника", "Подготовка автомобиля к полировке"],
+    bring: ["Опыт комплексной мойки от полугода", "Сменная обувь, форму выдаём", "Химия и инвентарь на месте"],
+    place: "Казань, Сибирский тракт, филиал «Центральный»", payout: "на карту в конце каждой смены" },
+  { id: "gig-015", title: "Мойщик на смену завтра", org: "CleanLab", city: "Москва", area: "Варшавское шоссе", spec: "Мойка", day: 1, when: "Завтра, 26 ноября", time: "09:00–17:00", hours: 8, pay: 2500, unit: "за смену", urgent: true, verified: true, posted: 1,
+    desc: "Подмена основного мойщика. Работа по готовому регламенту, химия и инвентарь на месте.",
+    tasks: ["Двухфазная мойка кузова", "Сушка и уборка салона", "Порядок на посту"],
+    bring: ["Опыт мойки", "Сменная обувь"],
+    place: "Москва, Варшавское шоссе", payout: "наличными в конце смены" },
+  { id: "gig-014", title: "Полировщик на один автомобиль", org: "АвтоПрофи", city: "Москва", area: "Ленинградский проспект", spec: "Полировка", day: 2, when: "Пт, 27 ноября", time: "10:00–16:00", hours: 6, pay: 7000, unit: "за смену", urgent: false, verified: true, posted: 20,
+    desc: "Локальная полировка четырёх элементов премиального автомобиля под контролем старшего мастера.",
+    tasks: ["Абразивная полировка капота, крыльев и двери", "Защитный состав после полировки", "Фотоотчёт до и после"],
+    bring: ["Опыт абразивной полировки от года", "Портфолио или фото работ", "Свою машинку можно взять, если привычнее"],
+    place: "Москва, Ленинградский проспект", payout: "на карту после сдачи автомобиля" },
+  { id: "gig-013", title: "Подмена мастера химчистки", org: "Detail House", city: "Екатеринбург", area: "ул. Малышева", spec: "Химчистка", day: 0, when: "Сегодня, 25 ноября", time: "14:00–20:00", hours: 6, pay: 4500, unit: "за смену", urgent: true, verified: true, posted: 2,
+    desc: "Основной мастер заболел, на вечер записаны два автомобиля на химчистку салона.",
+    tasks: ["Химчистка текстиля и пластика", "Чистка кожаных сидений", "Сушка и озонирование"],
+    bring: ["Опыт химчистки салона", "Оборудование и химия на месте"],
+    place: "Екатеринбург, ул. Малышева", payout: "на карту в тот же день" },
+  { id: "gig-012", title: "Помощник на оклейку PPF", org: "Wrap Lab", city: "Санкт-Петербург", area: "Выборгский район", spec: "Оклейка и PPF", day: 3, when: "Сб, 28 ноября", time: "10:00–19:00", hours: 9, pay: 5000, unit: "за смену", urgent: false, verified: true, posted: 30,
+    desc: "Полная оклейка кроссовера. Нужен второй человек: подготовка поверхности, раскрой и подача плёнки.",
+    tasks: ["Мойка и обезжиривание кузова", "Демонтаж и установка элементов", "Помощь мастеру при натяжке"],
+    bring: ["Опыт подготовки под PPF", "Аккуратность с кромками"],
+    place: "Санкт-Петербург, Выборгский район", payout: "на карту в конце смены" },
+  { id: "gig-011", title: "Керамика на два автомобиля", org: "Гараж 77", city: "Москва", area: "Ленинградский проспект", spec: "Керамика", day: 5, when: "Пн, 30 ноября", time: "09:00–21:00", hours: 12, pay: 12000, unit: "за смену", urgent: false, verified: false, posted: 48,
+    desc: "Подготовка и нанесение керамики на два автомобиля после полировки. Составы предоставляет студия.",
+    tasks: ["Обезжиривание после полировки", "Нанесение керамики в два слоя", "Контроль под лампой"],
+    bring: ["Опыт работы с керамикой от года", "Сертификат производителя будет плюсом"],
+    place: "Москва, Ленинградский проспект", payout: "на карту после сдачи" },
+  { id: "gig-010", title: "Мойщик в ночную смену", org: "Мойка 24", city: "Казань", area: "проспект Победы", spec: "Мойка", day: 0, when: "Сегодня, 25 ноября", time: "21:00–07:00", hours: 10, pay: 3500, unit: "за смену", urgent: true, verified: false, posted: 5,
+    desc: "Круглосуточная мойка, ночью поток небольшой. Подмена на одну ночь.",
+    tasks: ["Мойка кузова и дисков", "Уборка салона по запросу"],
+    bring: ["Опыт мойки", "Можно без опыта, если готовы учиться на месте"],
+    place: "Казань, проспект Победы", payout: "наличными утром" },
+  { id: "gig-009", title: "Администратор на субботу", org: "Shine&Go", city: "Казань", area: "Сибирский тракт", spec: "Прочее", day: 3, when: "Сб, 28 ноября", time: "10:00–19:00", hours: 9, pay: 3000, unit: "за смену", urgent: false, verified: true, posted: 26,
+    desc: "Основной администратор в отпуске. Запись клиентов, приём и выдача автомобилей.",
+    tasks: ["Приём и выдача автомобилей", "Запись клиентов в CRM", "Фотофиксация при приёмке"],
+    bring: ["Опыт работы администратором", "Знание любой CRM"],
+    place: "Казань, Сибирский тракт, филиал «Центральный»", payout: "на карту в конце смены" },
+];
+
+/* Отклики на подработки работодателя Shine&Go */
+const RESP = {
+  "gig-016": [
+    { id: "worker-006", name: "Артём Белов", role: "Универсал: мойка и салон", rating: "4,6", shifts: 9, rate: 9500, fresh: true, msg: "Могу оба дня. Есть опыт уборки салона и подготовки к полировке" },
+    { id: "worker-002", name: "Александр Волков", role: "Мастер химчистки", rating: "4,8", shifts: 31, rate: 10000, fresh: true, msg: "Выйду на оба дня, если ставка 10 000 ₽. Химчистку салона могу взять полностью" },
+    { id: "worker-003", name: "Дмитрий Ким", role: "Мойщик", rating: "4,7", shifts: 14, rate: 9500, fresh: false, msg: "Готов выйти, живу рядом с филиалом" },
+  ],
+  "gig-009": [
+    { id: "worker-005", name: "Елена Орлова", role: "Администратор студии", rating: "4,5", shifts: 4, rate: 3000, fresh: false, msg: "Работала в CRM студии, знаю приёмку с фотофиксацией" },
+  ],
+};
+const responses = (g) => RESP[g.id] || [];
+GIGS.forEach((g) => { g.responses = g.org === MY_ORG ? responses(g).length : g.responses ?? ({ "gig-015": 0, "gig-014": 3, "gig-013": 1, "gig-012": 2, "gig-011": 0, "gig-010": 4 }[g.id] || 0); });
+
+/* Исполнители со статусом «готов к подработке» */
+const WORKERS = [
+  { id: "worker-001", name: "Михаил Соколов", role: "Полировка и PPF", city: "Москва", spec: "Полировка", rate: 6000, rating: "4,9", shifts: 23, free: ["weekend", "later"], freeText: "Свободен на выходных", verified: true, me: true },
+  { id: "worker-003", name: "Дмитрий Ким", role: "Мойщик", city: "Москва", spec: "Мойка", rate: 2500, rating: "4,7", shifts: 14, free: ["today", "tomorrow"], freeText: "Свободен сегодня и завтра", verified: false },
+  { id: "worker-002", name: "Александр Волков", role: "Мастер химчистки", city: "Казань", spec: "Химчистка", rate: 4000, rating: "4,8", shifts: 31, free: ["tomorrow", "weekend"], freeText: "Свободен завтра и на выходных", verified: true },
+  { id: "worker-006", name: "Артём Белов", role: "Универсал: мойка и салон", city: "Казань", spec: "Мойка", rate: 3000, rating: "4,6", shifts: 9, free: ["today", "weekend"], freeText: "Свободен сегодня и на выходных", verified: true },
+  { id: "worker-007", name: "Ильдар Сафин", role: "Оклейщик PPF", city: "Санкт-Петербург", spec: "Оклейка и PPF", rate: 5500, rating: "5,0", shifts: 12, free: ["later"], freeText: "Свободен со следующей недели", verified: true },
+  { id: "worker-004", name: "Руслан Галиев", role: "Специалист по керамике", city: "Казань", spec: "Керамика", rate: 7000, rating: "4,9", shifts: 18, free: ["weekend"], freeText: "Свободен на выходных", verified: true },
+];
+
+/* ---------- Состояние страницы ---------- */
+const emptyFilters = () => ({ spec: new Set(), when: new Set(), pay: "", urgent: false, verified: false });
+Object.assign(state, {
+  tab: "gigs",
+  q: "", city: "Все города",
+  f: emptyFilters(),
+  sort: "soon", wsort: "rating",
+  applied: new Set(),
+  offered: new Set(),
+  fav: new Set(),
+  chosen: {},
+  ready: false,
+});
+const isMine = (g) => state.role === "employer" && g.org === MY_ORG;
+const myGigs = () => GIGS.filter((g) => g.org === MY_ORG);
+const perHour = (g) => Math.round(g.pay / g.hours / 10) * 10;
+const respWord = (n) => n ? plural(n, "отклик", "отклика", "откликов") : "Пока никто";
+const gigMoney = (g) => `${fmt(g.pay)} ₽<small>${g.unit} · ${fmt(perHour(g))} ₽/ч</small>`;
+const workers = () => WORKERS.filter((w) => !w.me || (state.role === "worker" && state.ready));
+
+/* =========================================================
+   Каталог
+   ========================================================= */
+const isGigs = () => state.tab === "gigs";
+
+function filtered() {
+  const q = state.q.trim().toLowerCase();
+  const { spec, when, pay, urgent, verified } = state.f;
+  if (isGigs()) {
+    let items = GIGS.filter((g) => {
+      if (q && ![g.title, g.org, g.spec, g.desc, g.area].join(" ").toLowerCase().includes(q)) return false;
+      if (state.city !== "Все города" && g.city !== state.city) return false;
+      if (spec.size && !spec.has(g.spec)) return false;
+      if (when.size && !when.has(whenKey(g.day))) return false;
+      if (pay && g.pay < Number(pay)) return false;
+      if (urgent && !g.urgent) return false;
+      if (verified && !g.verified) return false;
+      return true;
+    });
+    const by = { soon: (a, b) => a.day - b.day || b.urgent - a.urgent, new: (a, b) => a.posted - b.posted, pay: (a, b) => b.pay - a.pay }[state.sort];
+    items = [...items].sort(by);
+    if (state.role === "employer") items.sort((a, b) => isMine(b) - isMine(a));
+    return items;
+  }
+  let items = workers().filter((w) => {
+    if (q && ![w.name, w.role, w.spec].join(" ").toLowerCase().includes(q)) return false;
+    if (state.city !== "Все города" && w.city !== state.city) return false;
+    if (spec.size && !spec.has(w.spec)) return false;
+    if (when.size && !w.free.some((k) => when.has(k))) return false;
+    if (verified && !w.verified) return false;
+    return true;
+  });
+  const num = (s) => Number(s.replace(",", "."));
+  items = [...items].sort(state.wsort === "rate" ? (a, b) => a.rate - b.rate : (a, b) => num(b.rating) - num(a.rating));
+  if (state.role === "worker") items.sort((a, b) => !!b.me - !!a.me);
+  return items;
+}
+
+function activeChips() {
+  const chips = [];
+  if (state.city !== "Все города") chips.push(["city", state.city, state.city]);
+  state.f.spec.forEach((v) => chips.push(["spec", v, v]));
+  state.f.when.forEach((v) => chips.push(["when", v, WHEN.find(([k]) => k === v)[1]]));
+  if (isGigs() && state.f.pay) chips.push(["pay", state.f.pay, PAY_STEPS.find(([v]) => v === state.f.pay)[1]]);
+  if (isGigs() && state.f.urgent) chips.push(["urgent", "1", "Срочно"]);
+  if (state.f.verified) chips.push(["verified", "1", isGigs() ? "Проверенные заказчики" : "Документы проверены"]);
+  return chips;
+}
+
+function headAction() {
+  const r = state.role;
+  if (r === "employer") return `<button class="btn primary" data-act="create" aria-label="Опубликовать подработку">${icon("plus")}<span class="l-full">Опубликовать подработку</span><span class="l-short">Подработка</span></button>`;
+  if (r === "worker") return state.ready
+    ? `<button class="btn" data-act="ready" aria-label="Вы в списке исполнителей">${icon("check")}<span class="l-full">Вы в списке исполнителей</span><span class="l-short">В списке</span></button>`
+    : `<button class="btn primary" data-act="ready" aria-label="Готов к подработке">${icon("zap")}<span class="l-full">Готов к подработке</span><span class="l-short">Готов</span></button>`;
+  if (r === "guest") return isGigs()
+    ? `<button class="btn" data-act="create" aria-label="Опубликовать подработку">${icon("plus")}<span class="l-full">Опубликовать подработку</span><span class="l-short">Подработка</span></button>`
+    : `<button class="btn" data-act="ready" aria-label="Стать исполнителем">${icon("zap")}<span class="l-full">Стать исполнителем</span><span class="l-short">Исполнитель</span></button>`;
+  return "";
+}
+
+function roleNote() {
+  const notes = {
+    client: `Здесь студии ищут мастеров на смену. Чтобы найти исполнителя для своего автомобиля, <a href="${pageHref("/orders")}">оставьте заявку автовладельца</a>`,
+    supplier: `Здесь студии ищут мастеров на смену. Чтобы предложить товары студиям, откройте <a href="${pageHref("/supply-requests")}">заявки на закупку</a>`,
+    partner: `Здесь студии ищут мастеров на смену. Акции и кешбэк для клиентов настраиваются в <a href="${pageHref("/promos")}">разделе акций</a>`,
+  };
+  if (state.role === "employer" && isGigs()) return `<div class="note">${icon("info")}<p>Нужен человек прямо сейчас? Во вкладке <a href="#/workers">Исполнители</a> мастера, которые свободны сегодня и на выходных</p></div>`;
+  if (state.role === "worker" && !isGigs() && !state.ready) return `<div class="note">${icon("info")}<p>Вас нет в этом списке. Отметьте <a href="#" data-act="ready">«Готов к подработке»</a>, и студии смогут сами предложить вам смену</p></div>`;
+  return notes[state.role] ? `<div class="note">${icon("info")}<p>${notes[state.role]}</p></div>` : "";
+}
+
+function filtersMarkup() {
+  const all = isGigs() ? GIGS : workers();
+  const cSpec = (v) => all.filter((it) => it.spec === v).length;
+  const cWhen = (k) => all.filter((it) => isGigs() ? whenKey(it.day) === k : it.free.includes(k)).length;
+  const group = (title, key, values, count) => `<fieldset class="fgroup" style="border:0;margin:0;padding:0"><legend class="sr-only">${title}</legend><b>${title}</b>${values.filter(([v]) => count(v) || state.f[key].has(v)).map(([v, l]) => `
+    <label class="check"><input type="checkbox" data-filter="${key}" value="${esc(v)}" ${state.f[key].has(v) ? "checked" : ""}><span>${l}</span><span class="c num">${count(v)}</span></label>`).join("")}</fieldset>`;
+  return `${group(isGigs() ? "Когда" : "Свободен", "when", WHEN, cWhen)}
+    ${group("Тип работ", "spec", SPECS.map((s) => [s, s]), cSpec)}
+    ${isGigs() ? `<div class="field"><span>Оплата за смену</span>${dd({ key: "pay", value: state.f.pay, options: PAY_STEPS, label: "Оплата" })}</div>
+    <label class="toggle-row"><span>Только срочные</span><input class="switch" type="checkbox" data-filter="urgent" ${state.f.urgent ? "checked" : ""}></label>` : ""}
+    <label class="toggle-row"><span>${isGigs() ? "Только проверенные заказчики" : "Документы проверены"}</span><input class="switch" type="checkbox" data-filter="verified" ${state.f.verified ? "checked" : ""}></label>`;
+}
+
+function gigCard(g) {
+  const r = state.role, mine = isMine(g);
+  let action = "";
+  if (mine) action = `<a class="btn sm" href="#/v/${g.id}">${icon("users")}Отклики · ${g.responses}</a>`;
+  else if (r === "guest" || r === "worker") action = state.applied.has(g.id)
+    ? `<span class="btn sm done">${icon("check")}Отклик отправлен</span>`
+    : `<button class="btn sm" data-act="apply" data-id="${g.id}">Откликнуться</button>`;
+  const fav = mine || !["guest", "worker"].includes(r) ? "" : `<button class="btn sm ghost icon-only fav" data-act="fav" data-id="${g.id}" aria-pressed="${state.fav.has(g.id)}" aria-label="В избранное">${icon("heart", "lg")}</button>`;
+  const chosen = state.chosen[g.id];
+  let tag = "";
+  if (mine) {
+    const fresh = responses(g).filter((x) => x.fresh).length;
+    tag = `<span class="mine-tag">${icon("dot")}Ваша подработка${chosen ? " · исполнитель выбран" : fresh ? ` · ${plural(fresh, "новый отклик", "новых отклика", "новых откликов")}` : ""}</span>`;
+  } else if (g.urgent) tag = `<span class="urgent">${icon("zap")}Срочно</span>`;
+  return `<article class="card ${mine ? "mine" : ""}">
+    <span class="tile" aria-hidden="true">${initials(g.org)}</span>
+    <div class="c-main">
+      ${tag}
+      <h2 class="c-title"><a href="#/v/${g.id}">${esc(g.title)}</a></h2>
+      <div class="c-org">${esc(g.org)}${g.verified ? `<span class="verified" title="Документы компании проверены">${icon("shield")}Проверена</span>` : ""}</div>
+      <div class="meta"><span>${icon("calendar")}${g.when}, ${g.time}</span><span>${icon("pin")}${g.city}, ${esc(g.area)}</span><span>${icon("users")}${respWord(g.responses)}</span></div>
+      <p class="c-desc">${esc(g.desc)}</p>
+    </div>
+    <div class="c-side">
+      <div class="money num">${gigMoney(g)}</div>
+      <div class="c-actions">${fav}${action}</div>
+    </div>
+  </article>`;
+}
+
+function workerCard(w) {
+  const r = state.role, mine = w.me && r === "worker";
+  let action = "";
+  if (mine) action = `<button class="btn sm" data-act="ready">${icon("edit")}Изменить</button>`;
+  else if (r === "guest" || r === "employer") action = state.offered.has(w.id)
+    ? `<span class="btn sm done">${icon("check")}Смена предложена</span>`
+    : `<button class="btn sm" data-act="offer" data-id="${w.id}">Предложить смену</button>`;
+  return `<article class="card ${mine ? "mine" : ""}">
+    <span class="tile round" aria-hidden="true">${initials(w.name)}</span>
+    <div class="c-main">
+      ${mine ? `<span class="mine-tag">${icon("dot")}Вас видят студии</span>` : ""}
+      <h2 class="c-title"><a href="${pageHref(`/specialists/${w.id}`)}">${esc(w.name)}</a></h2>
+      <div class="c-org">${esc(w.role)}${w.verified ? `<span class="verified" title="Документы специалиста проверены">${icon("shield")}Документы проверены</span>` : ""}</div>
+      <div class="meta"><span class="ready-on">${icon("zap")}${w.freeText}</span><span>${icon("pin")}${w.city}</span><span>${icon("star")}${w.rating} · ${plural(w.shifts, "смена", "смены", "смен")}</span></div>
+    </div>
+    <div class="c-side">
+      <div class="money num">от ${fmt(w.rate)} ₽<small>желаемая ставка за смену</small></div>
+      <div class="c-actions">${action}</div>
+    </div>
+  </article>`;
+}
+
+const sortOptions = () => isGigs()
+  ? [["soon", "Сначала ближайшие"], ["new", "Сначала новые"], ["pay", "Сначала с большей оплатой"]]
+  : [["rating", "Сначала с высоким рейтингом"], ["rate", "Сначала с меньшей ставкой"]];
+const sortValue = () => isGigs() ? state.sort : state.wsort;
+
+function resultsMarkup() {
+  const items = filtered();
+  const chips = activeChips();
+  const word = isGigs() ? plural(items.length, "подработка", "подработки", "подработок") : plural(items.length, "исполнитель", "исполнителя", "исполнителей");
+  const list = items.length
+    ? `<div class="list">${items.map(isGigs() ? gigCard : workerCard).join("")}</div>`
+    : `<div class="empty">${icon("search", "lg")}<h3>${isGigs() ? "Подработки не найдены" : "Исполнители не найдены"}</h3><p>${isGigs() ? "Под выбранные фильтры сейчас нет открытых смен. Попробуйте другой город или день" : "Под выбранные фильтры сейчас никто не свободен. Попробуйте другой город или день"}</p><button class="btn" data-act="reset">Сбросить фильтры</button></div>`;
+  return `<div class="toolbar">
+      <p class="count"><b class="num">${word.split(" ")[0]}</b> ${word.split(" ").slice(1).join(" ")}</p>
+      <button class="btn sm filters-btn" data-act="sheet">${icon("sliders")}Фильтры${chips.length ? `<span class="badge-n num">${chips.length}</span>` : ""}</button>
+      <div class="sort-wrap">${dd({ key: "sort", value: sortValue(), options: sortOptions(), variant: "compact", label: "Сортировка" })}</div>
+    </div>
+    ${chips.length ? `<div class="chips">${chips.map(([k, v, l]) => `<button class="chip" data-act="unchip" data-k="${k}" data-v="${esc(v)}">${esc(l)}${icon("x")}</button>`).join("")}<button class="link" data-act="reset" style="font-size:13px">Сбросить всё</button></div>` : ""}
+    ${roleNote()}
+    ${list}`;
+}
+
+function catalogView() {
+  const g = isGigs();
+  document.body.className = "catalog-page";
+  document.title = `${g ? "Подработки" : "Исполнители на подработку"} · СОУС`;
+  return `<section class="head"><div class="wrap head-in">
+      <div class="head-row">
+        <div class="tabs" role="tablist" aria-label="Подработки или исполнители">
+          <a class="tab" role="tab" aria-selected="${g}" href="#/">Подработки <small class="num">${GIGS.length}</small></a>
+          <a class="tab" role="tab" aria-selected="${!g}" href="#/workers">Исполнители <small class="num">${workers().length}</small></a>
+        </div>
+        ${headAction()}
+      </div>
+      <h1>${g ? "Подработки и подмены" : "Готовы к подработке"}</h1>
+      <p class="lead">${g ? `Разовые смены на 2–12 часов и срочные подмены в мойках и детейлинг-студиях. Постоянная работа в разделе <a class="link accent" href="${pageHref("/vacancies")}">Вакансии</a>` : "Мастера, которые свободны в ближайшие дни. Предложите смену, исполнитель ответит в сообщениях"}</p>
+      <form class="search" role="search" data-act-submit="search">
+        <label class="s-field"><span class="sr-only">Поиск</span>${icon("search", "lg")}<input id="q" type="search" value="${esc(state.q)}" placeholder="${g ? "Например, полировка или мойщик" : "Специализация или имя"}" autocomplete="off"></label>
+        <div class="s-field s-city">${dd({ key: "search-city", name: "city", value: state.city, options: CITIES, variant: "bare", iconName: "pin", label: "Город" })}</div>
+        <button class="btn primary" type="submit">Найти</button>
+      </form>
+    </div></section>
+    <div class="wrap catalog">
+      <aside class="filters" aria-label="Фильтры">
+        <div class="filters-head"><h2>Фильтры</h2>${activeChips().length ? `<button class="link" data-act="reset" style="font-size:13px">Сбросить</button>` : ""}</div>
+        ${filtersMarkup()}
+      </aside>
+      <section id="results" aria-live="polite">${resultsMarkup()}</section>
+    </div>`;
+}
+
+/* =========================================================
+   Детальная подработки
+   ========================================================= */
+function respMarkup(g) {
+  const list = responses(g), chosen = state.chosen[g.id];
+  if (!list.length) return `<section class="panel"><h2>Отклики</h2><p class="hint">${icon("info")}Пока никто не откликнулся. Предложите смену исполнителям, которые свободны в этот день</p><a class="btn" href="#/workers" style="margin-top:12px">${icon("users")}Исполнители</a></section>`;
+  return `<section class="panel" id="resp"><h2>Отклики · ${list.length}</h2><div class="resp">${list.map((x) => `
+    <div class="resp-row">
+      <span class="tile round" aria-hidden="true">${initials(x.name)}</span>
+      <div><b>${esc(x.name)}</b><div class="sub"><span>${esc(x.role)}</span><span>${icon("star")}${x.rating}</span><span>${plural(x.shifts, "смена", "смены", "смен")} на СОУС</span>${x.fresh && !chosen ? `<span class="mine-tag" style="margin:0">новый</span>` : ""}</div><p>${esc(x.msg)}</p></div>
+      <div class="resp-side">
+        <div class="money num">${fmt(x.rate)} ₽</div>
+        <div class="row">${chosen === x.id
+          ? `<span class="btn sm done">${icon("check")}Выбран</span>`
+          : `<a class="btn sm ghost" href="${pageHref("/messages")}">${icon("message")}Написать</a>${chosen ? "" : `<button class="btn sm" data-act="choose" data-id="${g.id}" data-w="${x.id}">Выбрать</button>`}`}</div>
+      </div>
+    </div>`).join("")}</div></section>`;
+}
+
+function detailView(id) {
+  const g = GIGS.find((x) => x.id === id);
+  if (!g) return `<div class="wrap detail"><a class="back" href="#/">${icon("back")}Все подработки</a><div class="empty"><h3>Подработка закрыта</h3><p>Смену уже взяли или заказчик снял её с публикации. Посмотрите другие смены рядом</p><a class="btn" href="#/">К подработкам</a></div></div>`;
+  document.body.className = "detail-page";
+  document.title = `${g.title} · ${g.org} · СОУС`;
+  const r = state.role, mine = isMine(g), applied = state.applied.has(g.id), chosen = state.chosen[g.id];
+  const related = GIGS.filter((x) => x.id !== g.id && (x.city === g.city || x.spec === g.spec)).slice(0, 3);
+  while (related.length < 3) { const extra = GIGS.find((x) => x.id !== g.id && !related.includes(x)); if (!extra) break; related.push(extra); }
+  const money = `<div class="money num">${gigMoney(g)}</div>`;
+
+  let card, mbar;
+  if (mine) {
+    const list = responses(g), fresh = list.filter((x) => x.fresh).length;
+    const who = chosen && list.find((x) => x.id === chosen);
+    card = who
+      ? `<section class="panel action-card">
+          <span class="mine-tag">${icon("dot")}Исполнитель выбран</span>
+          <div class="resume-mini"><span class="tile round">${initials(who.name)}</span><div><b>${esc(who.name)}</b><span>${fmt(who.rate)} ₽ · ${g.when}</span></div></div>
+          <a class="btn primary lg block" href="${pageHref("/messages")}">${icon("message")}Написать исполнителю</a>
+          <p class="hint">${icon("info")}Адрес и контакт руководителя смены отправлены исполнителю. Остальным откликнувшимся пришло уведомление, что смена занята</p>
+        </section>`
+      : `<section class="panel action-card">
+          <span class="mine-tag">${icon("dot")}Ваша подработка</span>
+          <div class="stat-row"><div><b class="num">${list.length}</b><span>${plural(list.length, "отклик", "отклика", "откликов").split(" ")[1]}</span></div><div><b class="num">${fresh}</b><span>новых</span></div></div>
+          ${list.length ? `<button class="btn primary lg block" data-act="to-resp">Выбрать исполнителя</button>` : `<a class="btn primary lg block" href="#/workers">Найти исполнителя</a>`}
+          <div class="grid2"><button class="btn" data-act="create" data-edit="${g.id}">${icon("edit")}Изменить</button><button class="btn" data-act="close-gig" data-id="${g.id}">Закрыть</button></div>
+          <p class="hint">${icon("info")}Отклики приходят сюда и в «Сообщения». Выбранный исполнитель получит адрес и контакт</p>
+        </section>`;
+    mbar = who ? `<a class="btn primary" href="${pageHref("/messages")}">Написать</a>` : list.length ? `<button class="btn primary" data-act="to-resp">Отклики · ${list.length}</button>` : `<a class="btn primary" href="#/workers">Исполнители</a>`;
+  } else if (r === "guest" || r === "worker") {
+    const btn = applied
+      ? `<span class="btn lg block done">${icon("check")}Отклик отправлен</span><a class="btn block" href="${pageHref("/messages")}">${icon("message")}Перейти к диалогу</a>`
+      : `<button class="btn primary lg block" data-act="apply" data-id="${g.id}">Откликнуться</button><button class="btn block fav" data-act="fav" data-id="${g.id}" aria-pressed="${state.fav.has(g.id)}">${icon("heart")}${state.fav.has(g.id) ? "В избранном" : "Сохранить"}</button>`;
+    card = `<section class="panel action-card">
+      ${money}
+      ${btn}
+      <p class="hint">${icon("message")}${applied ? "Заказчик ответит в диалоге. Если вас выберут, придут адрес и контакт руководителя смены" : "Мы создадим диалог с заказчиком, там можно обсудить детали и ставку"}</p>
+    </section>`;
+    mbar = applied ? `<span class="btn done">${icon("check")}Отправлен</span>` : `<button class="btn primary" data-act="apply" data-id="${g.id}">Откликнуться</button>`;
+  } else {
+    const why = r === "employer" ? "На подработки откликаются специалисты. Чтобы найти человека на свою смену, опубликуйте подработку" : "Откликаться на подработки могут специалисты";
+    card = `<section class="panel action-card">
+      ${money}
+      <p class="hint">${icon("info")}${why}</p>
+      ${r === "employer" ? `<button class="btn primary block" data-act="create">${icon("plus")}Опубликовать подработку</button>` : ""}
+    </section>`;
+    mbar = r === "employer" ? `<button class="btn primary" data-act="create">Опубликовать</button>` : "";
+  }
+
+  return `<div class="wrap detail">
+    <a class="back" href="#/">${icon("back")}Все подработки</a>
+    <div class="d-grid">
+      <div class="d-main">
+        <section class="panel d-head">
+          ${g.urgent && !mine ? `<span class="urgent">${icon("zap")}Срочно</span>` : ""}
+          <h1>${esc(g.title)}</h1>
+          <div class="d-org"><span class="tile">${initials(g.org)}</span><div><b>${esc(g.org)}</b><span>${g.verified ? `<span class="verified">${icon("shield")}Документы проверены</span> · ` : ""}${g.city}</span></div></div>
+          <div class="facts">
+            <div><b class="num">${fmt(g.pay)} ₽</b><span>${g.unit}</span></div>
+            <div><b>${g.when.split(",")[0]}</b><span>${g.time}</span></div>
+            <div><b class="num">${g.hours} ч</b><span>${fmt(perHour(g))} ₽ в час</span></div>
+            <div><b>${respWord(g.responses)}</b><span>${g.responses ? "уже откликнулись" : "не откликнулся"}</span></div>
+          </div>
+        </section>
+        ${mine ? respMarkup(g) : ""}
+        <section class="panel"><h2>Что нужно сделать</h2><p class="prose">${esc(g.desc)}</p><ul class="bullets" style="margin-top:16px">${g.tasks.map((d) => `<li>${icon("right")}<span>${esc(d)}</span></li>`).join("")}</ul></section>
+        <section class="panel"><h2>Требования и что взять</h2><ul class="bullets">${g.bring.map((d) => `<li>${icon("check")}<span>${esc(d)}</span></li>`).join("")}</ul></section>
+        <section class="panel"><h2>Где и когда</h2>
+          <p class="place">${icon("pin", "lg")}<span>${esc(g.place)}. Точный адрес и контакт придут, когда заказчик подтвердит смену</span></p>
+          <p class="when-line">${icon("calendar", "lg")}<span>${g.when}, ${g.time}. Оплата ${g.payout}</span></p>
+        </section>
+        ${mine ? "" : `<button class="report" data-act="report">${icon("flag")}Пожаловаться на подработку</button>`}
+      </div>
+      <aside class="aside">
+        ${card}
+        <section class="panel org-card">
+          <div class="d-org"><span class="tile">${initials(g.org)}</span><div><b>${esc(g.org)}</b><span>${g.city}</span></div></div>
+          <div class="org-line"><span>Рейтинг заказчика</span><b class="num">${g.verified ? "9,8 из 10" : "Пока нет отзывов"}</b></div>
+          <div class="org-line"><span>Открытых подработок</span><b class="num">${GIGS.filter((x) => x.org === g.org).length}</b></div>
+          <a class="btn block" href="${pageHref("/companies/company-001")}">Профиль компании</a>
+        </section>
+      </aside>
+    </div>
+    <section class="related">
+      <h2>Другие смены рядом</h2>
+      <div class="related-grid">${related.map((x) => `<a class="mini" href="#/v/${x.id}"><b>${esc(x.title)}</b><span>${esc(x.org)} · ${x.city}</span><span>${x.when}, ${x.time}</span><span class="money num">${fmt(x.pay)} ₽</span></a>`).join("")}</div>
+    </section>
+  </div>
+  ${mbar ? `<div class="mbar"><div class="money num">${fmt(g.pay)} ₽<small>${g.unit}</small></div>${mbar}</div>` : ""}`;
+}
+
+/* =========================================================
+   Окна страницы
+   ========================================================= */
+function applyModal(id) {
+  const g = GIGS.find((x) => x.id === id);
+  openModal(`${mHead("Отклик на смену", `${esc(g.title)} · ${esc(g.org)} · ${g.when}, ${g.time}`)}
+    <form class="m-body" id="mform">
+      <div class="resume-mini"><span class="tile round">МС</span><div><b>Михаил Соколов</b><span>Полировка и PPF · ${plural(23, "смена", "смены", "смен")} на СОУС · рейтинг 4,9</span></div><a class="link" href="${pageHref("/resume/resume-001/edit")}">Профиль</a></div>
+      <label class="field"><span>Ваша ставка за смену, ₽</span><input class="input num" name="rate" inputmode="numeric" value="${fmt(g.pay)}"><small>Заказчик предлагает ${fmt(g.pay)} ₽ ${g.unit}. Можно назвать свою</small></label>
+      <label class="field"><span>Сообщение заказчику</span><textarea class="textarea" name="msg" placeholder="Расскажите о себе и почему вы подходите" autofocus></textarea><small>Необязательно. Профиль и портфолио прикрепятся автоматически</small></label>
+    </form>
+    <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="apply-send" data-id="${id}">${icon("send")}Отправить отклик</button></div>`);
+}
+
+function applySuccess(id) {
+  const g = GIGS.find((x) => x.id === id);
+  $("#modal-root .modal").innerHTML = `${mHead("", "")}<div class="m-body"><div class="success"><span class="ok-circle">${icon("check")}</span><h3>Отклик отправлен</h3><p>Мы создали диалог с ${esc(g.org)} и отправили туда отклик. Обсудите детали и ставку в сообщениях</p></div></div>
+    <div class="m-foot"><button class="btn" data-act="close">К подработкам</button><a class="btn primary" href="${pageHref("/messages")}">Перейти к диалогу</a></div>`;
+}
+
+function createModal(editId) {
+  const guest = state.role === "guest";
+  const g = editId ? GIGS.find((x) => x.id === editId) : null;
+  openModal(`${mHead(g ? "Изменить подработку" : "Новая подработка", guest ? "Заполните без регистрации: черновик сохранится, а опубликовать можно после входа" : "Подработка появится в каталоге сразу, отклики придут в «Сообщения»")}
+    <form class="m-body" id="mform">
+      <label class="field"><span>Что нужно сделать</span><input class="input" name="title" required placeholder="Например, полировщик на 1 день" value="${g ? esc(g.title) : ""}" autofocus></label>
+      <div class="grid2">
+        <div class="field"><span>Тип работ</span>${dd({ key: "f-spec", name: "spec", value: g?.spec || "Мойка", options: SPECS })}</div>
+        ${guest ? `<div class="field"><span>Город</span>${dd({ key: "f-city", name: "city", value: "Казань", options: CITIES.slice(1) })}</div>`
+                : `<div class="field"><span>Филиал</span>${dd({ key: "f-branch", name: "city", value: "Казань, «Центральный»", options: ["Казань, «Центральный»", "Казань, «Северный»"] })}<small>Адрес придёт исполнителю после подтверждения</small></div>`}
+      </div>
+      <div class="grid2">
+        <label class="field"><span>Дата смены</span><input class="input" type="date" name="date" required value="2026-11-26" min="2026-11-25"></label>
+        <label class="field"><span>Время</span><input class="input num" name="time" required placeholder="09:00–18:00" value="${g ? g.time : "09:00–18:00"}"></label>
+      </div>
+      <label class="field"><span>Оплата за смену, ₽</span><input class="input num" name="pay" inputmode="numeric" required placeholder="5 000" value="${g ? g.pay : ""}"></label>
+      <label class="check"><input type="checkbox" name="urgent" ${g?.urgent ? "checked" : ""}><span>Срочно: смену увидят все мастера в радиусе 30 км</span></label>
+      <label class="field"><span>Описание и требования</span><textarea class="textarea" name="desc" required placeholder="Что именно нужно делать, требования к исполнителю, что взять с собой">${g ? esc(g.desc) : ""}</textarea></label>
+    </form>
+    <div class="m-foot">${guest ? `<button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="create-send">Сохранить и войти</button>`
+      : `<button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="create-send" data-edit="${editId || ""}">${g ? "Сохранить" : "Опубликовать"}</button>`}</div>`);
+}
+
+function readyModal() {
+  const me = WORKERS.find((w) => w.me);
+  openModal(`${mHead("Готов к подработке", "Студии увидят вас во вкладке «Исполнители» и смогут сами предложить смену")}
+    <form class="m-body" id="mform">
+      <fieldset class="field" style="border:0;margin:0;padding:0"><span>Когда свободны</span><div class="c-checks">${WHEN.map(([k, l]) => `<label class="check"><input type="checkbox" name="free" value="${k}" ${me.free.includes(k) ? "checked" : ""}><span>${l}</span></label>`).join("")}</div></fieldset>
+      <label class="field"><span>Желаемая ставка за смену от, ₽</span><input class="input num" name="rate" inputmode="numeric" value="${fmt(me.rate)}"></label>
+      <p class="hint">${icon("info")}Специализация, город и рейтинг берутся из профиля: ${esc(me.role)}, ${me.city}</p>
+    </form>
+    <div class="m-foot">${state.ready ? `<button class="btn" data-act="ready-off">Скрыть из списка</button>` : `<button class="btn" data-act="close">Отмена</button>`}<button class="btn primary" data-act="ready-send">${state.ready ? "Сохранить" : "Показать студиям"}</button></div>`);
+}
+
+function offerModal(id) {
+  const w = WORKERS.find((x) => x.id === id);
+  const mine = myGigs().filter((g) => !state.chosen[g.id]);
+  if (!mine.length) { createModal(); return; }
+  openModal(`${mHead("Предложить смену", `${esc(w.name)} · ${esc(w.role)} · от ${fmt(w.rate)} ₽`)}
+    <form class="m-body" id="mform">
+      <div class="field"><span>Подработка</span>${dd({ key: "f-gig", name: "gig", value: mine[0].id, options: mine.map((g) => [g.id, `${g.title} · ${g.when.split(",")[0]} · ${fmt(g.pay)} ₽`]) })}</div>
+      <label class="field"><span>Сообщение</span><textarea class="textarea" placeholder="Когда и куда выйти, что важно знать" autofocus></textarea><small>Предложение придёт исполнителю в личные сообщения. Если он согласится, смена закрепится за ним</small></label>
+    </form>
+    <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="offer-send" data-id="${id}">${icon("send")}Предложить</button></div>`);
+}
+
+function chooseModal(gid, wid) {
+  const g = GIGS.find((x) => x.id === gid), x = responses(g).find((y) => y.id === wid);
+  const others = responses(g).length - 1;
+  openModal(`${mHead(`Выбрать ${esc(x.name)}?`, `${esc(g.title)} · ${g.when}, ${g.time} · ${fmt(x.rate)} ₽`)}
+    <div class="m-body"><p class="hint">${icon("info")}Исполнитель получит адрес филиала и контакт руководителя смены.${others ? ` ${plural(others, "откликнувшемуся", "откликнувшимся", "откликнувшимся")} придёт уведомление, что смена занята` : ""}</p></div>
+    <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="choose-send" data-id="${gid}" data-w="${wid}" autofocus>Подтвердить смену</button></div>`);
+}
+
+function closeGigModal(id) {
+  const g = GIGS.find((x) => x.id === id);
+  openModal(`${mHead("Закрыть подработку?", `«${esc(g.title)}» исчезнет из каталога. Откликнувшимся придёт уведомление, вернуть подработку можно в кабинете`)}
+    <div class="m-foot"><button class="btn" data-act="close" autofocus>Отмена</button><button class="btn primary" data-act="close-gig-send" data-id="${id}">Закрыть</button></div>`);
+}
+
+function reportModal() {
+  openModal(`${mHead("Пожаловаться на подработку", "Модерация рассмотрит жалобу в течение 24 часов")}
+    <form class="m-body" id="mform">
+      ${["Недостоверные условия или оплата", "Просят деньги за доступ к смене", "Заказчик не существует", "Другое"].map((t, i) => `<label class="check"><input type="radio" name="r" style="border-radius:50%" ${i === 0 ? "checked" : ""}><span>${t}</span></label>`).join("")}
+      <label class="field"><span>Комментарий</span><textarea class="textarea" placeholder="Что не так"></textarea></label>
+    </form>
+    <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="report-send">Отправить</button></div>`);
+}
+
+function filtersSheet() {
+  openModal(`${mHead("Фильтры")}<div class="m-body"><div class="sheet-filters" id="sheet"><div class="field"><span>Сортировка</span>${dd({ key: "sort", value: sortValue(), options: sortOptions(), label: "Сортировка" })}</div>${filtersMarkup()}</div></div>
+    <div class="m-foot"><button class="btn" data-act="reset">Сбросить</button><button class="btn primary" data-act="close" id="sheet-apply">Показать: ${filtered().length}</button></div>`);
+}
+
+/* =========================================================
+   Обновление списка и фильтров
+   ========================================================= */
+function renderResults() {
+  const el = $("#results");
+  if (el) el.innerHTML = resultsMarkup();
+  const fh = $(".filters-head");
+  if (fh) fh.innerHTML = `<h2>Фильтры</h2>${activeChips().length ? `<button class="link" data-act="reset" style="font-size:13px">Сбросить</button>` : ""}`;
+  const sa = $("#sheet-apply");
+  if (sa) sa.textContent = `Показать: ${filtered().length}`;
+}
+function syncFilterInputs() {
+  $$("[data-filter]").forEach((el) => {
+    const k = el.dataset.filter;
+    if (k === "verified" || k === "urgent") el.checked = state.f[k];
+    else el.checked = state.f[k].has(el.value);
+  });
+  $$('[data-dd="pay"]').forEach((el) => setDD(el, state.f.pay));
+  $$('[data-dd="sort"]').forEach((el) => setDD(el, sortValue()));
+  $$('[data-dd="search-city"]').forEach((el) => setDD(el, state.city));
+}
+function resetFilters() {
+  state.f = emptyFilters();
+  state.city = "Все города"; state.q = "";
+  const q = $("#q"); if (q) q.value = "";
+  syncFilterInputs(); renderResults();
+}
+function refresh() { if (route().startsWith("/v/")) render(); else renderResults(); }
+
+document.addEventListener("input", (e) => {
+  if (e.target.id === "q") { state.q = e.target.value; renderResults(); }
+});
+document.addEventListener("change", (e) => {
+  const t = e.target;
+  const k = t.dataset.filter;
+  if (!k) return;
+  if (k === "verified" || k === "urgent") state.f[k] = t.checked;
+  else t.checked ? state.f[k].add(t.value) : state.f[k].delete(t.value);
+  syncFilterInputs(); renderResults();
+});
+document.addEventListener("submit", (e) => { e.preventDefault(); if (e.target.dataset.actSubmit === "search") { $("#results")?.scrollIntoView({ behavior: "smooth", block: "start" }); } });
+
+/* =========================================================
+   Описание страницы для общего скрипта
+   ========================================================= */
+const PAGE = {
+  section: "/gigs",
+  currentPath: () => route().startsWith("/v/") ? "/gigs/:id" : "/gigs",
+  render() {
+    const m = route().match(/^\/v\/([\w-]+)/);
+    $("#app").innerHTML = m ? detailView(m[1]) : catalogView();
+  },
+  onRoute() {
+    if (route() === "/") state.tab = "gigs";
+    if (route() === "/workers") state.tab = "workers";
+  },
+  onDD(key, v) {
+    if (key === "search-city") state.city = v;
+    else if (key === "sort") isGigs() ? state.sort = v : state.wsort = v;
+    else if (key === "pay") state.f.pay = v;
+    else return false;
+    syncFilterInputs(); renderResults();
+    return true;
+  },
+  authText(kind, id) {
+    return {
+      apply: ["Войдите, чтобы откликнуться", `После входа вернём вас к смене «${esc(GIGS.find((g) => g.id === id)?.title || "")}», и отклик можно будет отправить сразу`],
+      fav: ["Войдите, чтобы сохранить", "Избранные подработки будут в кабинете на любом устройстве"],
+      offer: ["Войдите как работодатель", "Предложить смену исполнителю можно после входа в аккаунт компании"],
+      ready: ["Войдите как специалист", "Студии увидят, когда вы свободны, и сами предложат смену"],
+    }[kind];
+  },
+  loginRole: (p) => p.kind === "offer" ? "employer" : "worker",
+  afterLogin(p) {
+    if (p.kind === "apply" && p.id) setTimeout(() => applyModal(p.id), 200);
+    if (p.kind === "offer" && p.id) setTimeout(() => offerModal(p.id), 200);
+    if (p.kind === "ready") setTimeout(readyModal, 200);
+    if (p.kind === "fav" && p.id) { state.fav.add(p.id); refresh(); }
+  },
+  roleHints: { guest: "смотрит без входа", worker: "ищет смены", employer: "ищет человека на смену", client: "не целевая роль", supplier: "не целевая роль", partner: "не целевая роль" },
+  actions: {
+    reset: resetFilters,
+    unchip: (el) => {
+      const { k, v } = el.dataset;
+      if (k === "city") state.city = "Все города";
+      else if (k === "pay") state.f.pay = "";
+      else if (k === "verified" || k === "urgent") state.f[k] = false;
+      else state.f[k].delete(v);
+      syncFilterInputs(); renderResults();
+    },
+    sheet: filtersSheet,
+    apply: (el, e, id) => { if (!needAuth("apply", id)) applyModal(id); },
+    "apply-send": (el, e, id) => { state.applied.add(id); const g = GIGS.find((x) => x.id === id); g.responses++; applySuccess(id); refresh(); },
+    fav: (el, e, id) => {
+      if (needAuth("fav", id)) return;
+      state.fav.has(id) ? state.fav.delete(id) : state.fav.add(id);
+      toast(state.fav.has(id) ? "Сохранено в избранное" : "Убрано из избранного", state.fav.has(id) ? "Избранное хранится в личном кабинете" : "");
+      refresh();
+    },
+    ready: (el, e) => { e.preventDefault(); if (state.role === "worker" || !needAuth("ready")) readyModal(); },
+    "ready-send": () => {
+      const f = $("#mform"), me = WORKERS.find((w) => w.me);
+      const free = [...f.querySelectorAll("[name=free]:checked")].map((i) => i.value);
+      if (!free.length) { toast("Отметьте хотя бы один день", "Иначе студии не поймут, когда вас звать", "info"); return; }
+      me.free = free; me.rate = Number(String(f.rate.value).replace(/\D/g, "")) || me.rate;
+      me.freeText = "Свободен " + free.map((k) => WHEN.find(([w]) => w === k)[1].toLowerCase()).join(", ").replace(/, ([^,]+)$/, " и $1");
+      const was = state.ready; state.ready = true; closeModal(); render();
+      toast(was ? "Изменения сохранены" : "Вы в списке исполнителей", was ? "" : "Предложения смен придут в «Сообщения»");
+    },
+    "ready-off": () => { state.ready = false; closeModal(); render(); toast("Вы скрыты из списка", "Откликаться на подработки можно как раньше"); },
+    offer: (el, e, id) => { if (!needAuth("offer", id)) offerModal(id); },
+    "offer-send": (el, e, id) => { state.offered.add(id); closeModal(); toast("Смена предложена", "Ответ исполнителя придёт в «Сообщения»"); refresh(); },
+    "to-resp": () => $("#resp")?.scrollIntoView({ behavior: "smooth", block: "start" }),
+    choose: (el, e, id) => chooseModal(id, el.dataset.w),
+    "choose-send": (el, e, id) => { state.chosen[id] = el.dataset.w; closeModal(); render(); toast("Смена подтверждена", "Исполнитель получил адрес и контакт"); },
+    create: (el, e) => { e.preventDefault(); if (["guest", "employer"].includes(state.role)) createModal(el.dataset.edit); },
+    "create-send": (el) => {
+      const f = $("#mform");
+      if (!f.reportValidity()) return;
+      if (state.role === "guest") { closeModal(); state.pendingAction = null; toast("Черновик сохранён", "Войдите как работодатель, чтобы опубликовать"); setTimeout(() => setRole("employer"), 400); return; }
+      const d = Object.fromEntries(new FormData(f));
+      const pay = Number(String(d.pay).replace(/\D/g, "")) || 0;
+      const [a, b] = String(d.time).split(/[–-]/).map((s) => parseInt(s, 10));
+      const hours = a >= 0 && b >= 0 ? ((b - a + 24) % 24) || 8 : 8;
+      const day = Math.max(0, Math.round((new Date(d.date) - new Date("2026-11-25")) / 864e5));
+      const dt = new Date(d.date);
+      const when = day === 0 ? "Сегодня" : day === 1 ? "Завтра" : dt.toLocaleDateString("ru-RU", { weekday: "short" }).replace(/^./, (c) => c.toUpperCase());
+      const fields = { title: d.title, spec: d.spec, time: d.time, hours, pay, urgent: !!d.urgent, desc: d.desc, day, when: `${when}, ${dt.toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}` };
+      if (el.dataset.edit) {
+        Object.assign(GIGS.find((g) => g.id === el.dataset.edit), fields);
+        closeModal(); toast("Подработка обновлена", "Откликнувшимся придёт уведомление об изменениях"); render(); return;
+      }
+      GIGS.unshift({ id: "gig-" + Date.now(), org: MY_ORG, city: "Казань", area: "Сибирский тракт", unit: "за смену", verified: true, posted: 0, responses: 0,
+        tasks: [d.desc], bring: ["Условия уточняются у заказчика"], place: "Казань, Сибирский тракт, филиал «Центральный»", payout: "по договорённости", ...fields });
+      closeModal(); location.hash = "#/"; state.tab = "gigs"; render();
+      toast("Подработка опубликована", fields.urgent ? "Мастера в радиусе 30 км получили уведомление" : "Отклики придут сюда и в «Сообщения»");
+    },
+    "close-gig": (el, e, id) => closeGigModal(id),
+    "close-gig-send": (el, e, id) => { GIGS = GIGS.filter((g) => g.id !== id); closeModal(); location.hash = "#/"; toast("Подработка закрыта", "Вернуть её можно в кабинете"); },
+    report: reportModal,
+    "report-send": () => { closeModal(); toast("Жалоба отправлена", "Ответ придёт в уведомления"); },
+  },
+};
+
+start();
+</script>
+</body>
+</html>
