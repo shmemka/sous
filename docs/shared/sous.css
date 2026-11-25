@@ -286,7 +286,7 @@ ul{margin:0;padding:0;list-style:none}
 .org-line b{color:var(--text);font-weight:600}
 /* Профиль человека или компании: шапка, навыки, опыт, портфолио, сертификаты, отзывы */
 .d-person{display:flex;align-items:center;gap:20px}
-.d-person .tile{width:88px;height:88px;border-radius:50%;font:600 28px/1 var(--font-sans)}
+.d-person .tile{flex:none;width:88px;height:88px;border-radius:50%;font:600 28px/1 var(--font-sans)}
 .d-person h1{font:700 48px/1 var(--font-display)}
 .d-person p{margin-top:6px;font-size:15px;color:var(--text-2)}
 .parts{display:flex;flex-wrap:wrap;align-items:center;gap:2px 12px}

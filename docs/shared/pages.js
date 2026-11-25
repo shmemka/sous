@@ -25,9 +25,9 @@ window.SOUS_PAGES = [
     { path: "/resumes", title: "Каталог резюме (redirect)", status: "done", href: "../specialists/#/", note: "Ведёт в каталог специалистов" },
   ]},
   { title: "Компании и закупки", pages: [
-    { path: "/companies", title: "Каталог компаний" },
-    { path: "/companies/:id", title: "Профиль компании" },
-    { path: "/companies/directory/:id", title: "Компания из открытого каталога" },
+    { path: "/companies", title: "Каталог компаний", status: "done", href: "../companies/#/" },
+    { path: "/companies/:id", title: "Профиль компании", status: "done", href: "../companies/#/v/company-001" },
+    { path: "/companies/directory/:id", title: "Компания из открытого каталога", status: "done", href: "../companies/#/d/directory-001" },
     { path: "/suppliers", title: "Поставщики и закупки" },
     { path: "/suppliers/:id", title: "Профиль поставщика" },
     { path: "/supply-requests", title: "Заявки на закупку" },

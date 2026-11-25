@@ -127,6 +127,10 @@ const ICONS = {
 };
 const icon = (n, cls = "") => `<svg class="icon ${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n] || ""}</svg>`;
 
+/* Профиль компании по названию: ссылки «Профиль компании» из вакансий и подработок */
+const COMPANY_IDS = { "Shine&Go": "company-001", "CleanLab": "company-002", "АвтоПрофи": "company-003", "Detail House": "company-004", "Гараж 77": "company-005", "Wrap Lab": "company-006", "Мойка 24": "company-007" };
+const companyHref = (org) => pageHref(`/companies/${COMPANY_IDS[org] || "company-001"}`);
+
 /* Отметка проверки в карточке списка: иконка с подсказкой вместо слова «Проверена» */
 const VERIFIED = {
   company: ["Компания проверена", "Модерация СОУС сверила документы компании с данными ЕГРЮЛ"],
