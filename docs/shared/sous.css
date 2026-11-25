@@ -15,7 +15,7 @@
   --text:#fff;--text-2:#d9cfc8;--text-3:#a08f85;
   --ok:#42c97a;--danger:#ff6961;
   --top-bg:rgba(10,5,3,.94);--backdrop:rgba(0,0,0,.66);
-  --fill:rgba(255,236,224,.05);--fill-2:rgba(255,236,224,.09);--ring:0 0 0 2px rgba(238,90,32,.55);
+  --fill:rgba(255,236,224,.05);--fill-2:rgba(255,236,224,.09);--seg:rgba(255,236,224,.06);--seg-on:#30251f;--ring:0 0 0 2px rgba(238,90,32,.55);
   --glow-a:rgba(238,90,32,.26);--glow-b:rgba(222,29,29,.10);
   --shadow:0 12px 32px rgba(0,0,0,.28);
   --ease:cubic-bezier(.2,0,0,1);
@@ -29,7 +29,7 @@
   --text:#140d09;--text-2:#3c2d24;--text-3:#7a665a;
   --ok:#1f9d55;--danger:#d63a32;
   --top-bg:rgba(250,247,244,.94);--backdrop:rgba(33,20,12,.4);
-  --fill:rgba(70,40,20,.05);--fill-2:rgba(70,40,20,.09);--ring:0 0 0 2px rgba(226,83,27,.45);
+  --fill:rgba(70,40,20,.05);--fill-2:rgba(70,40,20,.09);--seg:rgba(70,40,20,.07);--seg-on:#fff;--ring:0 0 0 2px rgba(226,83,27,.45);
   --glow-a:rgba(255,152,36,.16);--glow-b:rgba(238,90,32,.06);
   --shadow:0 12px 32px rgba(71,46,30,.12);
   color-scheme:light;
@@ -135,12 +135,11 @@ ul{margin:0;padding:0;list-style:none}
 .head-in>*{min-width:0}
 .l-short{display:none}
 .head-row{display:flex;align-items:center;justify-content:space-between;gap:16px}
-.tabs{display:inline-flex;gap:24px}
-.tab{white-space:nowrap}
-.tab{position:relative;display:flex;align-items:center;gap:8px;height:40px;color:var(--text-3);font-size:15px;font-weight:600;transition:color .16s var(--ease)}
+/* Переключатель разделов страницы: segmented control, активный сегмент приподнят заливкой */
+.tabs{display:inline-flex;gap:2px;padding:4px;border-radius:12px;background:var(--seg)}
+.tab{display:flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:9px;white-space:nowrap;color:var(--text-3);font-size:14px;font-weight:600;transition:color .16s var(--ease),background-color .16s var(--ease)}
 .tab:hover{color:var(--text)}
-.tab[aria-selected="true"]{color:var(--text)}
-.tab[aria-selected="true"]::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--primary);border-radius:2px}
+.tab[aria-selected="true"]{background:var(--seg-on);color:var(--text);box-shadow:0 1px 2px rgba(0,0,0,.18)}
 .tab small{font-size:13px;font-weight:500;color:var(--text-3)}
 .head h1{font:700 52px/1 var(--font-display);letter-spacing:0}
 .lead{max-width:620px;color:var(--text-2);font-size:15px}
@@ -469,7 +468,8 @@ a.pp-row:hover{background:var(--fill)}
   .m-foot .btn{flex:1}
   .grid2{grid-template-columns:1fr}
   /* вкладки и действие в одну строку: вкладки прокручиваются, у действия остаётся иконка (подпись в aria-label) */
-  .head-row .tabs{min-width:0;gap:20px;overflow-x:auto;scrollbar-width:none}
+  .head-row .tabs{min-width:0;overflow-x:auto;scrollbar-width:none}
+  .tab{gap:6px;padding:0 8px;font-size:13px}.tab small{font-size:12px}
   .head-row .tabs::-webkit-scrollbar{display:none}
   .head-row:has(.tabs) .btn{flex:none;width:40px;padding:0;justify-content:center}
   .head-row:has(.tabs) .btn .l-short,.head-row:has(.tabs) .btn .l-full{display:none}
