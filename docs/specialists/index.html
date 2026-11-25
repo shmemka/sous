@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css?v=202611251515">
+<link rel="stylesheet" href="../shared/sous.css?v=202611251524">
 <style>
 .meta .on{color:var(--ok)}
 .action-card .status-line{font-size:13px}
@@ -23,8 +23,8 @@
 <div id="toast-root" class="toasts" aria-live="polite"></div>
 <div id="proto-root"></div>
 
-<script src="../shared/pages.js?v=202611251515"></script>
-<script src="../shared/sous.js?v=202611251515"></script>
+<script src="../shared/pages.js?v=202611251524"></script>
+<script src="../shared/sous.js?v=202611251524"></script>
 <script>
 /* =========================================================
    Специалисты: данные
@@ -285,10 +285,8 @@ function detailView(id) {
     card = `<section class="panel action-card">
       <span class="mine-tag">${icon("dot")}Это ваше резюме</span>
       <div class="status-line">${statusFull(s)}</div>
-      <p class="hint">${icon("info")}Так его видят работодатели. Чтобы поменять данные, откройте редактор</p>
       <a class="btn primary lg block" href="${pageHref("/resume/resume-001/edit")}">${icon("edit")}Редактировать резюме</a>
       <label class="toggle-row"><span>Показывать в поиске</span><input class="switch" type="checkbox" data-act="visible" ${state.visible ? "checked" : ""}></label>
-      ${state.visible ? "" : `<p class="hint">${icon("info")}Работодатели не видят резюме в каталоге и по прямой ссылке</p>`}
     </section>`;
     mbar = `<a class="btn primary" href="${pageHref("/resume/resume-001/edit")}">Редактировать</a>`;
   } else if (hires()) {
@@ -304,7 +302,6 @@ function detailView(id) {
       ${primary}
       ${second}
       <div class="contact-mask">${icon("phone")}<span class="num">+7 (9••) •••-••-••</span><button class="link" data-act="contacts" style="margin-left:auto;font-size:13px">Показать</button></div>
-      <p class="hint">${icon("message")}Приглашение придёт специалисту в личные сообщения и уведомлением. Переписка останется на платформе</p>
     </section>`;
     mbar = done ? `<span class="btn done">${icon("check")}Отправлено</span>` : `<button class="btn primary" data-act="${a}" data-id="${s.id}">${ACTION_LABEL[a]}</button>`;
   } else {
@@ -368,7 +365,7 @@ function inviteModal(id) {
   openModal(`${mHead("Пригласить на вакансию", `${esc(s.name)}. ${esc(s.role)}, от ${fmt(s.salary)} ₽ в месяц`)}
     <form class="m-body" id="mform">
       <div class="field"><span>Вакансия</span>${dd({ key: "f-vacancy", name: "vacancy", value: MY_VACANCIES[0][0], options: MY_VACANCIES.map(([v, t, m]) => [v, t, m]) })}</div>
-      <label class="field"><span>Сообщение</span><textarea class="textarea" placeholder="Добавьте пару слов: почему зовёте именно этого специалиста" autofocus></textarea><small>Необязательно. Приглашение придёт в личные сообщения, специалист сможет откликнуться в один клик</small></label>
+      <label class="field"><span>Сообщение</span><textarea class="textarea" placeholder="Добавьте пару слов: почему зовёте именно этого специалиста" autofocus></textarea></label>
     </form>
     <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="invite-send" data-id="${id}">${icon("send")}Отправить приглашение</button></div>`);
 }
@@ -378,7 +375,7 @@ function offerModal(id) {
   openModal(`${mHead("Предложить смену", `${esc(s.name)}. Свободен ${s.gigWhen}, от ${fmt(s.gigRate)} ₽ за смену`)}
     <form class="m-body" id="mform">
       <div class="field"><span>Подработка</span>${dd({ key: "f-gig", name: "gig", value: MY_GIGS[0][0], options: MY_GIGS.map(([g, t, w, m]) => [g, t, `${w}, ${m}`]) })}</div>
-      <label class="field"><span>Сообщение</span><textarea class="textarea" placeholder="Когда и куда выйти, что важно знать" autofocus></textarea><small>Если специалист согласится, смена закрепится за ним</small></label>
+      <label class="field"><span>Сообщение</span><textarea class="textarea" placeholder="Когда и куда выйти, что важно знать" autofocus></textarea></label>
     </form>
     <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="offer-send" data-id="${id}">${icon("send")}Предложить</button></div>`);
 }
@@ -396,7 +393,7 @@ function contactsModal() {
 }
 
 function reportModal() {
-  openModal(`${mHead("Пожаловаться на профиль", "Модерация рассмотрит жалобу в течение 24 часов")}
+  openModal(`${mHead("Пожаловаться на профиль")}
     <form class="m-body" id="mform">
       ${["Чужие фото в портфолио", "Недостоверный опыт или документы", "Мошенничество", "Другое"].map((t, i) => `<label class="check"><input type="radio" name="r" style="border-radius:50%" ${i === 0 ? "checked" : ""}><span>${t}</span></label>`).join("")}
       <label class="field"><span>Комментарий</span><textarea class="textarea" placeholder="Что не так"></textarea></label>

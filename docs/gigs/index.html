@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css?v=202611251515">
+<link rel="stylesheet" href="../shared/sous.css?v=202611251524">
 <style>
 .when-line{display:flex;align-items:center;gap:12px;color:var(--text-2);font-size:15px;margin-top:12px}
 .when-line .icon{color:var(--text-3)}
@@ -25,8 +25,8 @@
 <div id="toast-root" class="toasts" aria-live="polite"></div>
 <div id="proto-root"></div>
 
-<script src="../shared/pages.js?v=202611251515"></script>
-<script src="../shared/sous.js?v=202611251515"></script>
+<script src="../shared/pages.js?v=202611251524"></script>
+<script src="../shared/sous.js?v=202611251524"></script>
 <script>
 /* =========================================================
    Подработки и подмены: данные
@@ -351,14 +351,12 @@ function detailView(id) {
           <span class="mine-tag">${icon("dot")}Исполнитель выбран</span>
           <div class="resume-mini"><span class="tile round">${initials(who.name)}</span><div><b>${esc(who.name)}</b><span>${fmt(who.rate)} ₽, ${g.when}</span></div></div>
           <a class="btn primary lg block" href="${pageHref("/messages")}">${icon("message")}Написать исполнителю</a>
-          <p class="hint">${icon("info")}Адрес и контакт руководителя смены отправлены исполнителю. Остальным откликнувшимся пришло уведомление, что смена занята</p>
         </section>`
       : `<section class="panel action-card">
           <span class="mine-tag">${icon("dot")}Ваша подработка</span>
           <div class="stat-row"><div><b class="num">${list.length}</b><span>${plural(list.length, "отклик", "отклика", "откликов").split(" ")[1]}</span></div><div><b class="num">${fresh}</b><span>новых</span></div></div>
           ${list.length ? `<button class="btn primary lg block" data-act="to-resp">Выбрать исполнителя</button>` : `<a class="btn primary lg block" href="#/workers">Найти исполнителя</a>`}
           <div class="grid2"><button class="btn" data-act="create" data-edit="${g.id}">${icon("edit")}Изменить</button><button class="btn" data-act="close-gig" data-id="${g.id}">Закрыть</button></div>
-          <p class="hint">${icon("info")}Отклики приходят сюда и в «Сообщения». Выбранный исполнитель получит адрес и контакт</p>
         </section>`;
     mbar = who ? `<a class="btn primary" href="${pageHref("/messages")}">Написать</a>` : list.length ? `<button class="btn primary" data-act="to-resp">Отклики<span class="count">${list.length}</span></button>` : `<a class="btn primary" href="#/workers">Исполнители</a>`;
   } else if (r === "guest" || r === "worker") {
@@ -368,7 +366,6 @@ function detailView(id) {
     card = `<section class="panel action-card">
       ${money}
       ${btn}
-      <p class="hint">${icon("message")}${applied ? "Заказчик ответит в диалоге. Если вас выберут, придут адрес и контакт руководителя смены" : "Мы создадим диалог с заказчиком, там можно обсудить детали и ставку"}</p>
     </section>`;
     mbar = applied ? `<span class="btn done">${icon("check")}Отправлен</span>` : `<button class="btn primary" data-act="apply" data-id="${g.id}">Откликнуться</button>`;
   } else {
@@ -431,8 +428,8 @@ function applyModal(id) {
   openModal(`${mHead("Отклик на смену", `${esc(g.title)}, ${esc(g.org)}. ${g.when}, ${g.time}`)}
     <form class="m-body" id="mform">
       <div class="resume-mini"><span class="tile round">МС</span><div><b>Михаил Соколов</b><span>Полировка и PPF, ${plural(23, "смена", "смены", "смен")} на СОУС, рейтинг 9,8/10</span></div><a class="link" href="${pageHref("/resume/resume-001/edit")}">Профиль</a></div>
-      <label class="field"><span>Ваша ставка за смену, ₽</span><input class="input num" name="rate" inputmode="numeric" value="${fmt(g.pay)}"><small>Заказчик предлагает ${fmt(g.pay)} ₽ ${g.unit}. Можно назвать свою</small></label>
-      <label class="field"><span>Сообщение заказчику</span><textarea class="textarea" name="msg" placeholder="Расскажите о себе и почему вы подходите" autofocus></textarea><small>Необязательно. Профиль и портфолио прикрепятся автоматически</small></label>
+      <label class="field"><span>Ваша ставка за смену, ₽</span><input class="input num" name="rate" inputmode="numeric" value="${fmt(g.pay)}"></label>
+      <label class="field"><span>Сообщение заказчику</span><textarea class="textarea" name="msg" placeholder="Расскажите о себе и почему вы подходите" autofocus></textarea></label>
     </form>
     <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="apply-send" data-id="${id}">${icon("send")}Отправить отклик</button></div>`);
 }
@@ -452,7 +449,7 @@ function createModal(editId) {
       <div class="grid2">
         <div class="field"><span>Тип работ</span>${dd({ key: "f-spec", name: "spec", value: g?.spec || "Мойка", options: SPECS })}</div>
         ${guest ? `<div class="field"><span>Город</span>${dd({ key: "f-city", name: "city", value: "Казань", options: CITIES.slice(1) })}</div>`
-                : `<div class="field"><span>Филиал</span>${dd({ key: "f-branch", name: "city", value: "Казань, «Центральный»", options: ["Казань, «Центральный»", "Казань, «Северный»"] })}<small>Адрес придёт исполнителю после подтверждения</small></div>`}
+                : `<div class="field"><span>Филиал</span>${dd({ key: "f-branch", name: "city", value: "Казань, «Центральный»", options: ["Казань, «Центральный»", "Казань, «Северный»"] })}</div>`}
       </div>
       <div class="grid2">
         <div class="field"><span>Дата смены</span>${datePick({ key: "f-date", name: "date", value: "2026-11-26", min: "2026-11-25", label: "Дата смены" })}</div>
@@ -468,11 +465,10 @@ function createModal(editId) {
 
 function readyModal() {
   const me = WORKERS.find((w) => w.me);
-  openModal(`${mHead("Готов к подработке", "Студии увидят вас во вкладке «Исполнители» и смогут сами предложить смену")}
+  openModal(`${mHead("Готов к подработке")}
     <form class="m-body" id="mform">
       <fieldset class="field" style="border:0;margin:0;padding:0"><span>Когда свободны</span><div class="c-checks">${WHEN.map(([k, l]) => `<label class="check"><input type="checkbox" name="free" value="${k}" ${me.free.includes(k) ? "checked" : ""}><span>${l}</span></label>`).join("")}</div></fieldset>
       <label class="field"><span>Желаемая ставка за смену от, ₽</span><input class="input num" name="rate" inputmode="numeric" value="${fmt(me.rate)}"></label>
-      <p class="hint">${icon("info")}Специализация, город и рейтинг берутся из профиля: ${esc(me.role)}, ${me.city}</p>
     </form>
     <div class="m-foot">${state.ready ? `<button class="btn" data-act="ready-off">Скрыть из списка</button>` : `<button class="btn" data-act="close">Отмена</button>`}<button class="btn primary" data-act="ready-send">${state.ready ? "Сохранить" : "Показать студиям"}</button></div>`);
 }
@@ -484,7 +480,7 @@ function offerModal(id) {
   openModal(`${mHead("Предложить смену", `${esc(w.name)}. ${esc(w.role)}, от ${fmt(w.rate)} ₽ за смену`)}
     <form class="m-body" id="mform">
       <div class="field"><span>Подработка</span>${dd({ key: "f-gig", name: "gig", value: mine[0].id, options: mine.map((g) => [g.id, g.title, `${g.when.split(",")[0]}, ${fmt(g.pay)} ₽`]) })}</div>
-      <label class="field"><span>Сообщение</span><textarea class="textarea" placeholder="Когда и куда выйти, что важно знать" autofocus></textarea><small>Предложение придёт исполнителю в личные сообщения. Если он согласится, смена закрепится за ним</small></label>
+      <label class="field"><span>Сообщение</span><textarea class="textarea" placeholder="Когда и куда выйти, что важно знать" autofocus></textarea></label>
     </form>
     <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="offer-send" data-id="${id}">${icon("send")}Предложить</button></div>`);
 }
@@ -504,7 +500,7 @@ function closeGigModal(id) {
 }
 
 function reportModal() {
-  openModal(`${mHead("Пожаловаться на подработку", "Модерация рассмотрит жалобу в течение 24 часов")}
+  openModal(`${mHead("Пожаловаться на подработку")}
     <form class="m-body" id="mform">
       ${["Недостоверные условия или оплата", "Просят деньги за доступ к смене", "Заказчик не существует", "Другое"].map((t, i) => `<label class="check"><input type="radio" name="r" style="border-radius:50%" ${i === 0 ? "checked" : ""}><span>${t}</span></label>`).join("")}
       <label class="field"><span>Комментарий</span><textarea class="textarea" placeholder="Что не так"></textarea></label>

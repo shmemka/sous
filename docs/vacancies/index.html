@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css?v=202611251515">
+<link rel="stylesheet" href="../shared/sous.css?v=202611251524">
 </head>
 <body>
 <a class="sr-only" href="#app">Перейти к содержимому</a>
@@ -19,8 +19,8 @@
 <div id="toast-root" class="toasts" aria-live="polite"></div>
 <div id="proto-root"></div>
 
-<script src="../shared/pages.js?v=202611251515"></script>
-<script src="../shared/sous.js?v=202611251515"></script>
+<script src="../shared/pages.js?v=202611251524"></script>
+<script src="../shared/sous.js?v=202611251524"></script>
 <script>
 /* =========================================================
    Вакансии и резюме: данные
@@ -218,7 +218,6 @@ function detailView(id) {
       <div class="stat-row"><div><b class="num">${v.responses}</b><span>откликов</span></div><div><b class="num">${v.fresh}</b><span>новых</span></div></div>
       <a class="btn primary lg block" href="${pageHref(`/dashboard`)}">Смотреть отклики</a>
       <div class="grid2"><a class="btn" href="#" data-act="create" data-edit="${v.id}">${icon("edit")}Изменить</a><button class="btn" data-act="unpublish" data-id="${v.id}">Снять</button></div>
-      <p class="hint">${icon("info")}Отклики приходят в «Сообщения» и в кабинет</p>
     </section>`;
     mbar = `<a class="btn primary" href="${pageHref(`/dashboard`)}">Отклики<span class="count">${v.responses}</span></a>`;
   } else if (r === "guest" || r === "worker") {
@@ -227,7 +226,6 @@ function detailView(id) {
       <div class="money num">${salary(v.from, v.to)}<small>в месяц на руки</small></div>
       ${btn}
       <button class="btn block fav" data-act="fav" data-id="${v.id}" aria-pressed="${state.fav.has(v.id)}">${icon("heart")}${state.fav.has(v.id) ? "В избранном" : "Сохранить"}</button>
-      <p class="hint">${icon("message")}${applied ? "Ответ работодателя придёт в «Сообщения»" : "Отклик придёт работодателю в личные сообщения. Отозвать его можно в любой момент"}</p>
     </section>`;
     mbar = applied ? `<span class="btn done">${icon("check")}Отправлен</span>` : `<button class="btn primary" data-act="apply" data-id="${v.id}">Откликнуться</button>`;
   } else {
@@ -287,7 +285,7 @@ function applyModal(id) {
   openModal(`${mHead("Отклик на вакансию", `${esc(v.title)}, ${esc(v.org)}`)}
     <form class="m-body" id="mform">
       <div class="resume-mini"><span class="tile round">МС</span><div><b>Михаил Соколов</b><span>Детейлер, опыт 6 лет. Резюме заполнено на 87%</span></div><a class="link" href="${pageHref(`/resume/resume-001/edit`)}">Изменить</a></div>
-      <label class="field"><span>Сообщение работодателю</span><textarea class="textarea" name="msg" placeholder="Коротко о себе и когда готовы выйти" autofocus></textarea><small>Необязательно. Резюме и портфолио прикрепятся автоматически</small></label>
+      <label class="field"><span>Сообщение работодателю</span><textarea class="textarea" name="msg" placeholder="Коротко о себе и когда готовы выйти" autofocus></textarea></label>
     </form>
     <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="apply-send" data-id="${id}">${icon("send")}Отправить отклик</button></div>`);
 }
@@ -330,7 +328,7 @@ function unpublishModal(id) {
 }
 
 function reportModal() {
-  openModal(`${mHead("Пожаловаться на вакансию", "Модерация рассмотрит жалобу в течение 24 часов")}
+  openModal(`${mHead("Пожаловаться на вакансию")}
     <form class="m-body" id="mform">
       ${["Недостоверные условия", "Просят оплату за трудоустройство", "Компания не существует", "Другое"].map((t, i) => `<label class="check"><input type="radio" name="r" style="border-radius:50%" ${i === 0 ? "checked" : ""}><span>${t}</span></label>`).join("")}
       <label class="field"><span>Комментарий</span><textarea class="textarea" placeholder="Что не так"></textarea></label>
