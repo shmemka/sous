@@ -22,18 +22,6 @@
   --r-control:10px;--r-card:16px;--r-panel:20px;
   color-scheme:dark;
 }
-:root[data-theme="light"]{
-  --primary:#e2531b;--primary-hover:#c9470f;
-  --bg:#faf7f4;--surface:#fff;--surface-2:#fff;--surface-hover:#f6f1ec;--sunken:#f3ede7;
-  --line:#ebe2d9;--line-2:#d8cbbf;--line-3:#b4a697;
-  --text:#140d09;--text-2:#3c2d24;--text-3:#7a665a;
-  --ok:#1f9d55;--danger:#d63a32;
-  --top-bg:rgba(250,247,244,.94);--backdrop:rgba(33,20,12,.4);
-  --fill:rgba(70,40,20,.05);--fill-2:rgba(70,40,20,.09);--seg:rgba(70,40,20,.07);--seg-on:#fff;--ring:0 0 0 2px rgba(226,83,27,.45);
-  --glow-a:rgba(255,152,36,.16);--glow-b:rgba(238,90,32,.06);
-  --shadow:0 12px 32px rgba(71,46,30,.12);
-  color-scheme:light;
-}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;scroll-padding-top:80px}
 body{margin:0;background:var(--bg);color:var(--text);font:400 15px/1.5 var(--font-sans);min-height:100vh;overflow-x:hidden}
@@ -150,7 +138,10 @@ ul{margin:0;padding:0;list-style:none}
 .s-field input{width:100%;height:48px;padding:0 12px 0 40px;border:0;background:transparent;font-size:15px;outline:none}
 
 .s-field input::placeholder{color:var(--text-3)}
-.s-city{flex:0 0 220px;border-left:1px solid var(--line)}
+.s-city{position:relative;flex:0 0 224px;padding-left:4px}
+.s-city::before{content:"";position:absolute;left:0;top:50%;width:1px;height:24px;margin-top:-12px;background:var(--line-2);transition:opacity .16s var(--ease)}
+.s-city:hover::before,.s-city:has(.open)::before{opacity:0}
+.s-city .dd.bare .dd-btn:hover,.s-city .dd.bare.open .dd-btn{background:var(--fill-2)}
 
 .search .btn{min-height:48px;border-radius:12px;padding:0 24px}
 
@@ -203,11 +194,12 @@ ul{margin:0;padding:0;list-style:none}
 .verified{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:var(--text-3)}
 .verified .icon{width:14px;height:14px;color:var(--ok)}
 /* Отметка проверки в карточке: только иконка, подсказка на наведении и фокусе (verifiedMark в sous.js) */
-.v-mark{position:relative;z-index:2;display:inline-grid;place-items:center;width:22px;height:22px;border-radius:6px;color:var(--ok);cursor:help}
+.v-mark{position:relative;z-index:2;display:inline-grid;place-items:center;width:22px;height:22px;border-radius:6px;color:var(--ok);cursor:default}
 .v-mark:focus-visible{outline:2px solid var(--primary);outline-offset:1px}
-.v-mark .tip{position:absolute;left:-8px;top:calc(100% + 8px);width:max-content;max-width:min(280px,80vw);padding:12px 14px;border-radius:12px;background:var(--surface-2);box-shadow:var(--shadow),0 0 0 1px var(--fill);font-size:13px;line-height:1.45;font-weight:400;color:var(--text-2);text-align:left;opacity:0;visibility:hidden;transition:opacity .16s var(--ease),visibility .16s;pointer-events:none}
+.v-mark .tip{position:absolute;left:-8px;top:calc(100% + 8px);width:max-content;max-width:min(280px,80vw);padding:12px 14px;border-radius:12px;background:var(--surface-2);box-shadow:var(--shadow),0 0 0 1px var(--fill);font-size:13px;line-height:1.45;font-weight:400;color:var(--text-2);text-align:left;opacity:0;visibility:hidden;transform:translateY(6px);transition:opacity .2s var(--ease),transform .2s var(--ease),visibility .2s;pointer-events:none}
 .v-mark .tip b{display:block;margin-bottom:4px;font-size:14px;font-weight:600;color:var(--text)}
-.v-mark:hover .tip,.v-mark:focus .tip{opacity:1;visibility:visible}
+.v-mark:hover .tip,.v-mark:focus .tip{opacity:1;visibility:visible;transform:none}
+@media (prefers-reduced-motion:reduce){.v-mark .tip{transform:none}}
 .meta{display:flex;flex-wrap:wrap;gap:6px 20px;margin-top:6px;font-size:13px;color:var(--text-3)}
 .meta span{display:inline-flex;align-items:center;gap:6px}
 .meta .icon{width:14px;height:14px}
@@ -263,6 +255,7 @@ ul{margin:0;padding:0;list-style:none}
 .place .icon{color:var(--text-3)}
 .aside{position:sticky;top:88px;display:grid;gap:16px}
 .action-card{display:grid;gap:16px}
+.action-card>.btn+.btn,.action-card>.btn+.grid2{margin-top:-8px}
 .action-card .money{font-size:36px}
 .hint{display:flex;gap:8px;font-size:13px;color:var(--text-3)}
 .hint .icon{width:14px;height:14px;margin-top:2px}
@@ -443,7 +436,8 @@ a.pp-row:hover{background:var(--fill)}
   .toolbar .sort-wrap{display:none}
   .filters-btn{margin-left:auto}
   .s-field input{height:44px}
-  .s-city{flex:1 1 100%;border-left:0;border-top:1px solid var(--line)}
+  .s-city{flex:1 1 100%;padding-left:0}
+  .s-city::before{left:12px;right:12px;top:0;width:auto;height:1px;margin-top:0}
   .s-city .dd-btn{height:44px}
   .search .btn{display:none}
   .toolbar{gap:8px;margin-bottom:12px}

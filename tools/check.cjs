@@ -1,6 +1,6 @@
 /* Проверка страницы прототипа: скриншоты десктопа и мобилки, ошибки консоли, горизонтальная прокрутка.
    Запуск из корня репозитория:
-     node tools/check.cjs <папка-страницы> [адрес1 адрес2 ...] [--out <папка>] [--light] [--role <роль>]
+     node tools/check.cjs <папка-страницы> [адрес1 адрес2 ...] [--out <папка>] [--role <роль>]
    Пример:
      node tools/check.cjs vacancies "#/" "#/v/vac-022" --out /tmp/shots
    Без адресов проверяется "#/". Скриншоты: <out>/<папка>-<n>-desktop.png и -mobile.png (масштаб 1, для проверки). */
@@ -13,7 +13,6 @@ const opt = (name) => { const i = args.indexOf(name); if (i < 0) return null; co
 const flag = (name) => { const i = args.indexOf(name); if (i < 0) return false; args.splice(i, 1); return true; };
 const out = opt("--out") || path.join(process.cwd(), ".shots");
 const role = opt("--role") || "guest";
-const light = flag("--light");
 const [page, ...routes] = args;
 if (!page) { console.error("Укажите папку страницы, например: node tools/check.cjs vacancies"); process.exit(1); }
 const file = path.join(process.cwd(), "docs", page, "index.html");
@@ -29,7 +28,7 @@ fs.mkdirSync(out, { recursive: true });
     const errors = [];
     p.on("pageerror", (e) => errors.push(e.message));
     p.on("console", (m) => m.type() === "error" && errors.push(m.text()));
-    await p.addInitScript(([r, t]) => { try { localStorage.setItem("sous-role", r); localStorage.setItem("sous-theme", t); } catch {} }, [role, light ? "light" : "dark"]);
+    await p.addInitScript((r) => { try { localStorage.setItem("sous-role", r); } catch {} }, role);
     for (const [i, r] of targets.entries()) {
       await p.goto("file://" + file + r);
       await p.waitForTimeout(900);

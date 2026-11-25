@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css?v=202611250055">
+<link rel="stylesheet" href="../shared/sous.css?v=202611250102">
 <style>
 .meta .on{color:var(--ok)}
 .action-card .status-line{font-size:13px}
@@ -23,8 +23,8 @@
 <div id="toast-root" class="toasts" aria-live="polite"></div>
 <div id="proto-root"></div>
 
-<script src="../shared/pages.js?v=202611250055"></script>
-<script src="../shared/sous.js?v=202611250055"></script>
+<script src="../shared/pages.js?v=202611250102"></script>
+<script src="../shared/sous.js?v=202611250102"></script>
 <script>
 /* =========================================================
    Специалисты: данные
@@ -42,41 +42,41 @@ const MY_GIGS = [["gig-016", "Универсал на выходные", "Сб �
 
 /* status: job ищет работу, gig готов к подработке; пусто: не ищет, профиль как портфолио */
 const SPECIALISTS = [
-  { id: "worker-001", name: "Михаил Соколов", role: "Детейлер: полировка и PPF", city: "Москва", spec: "Полировка", years: 6, status: ["job", "gig"], gigWhen: "на выходных", salary: 90000, gigRate: 6000, schedule: "Полный день", rating: "4,9", reviews: 18, positive: 94, verified: true, works: 38, days: 0,
+  { id: "worker-001", name: "Михаил Соколов", role: "Детейлер: полировка и PPF", city: "Москва", spec: "Полировка", years: 6, status: ["job", "gig"], gigWhen: "на выходных", salary: 90000, gigRate: 6000, schedule: "Полный день", rating: "9,8", reviews: 18, positive: 94, verified: true, works: 38, days: 0,
     desc: "Шесть лет работаю с лакокрасочными покрытиями и защитными материалами. Восстановительная полировка, керамика и установка полиуретановой плёнки. Показываю процесс, фиксирую результат и отвечаю за каждый этап.",
     skills: ["Восстановительная полировка", "Установка PPF", "Керамические составы", "Химчистка кожи", "Матовое ЛКП", "Фотоотчёт"],
     jobs: [["С 2022 года", "Старший детейлер", "АвтоПрофи, Москва", "Полировка и защита премиальных автомобилей, контроль качества, обучение младших мастеров"], ["2020–2022", "Детейлер", "CleanLab, Москва", "Комплексная подготовка автомобилей, химчистка салона, керамика"]],
     certs: [["Мастер детейлинга", "Учебный центр СОУС", "12 октября 2026", "UC-2026-001"], ["Установка PPF, продвинутый курс", "Внешний курс", "24 сентября 2026", "PPF-2026-184"]],
     reviewsList: [["АвтоПрофи", "Октябрь 2026", "Работал у нас четыре года. Аккуратен с ЛКП, сам ведёт фотоотчёт, клиенты возвращаются к нему по имени"], ["Shine&Go", "Сентябрь 2026", "Брали на подработку на выходные под оклейку капота и бампера. Сделал в срок, кромки чистые"]],
     extra: [["Гражданство", "Россия"], ["Водительские права", "Категория B"], ["Медкнижка", "Есть"], ["Командировки", "Готов"], ["Языки", "Русский, английский базовый"]] },
-  { id: "worker-002", name: "Александр Волков", role: "Мастер химчистки", city: "Казань", spec: "Химчистка", years: 4, status: ["job", "gig"], gigWhen: "завтра и на выходных", salary: 75000, gigRate: 4000, schedule: "Полный день", rating: "4,8", reviews: 12, positive: 92, verified: true, works: 24, days: 1,
+  { id: "worker-002", name: "Александр Волков", role: "Мастер химчистки", city: "Казань", spec: "Химчистка", years: 4, status: ["job", "gig"], gigWhen: "завтра и на выходных", salary: 75000, gigRate: 4000, schedule: "Полный день", rating: "9,6", reviews: 12, positive: 92, verified: true, works: 24, days: 1,
     desc: "Химчистка текстиля и кожи, озонирование, работа со сложными загрязнениями. Подбираю химию под материал, не пересушиваю кожу.",
     skills: ["Химчистка текстиля", "Уход за кожей", "Озонирование", "Чистка потолка", "Устранение запахов"],
     jobs: [["С 2023 года", "Мастер химчистки", "Detail House, Казань", "Химчистка салонов, консультации клиентов по уходу"], ["2021–2023", "Мойщик-универсал", "Мойка 24, Казань", "Мойка кузова и уборка салона"]],
     certs: [["Химчистка и уход за кожей", "Учебный центр СОУС", "3 июня 2026", "UC-2026-047"]] },
-  { id: "worker-003", name: "Дмитрий Ким", role: "Мойщик", city: "Москва", spec: "Мойка", years: 2, status: ["gig"], gigWhen: "сегодня и завтра", salary: null, gigRate: 2500, schedule: "Сменный", rating: "4,7", reviews: 9, positive: 89, verified: false, works: 0, days: 2,
+  { id: "worker-003", name: "Дмитрий Ким", role: "Мойщик", city: "Москва", spec: "Мойка", years: 2, status: ["gig"], gigWhen: "сегодня и завтра", salary: null, gigRate: 2500, schedule: "Сменный", rating: "9,4", reviews: 9, positive: 89, verified: false, works: 0, days: 2,
     desc: "Выхожу на подменные смены по Москве. Быстро вливаюсь в регламент студии, работаю по двухфазной мойке.",
     skills: ["Двухфазная мойка", "Уборка салона", "Мойка дисков"],
     jobs: [["С 2024 года", "Мойщик", "CleanLab, Москва", "Двухфазная мойка, сушка и уборка салона"]], certs: [] },
-  { id: "worker-004", name: "Руслан Галиев", role: "Специалист по керамике", city: "Казань", spec: "Керамика", years: 5, status: ["job", "gig"], gigWhen: "на выходных", salary: 100000, gigRate: 7000, schedule: "Полный день", rating: "4,9", reviews: 15, positive: 96, verified: true, works: 41, days: 4,
+  { id: "worker-004", name: "Руслан Галиев", role: "Специалист по керамике", city: "Казань", spec: "Керамика", years: 5, status: ["job", "gig"], gigWhen: "на выходных", salary: 100000, gigRate: 7000, schedule: "Полный день", rating: "9,8", reviews: 15, positive: 96, verified: true, works: 41, days: 4,
     desc: "Подготовка ЛКП и керамика. Прошёл обучение у двух производителей составов, работаю под лампами и толщиномером.",
     skills: ["Керамика в 2–3 слоя", "Подготовка ЛКП", "Полировка", "Работа с толщиномером"],
     jobs: [["С 2022 года", "Мастер по керамике", "Гараж 77, Москва", "Керамика на премиальные автомобили, сдача клиенту"], ["2021–2022", "Детейлер", "Shine&Go, Казань", "Полировка и защитные составы"]],
     certs: [["Керамические покрытия", "Учебный центр СОУС", "18 августа 2026", "UC-2026-112"], ["Сертификат производителя составов", "Внешний курс", "2 апреля 2025", "CR-2025-031"]] },
-  { id: "worker-005", name: "Елена Орлова", role: "Администратор студии", city: "Санкт-Петербург", spec: "Администратор", years: 1, status: ["job"], salary: 55000, gigRate: null, schedule: "Сменный", rating: "4,5", reviews: 4, positive: 100, verified: false, works: 0, days: 6,
+  { id: "worker-005", name: "Елена Орлова", role: "Администратор студии", city: "Санкт-Петербург", spec: "Администратор", years: 1, status: ["job"], salary: 55000, gigRate: null, schedule: "Сменный", rating: "9,0", reviews: 4, positive: 100, verified: false, works: 0, days: 6,
     desc: "Запись клиентов, работа с CRM, приём и выдача автомобилей с фотофиксацией.",
     skills: ["CRM", "Запись клиентов", "Приёмка с фотофиксацией", "Кассовая дисциплина"],
     jobs: [["С 2025 года", "Администратор", "Wrap Lab, Санкт-Петербург", "Запись клиентов, приём и выдача автомобилей"]], certs: [] },
-  { id: "worker-006", name: "Артём Белов", role: "Универсал: мойка и салон", city: "Казань", spec: "Мойка", years: 3, status: ["gig"], gigWhen: "сегодня и на выходных", salary: null, gigRate: 3000, schedule: "Сменный", rating: "4,6", reviews: 7, positive: 86, verified: true, works: 12, days: 3,
+  { id: "worker-006", name: "Артём Белов", role: "Универсал: мойка и салон", city: "Казань", spec: "Мойка", years: 3, status: ["gig"], gigWhen: "сегодня и на выходных", salary: null, gigRate: 3000, schedule: "Сменный", rating: "9,2", reviews: 7, positive: 86, verified: true, works: 12, days: 3,
     desc: "Комплексная мойка, уборка салона, подготовка автомобиля к полировке. Беру подработки между основными сменами.",
     skills: ["Комплексная мойка", "Уборка салона", "Подготовка к полировке"],
     jobs: [["С 2023 года", "Мойщик-универсал", "Мойка 24, Казань", "Ночные и дневные смены, обучение новичков"]], certs: [] },
-  { id: "worker-007", name: "Ильдар Сафин", role: "Оклейщик PPF", city: "Санкт-Петербург", spec: "Оклейка и PPF", years: 7, status: ["gig"], gigWhen: "со следующей недели", salary: null, gigRate: 5500, schedule: "Полный день", rating: "5,0", reviews: 11, positive: 100, verified: true, works: 56, days: 5,
+  { id: "worker-007", name: "Ильдар Сафин", role: "Оклейщик PPF", city: "Санкт-Петербург", spec: "Оклейка и PPF", years: 7, status: ["gig"], gigWhen: "со следующей недели", salary: null, gigRate: 5500, schedule: "Полный день", rating: "10", reviews: 11, positive: 100, verified: true, works: 56, days: 5,
     desc: "Полная и частичная оклейка полиуретановой и виниловой плёнкой. Работаю с лекалами и в ручном раскрое.",
     skills: ["Полная оклейка PPF", "Винил", "Ручной раскрой", "Демонтаж плёнок"],
     jobs: [["С 2021 года", "Старший оклейщик", "Wrap Lab, Санкт-Петербург", "Полная оклейка, контроль кромок, обучение команды"]],
     certs: [["Установка PPF, продвинутый курс", "Учебный центр СОУС", "10 мая 2026", "UC-2026-071"]] },
-  { id: "worker-008", name: "Константин Лебедев", role: "Мастер полировки", city: "Екатеринбург", spec: "Полировка", years: 9, status: [], salary: null, gigRate: null, schedule: "Полный день", rating: "4,9", reviews: 27, positive: 96, verified: true, works: 112, days: 9,
+  { id: "worker-008", name: "Константин Лебедев", role: "Мастер полировки", city: "Екатеринбург", spec: "Полировка", years: 9, status: [], salary: null, gigRate: null, schedule: "Полный день", rating: "9,8", reviews: 27, positive: 96, verified: true, works: 112, days: 9,
     desc: "Девять лет в полировке, веду свою команду в студии. Работу не ищу, делюсь портфолио и беру учеников.",
     skills: ["Абразивная полировка", "Восстановление фар", "Обучение мастеров"],
     jobs: [["С 2019 года", "Руководитель цеха полировки", "Detail House, Екатеринбург", "Команда из пяти мастеров, контроль качества"]],
@@ -208,7 +208,7 @@ function card(s) {
       ${mine ? `<span class="mine-tag">${icon("dot")}${state.visible ? "Ваше резюме · так его видят работодатели" : "Ваше резюме скрыто из поиска"}</span>` : ""}
       <h2 class="c-title"><a href="#/v/${s.id}">${esc(s.name)}</a></h2>
       <div class="c-org">${esc(s.role)}${s.verified ? verifiedMark("person") : ""}</div>
-      <div class="meta">${statusMarkup(s)}<span>${icon("pin")}${s.city}</span><span>${icon("briefcase")}Опыт ${yearsText(s.years)}</span><span>${icon("star")}${s.rating} · ${plural(s.reviews, "отзыв", "отзыва", "отзывов")}</span></div>
+      <div class="meta">${statusMarkup(s)}<span>${icon("pin")}${s.city}</span><span>${icon("briefcase")}Опыт ${yearsText(s.years)}</span><span>${icon("star")}${s.rating}/10 · ${plural(s.reviews, "отзыв", "отзыва", "отзывов")}</span></div>
       <p class="c-desc">${esc(s.desc)}</p>
     </div>
     <div class="c-side">
@@ -333,7 +333,7 @@ function detailView(id) {
             <div><b class="num">${fact1[0]}</b><span>${fact1[1]}</span></div>
             <div><b>${yearsText(s.years)}</b><span>опыт работы</span></div>
             <div><b>${s.schedule}</b><span>график</span></div>
-            <div><b class="num">${s.rating} из 5</b><span>${plural(s.reviews, "отзыв", "отзыва", "отзывов")}</span></div>
+            <div><b class="num">${s.rating}/10</b><span>${plural(s.reviews, "отзыв", "отзыва", "отзывов")}</span></div>
           </div>
         </section>
         <section class="panel"><h2>О себе</h2><p class="prose">${esc(s.desc)}</p><div class="skills">${s.skills.map((k) => `<span>${esc(k)}</span>`).join("")}</div></section>
@@ -341,7 +341,7 @@ function detailView(id) {
         ${s.works && gallery.length ? `<section class="panel"><h2>Портфолио · ${plural(s.works, "работа", "работы", "работ")}</h2><div class="gallery">${gallery.map((c) => `<figure>${icon("image")}<figcaption>${esc(c)}</figcaption></figure>`).join("")}</div></section>` : ""}
         ${s.certs.length ? `<section class="panel"><h2>Сертификаты</h2>${s.certs.map(([n, by, d, num]) => `<div class="cert">${icon("award")}<div><b>${esc(n)}</b><span>${by} · ${d} · № ${num}</span>${by.includes("СОУС") ? `<div class="verified" style="display:flex;margin-top:4px">${icon("badge")}Подлинность подтверждена</div>` : ""}</div>${by.includes("СОУС") ? `<a class="btn sm" href="${pageHref(`/training/certificate/${num}`)}">Проверить</a>` : `<span></span>`}</div>`).join("")}</section>` : ""}
         <section class="panel"><h2>Отзывы работодателей</h2>
-          <div class="rating-sum"><b class="num">${s.rating}</b><span>из 5 · ${plural(s.reviews, "отзыв", "отзыва", "отзывов")} · ${s.positive}% положительных</span></div>
+          <div class="rating-sum"><b class="num">${s.rating}/10</b><span>${plural(s.reviews, "отзыв", "отзыва", "отзывов")} · ${s.positive}% положительных</span></div>
           ${reviewsOf(s).map(([au, d, t]) => `<div class="review"><div class="review-head"><b>${esc(au)}</b><span>${d}</span></div><p>${esc(t)}</p></div>`).join("")}
         </section>
         <section class="panel"><h2>Дополнительно</h2><div class="lines">${extraOf(s).map(([k, v]) => `<div class="org-line"><span>${k}</span><b>${v}</b></div>`).join("")}</div></section>

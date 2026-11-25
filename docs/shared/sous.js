@@ -65,7 +65,6 @@ function read(k, d) { try { return localStorage.getItem(k) || d; } catch { retur
 function write(k, v) { try { localStorage.setItem(k, v); } catch {} }
 const state = {
   role: read("sous-role", "guest"),
-  theme: read("sous-theme", "dark"),
   protoOpen: false,
   pagesOpen: false,
   pendingAction: null,
@@ -224,7 +223,7 @@ function renderHeader() {
       </div>`).join("")}
     </nav>
     <div class="top-actions">
-      <button class="btn ghost icon-only" data-act="theme" aria-label="${state.theme === "dark" ? "Светлая тема" : "Тёмная тема"}">${icon(state.theme === "dark" ? "sun" : "moon", "lg")}</button>
+      <button class="btn ghost icon-only" data-act="theme" aria-label="Светлая тема">${icon("sun", "lg")}</button>
       ${right}
       <button class="btn icon-only burger" data-act="burger" aria-label="Меню">${icon("menu", "lg")}</button>
     </div>
@@ -341,7 +340,8 @@ const SHARED_ACTIONS = {
   dd: (el) => { const box = el.closest(".dd"); ddOpen?.el === box ? closeDD() : openDD(box); },
   "dd-opt": (el) => pickDD(el.dataset.v),
   nav: (el) => { const item = el.closest(".nav-item"); const open = !item.classList.contains("open"); closeNav(); if (open) { item.classList.add("open"); el.setAttribute("aria-expanded", "true"); } },
-  theme: () => { state.theme = state.theme === "dark" ? "light" : "dark"; document.documentElement.dataset.theme = state.theme; write("sous-theme", state.theme); renderHeader(); },
+  /* Светлая тема пока не прорабатывается: кнопка есть, но только сообщает об этом */
+  theme: () => toast("Светлая тема ещё в работе", "Пока прототип показываем только в тёмной теме", "info"),
   burger: mobileMenu,
   "close-drawer": closeDrawer,
   login: (el, e) => { e.preventDefault(); closeDrawer(); authModal("login"); },
@@ -384,7 +384,6 @@ window.addEventListener("hashchange", () => {
 
 /* ---------- Запуск: вызвать в конце скрипта страницы ---------- */
 function start() {
-  document.documentElement.dataset.theme = state.theme;
   renderFooter();
   PAGE.onRoute?.();
   render();
