@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css?v=202611250052">
+<link rel="stylesheet" href="../shared/sous.css?v=202611250055">
 <style>
 .when-line{display:flex;align-items:center;gap:12px;color:var(--text-2);font-size:15px;margin-top:12px}
 .when-line .icon{color:var(--text-3)}
@@ -25,8 +25,8 @@
 <div id="toast-root" class="toasts" aria-live="polite"></div>
 <div id="proto-root"></div>
 
-<script src="../shared/pages.js?v=202611250052"></script>
-<script src="../shared/sous.js?v=202611250052"></script>
+<script src="../shared/pages.js?v=202611250055"></script>
+<script src="../shared/sous.js?v=202611250055"></script>
 <script>
 /* =========================================================
    Подработки и подмены: данные
@@ -388,7 +388,7 @@ function detailView(id) {
         <section class="panel d-head">
           ${g.urgent && !mine ? `<span class="urgent">${icon("zap")}Срочно</span>` : ""}
           <h1>${esc(g.title)}</h1>
-          <div class="d-org"><span class="tile">${initials(g.org)}</span><div><b>${esc(g.org)}</b><span>${g.verified ? `<span class="verified">${icon("shield")}Документы проверены</span> · ` : ""}${g.city}</span></div></div>
+          <div class="d-org"><span class="tile">${initials(g.org)}</span><div><b>${esc(g.org)}</b><span>${g.verified ? `<span class="verified">${icon("badge")}Документы проверены</span> · ` : ""}${g.city}</span></div></div>
           <div class="facts">
             <div><b class="num">${fmt(g.pay)} ₽</b><span>${g.unit}</span></div>
             <div><b>${g.when.split(",")[0]}</b><span>${g.time}</span></div>

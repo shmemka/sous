@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css?v=202611250052">
+<link rel="stylesheet" href="../shared/sous.css?v=202611250055">
 </head>
 <body>
 <a class="sr-only" href="#app">Перейти к содержимому</a>
@@ -19,8 +19,8 @@
 <div id="toast-root" class="toasts" aria-live="polite"></div>
 <div id="proto-root"></div>
 
-<script src="../shared/pages.js?v=202611250052"></script>
-<script src="../shared/sous.js?v=202611250052"></script>
+<script src="../shared/pages.js?v=202611250055"></script>
+<script src="../shared/sous.js?v=202611250055"></script>
 <script>
 /* =========================================================
    Вакансии и резюме: данные
@@ -246,7 +246,7 @@ function detailView(id) {
       <div class="d-main">
         <section class="panel d-head">
           <h1>${esc(v.title)}</h1>
-          <div class="d-org"><span class="tile">${initials(v.org)}</span><div><b>${esc(v.org)}</b><span>${v.verified ? `<span class="verified">${icon("shield")}Документы проверены</span> · ` : ""}${v.city}</span></div></div>
+          <div class="d-org"><span class="tile">${initials(v.org)}</span><div><b>${esc(v.org)}</b><span>${v.verified ? `<span class="verified">${icon("badge")}Документы проверены</span> · ` : ""}${v.city}</span></div></div>
           <div class="facts">
             <div><b class="num">${salary(v.from, v.to)}</b><span>в месяц на руки</span></div>
             <div><b>${v.schedule}</b><span>график</span></div>
