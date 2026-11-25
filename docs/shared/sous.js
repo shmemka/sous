@@ -545,6 +545,13 @@ const SHARED_ACTIONS = {
   role: (el) => { state.protoOpen = false; setRole(el.dataset.role); },
 };
 
+/* В списках подсвечена одна строка: .active ходит и за стрелками, и за мышью (как в системных списках) */
+document.addEventListener("mousemove", (e) => {
+  const o = e.target.closest(".dd-opt,.sk-opt");
+  if (!o || o.classList.contains("active")) return;
+  o.closest('[role="listbox"]').querySelectorAll(".active").forEach((x) => x.classList.toggle("active", false));
+  o.classList.add("active");
+});
 document.addEventListener("click", (e) => {
   const link = e.target.closest('a[href^="#!"]');
   if (link) { e.preventDefault(); closeDrawer(); closeNav(); soon(link.getAttribute("href").slice(2)); return; }

@@ -91,7 +91,7 @@ ul{margin:0;padding:0;list-style:none}
 .dd.compact .dd-btn:hover{background:var(--fill);color:var(--text)}
 .dd-pop{position:fixed;z-index:200;max-height:300px;overflow:auto;padding:6px;border-radius:12px;background:var(--surface-2);box-shadow:var(--shadow),0 0 0 1px var(--fill);animation:rise .16s var(--ease)}
 .dd-opt{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;min-height:40px;padding:0 12px;border-radius:8px;color:var(--text-2);font-size:14px;text-align:left;transition:background-color .12s var(--ease),color .12s var(--ease)}
-.dd-opt:hover,.dd-opt.active{background:var(--fill-2);color:var(--text)}
+.dd-opt.active{background:var(--fill-2);color:var(--text)}
 .dd-opt[aria-selected="true"]{color:var(--text);font-weight:500}
 .dd-opt .icon{color:var(--primary);visibility:hidden}
 .dd-opt small{display:block;margin-top:2px;font-size:12px;color:var(--text-3)}

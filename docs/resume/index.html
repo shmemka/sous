@@ -69,7 +69,7 @@
 .sk-pop[hidden]{display:none}
 .sk-pop .lbl{padding:6px 10px 4px;font-size:12px;color:var(--text-3)}
 .sk-opt{display:flex;align-items:center;gap:10px;min-height:36px;padding:0 10px;border-radius:8px;font-size:14px;color:var(--text-2);text-align:left}
-.sk-opt:hover,.sk-opt.active{background:var(--fill-2);color:var(--text)}
+.sk-opt.active{background:var(--fill-2);color:var(--text)}
 .sk-opt .icon{color:var(--text-3)}
 .sk-opt mark{background:none;color:var(--text);font-weight:600}
 .items{display:grid;gap:8px;margin-bottom:12px}
@@ -503,6 +503,13 @@ document.addEventListener("input", (e) => {
   saved();
 });
 document.addEventListener("focusin", (e) => { if (e.target.id === "skill-in") { skActive = -1; skRender(); } });
+document.addEventListener("mousemove", (e) => {
+  const o = e.target.closest(".sk-opt");
+  if (!o) return;
+  skActive = +o.id.slice(4);
+  document.querySelectorAll(".sk-opt").forEach((x) => x.setAttribute("aria-selected", x === o));
+  document.getElementById("skill-in").setAttribute("aria-activedescendant", o.id);
+});
 document.addEventListener("focusout", (e) => { if (e.target.id === "skill-in") skClose(); });
 /* клик по подсказке не должен уводить фокус из поля */
 document.addEventListener("mousedown", (e) => { if (e.target.closest(".sk-pop, .stepper button")) e.preventDefault(); });
