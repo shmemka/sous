@@ -34,7 +34,7 @@ description: Сделать новую страницу прототипа СО�
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css">
+<link rel="stylesheet" href="../shared/sous.css?v=1">
 <style>/* только стили этой страницы */</style>
 </head>
 <body>
@@ -45,8 +45,8 @@ description: Сделать новую страницу прототипа СО�
 <div id="modal-root"></div>
 <div id="toast-root" class="toasts" aria-live="polite"></div>
 <div id="proto-root"></div>
-<script src="../shared/pages.js"></script>
-<script src="../shared/sous.js"></script>
+<script src="../shared/pages.js?v=1"></script>
+<script src="../shared/sous.js?v=1"></script>
 <script>
 /* данные страницы, Object.assign(state, {...}), виды, окна */
 const PAGE = {
@@ -75,5 +75,6 @@ node tools/check.cjs <папка> "#/" "#/v/<id>" --out <scratchpad>/shots
 
 ## 6. Описать и опубликовать
 1. `docs/<папка>/README.md` коротко: что убрали, что добавили, роли, user flow (mermaid), модалки, открытые вопросы. Формат как в `docs/vacancies/README.md`.
-2. Коммит в рабочую ветку, push в неё и в `main` (`git push origin <ветка>:main`), если пользователь не просил иначе.
-3. Ответ пользователю: ссылка `https://shmemka.github.io/sous/<папка>/`, 3–5 главных решений, вопросы к заказчику. Без пересказа всего README.
+2. Обнови версию общих файлов во всех страницах командой из раздела «Кэш» в `CLAUDE.md` (pages.js меняется на каждой новой странице).
+3. Коммит в рабочую ветку, push в неё и в `main` (`git push origin <ветка>:main`), если пользователь не просил иначе.
+4. Ответ пользователю: ссылка `https://shmemka.github.io/sous/<папка>/`, 3–5 главных решений, вопросы к заказчику. Без пересказа всего README.
