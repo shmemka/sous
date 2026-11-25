@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css?v=202611251600">
+<link rel="stylesheet" href="../shared/sous.css?v=202611251612">
 <style>
 /* Быстрый старт */
 .rs-new{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start;padding:8px 0 96px}
@@ -129,8 +129,8 @@
 <div id="toast-root" class="toasts" aria-live="polite"></div>
 <div id="proto-root"></div>
 
-<script src="../shared/pages.js?v=202611251600"></script>
-<script src="../shared/sous.js?v=202611251600"></script>
+<script src="../shared/pages.js?v=202611251612"></script>
+<script src="../shared/sous.js?v=202611251612"></script>
 <script>
 /* =========================================================
    Резюме: быстрый старт (#/new) и редактор (#/edit)
@@ -282,7 +282,7 @@ function asideCard() {
   <section class="panel rs-card">
     <div class="rs-score"><b class="num">${s}%</b><span>Заполнение резюме</span></div>
     <div class="meter" aria-hidden="true"><i style="width:${s}%"></i></div>
-    <nav class="rs-nav" aria-label="Разделы резюме">${SECTIONS.map(([id, t, f]) => { const x = f(r), ok = x.got >= x.max; return `<button class="${ok ? "ok" : ""}" data-act="goto" data-id="${id}">${icon(ok ? "check" : "circle")}<span>${t}</span></button>`; }).join("")}</nav>
+    <nav class="rs-nav" aria-label="Разделы резюме">${SECTIONS.map(([id, t, f]) => { const x = f(r), ok = x.got >= x.max; return `<button class="${ok ? "ok" : ""}" data-act="goto" data-id="${id}">${icon(ok ? "check" : "circle", "line")}<span>${t}</span></button>`; }).join("")}</nav>
   </section>`;
 }
 
