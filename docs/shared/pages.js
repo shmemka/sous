@@ -13,8 +13,8 @@ window.SOUS_PAGES = [
   { title: "Работа и специалисты", pages: [
     { path: "/vacancies", title: "Вакансии и резюме", status: "done", href: "../vacancies/#/" },
     { path: "/vacancies/:id", title: "Детальная вакансии", status: "done", href: "../vacancies/#/v/vac-022" },
-    { path: "/specialists", title: "Каталог специалистов", status: "wip", href: "../vacancies/#/resumes", note: "Пока таб «Резюме» на странице вакансий" },
-    { path: "/specialists/:id", title: "Профиль и резюме специалиста" },
+    { path: "/specialists", title: "Каталог специалистов", status: "done", href: "../specialists/#/" },
+    { path: "/specialists/:id", title: "Профиль и резюме специалиста", status: "done", href: "../specialists/#/v/worker-001" },
     { path: "/gigs", title: "Подработки и подмены", status: "done", href: "../gigs/#/" },
     { path: "/gigs/:id", title: "Детальная подработки", status: "done", href: "../gigs/#/v/gig-016" },
     { path: "/orders", title: "Заявки автовладельцев" },

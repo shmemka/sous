@@ -33,7 +33,8 @@ const ROLES = {
 /* Шапка: 5 групп по задачам. Пункт ведёт на готовый экран, если он отмечен в pages.js */
 const NAV = [
   ["Работа", [
-    ["/vacancies", "Вакансии и резюме", "Постоянная работа и сотрудники"],
+    ["/vacancies", "Вакансии", "Постоянная работа в студиях"],
+    ["/specialists", "Специалисты", "Резюме и мастера на подработку"],
     ["/gigs", "Подработки", "Разовые смены и срочные подмены"],
     ["/companies", "Компании", "Мойки, студии и автосервисы"],
   ]],
@@ -113,6 +114,9 @@ const ICONS = {
   zap: '<path d="M9 1.5 3.5 9H8l-1 5.5L12.5 7H8l1-5.5Z"/>',
   calendar: '<rect x="2.5" y="3.5" width="11" height="10" rx="2"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3"/>',
   star: '<path d="m8 2 1.8 3.8 4.1.5-3 2.8.8 4.1L8 11.2l-3.7 2 .8-4.1-3-2.8 4.1-.5Z"/>',
+  award: '<circle cx="8" cy="6" r="4"/><path d="m5.6 9.3-1.1 5.2L8 13l3.5 1.5-1.1-5.2"/>',
+  image: '<rect x="2" y="3" width="12" height="10" rx="2"/><circle cx="6" cy="6.5" r="1.2"/><path d="m2.5 12 3.5-3.5 3 3 2-2 2.5 2.5"/>',
+  phone: '<path d="M5.5 2.5h-2a1 1 0 0 0-1 1c0 5.5 4.5 10 10 10a1 1 0 0 0 1-1v-2l-2.5-1-1.3 1.3a7 7 0 0 1-3.5-3.5L7.5 6l-1-3.5Z"/>',
   pages: '<path d="M5.5 2.5h6a1 1 0 0 1 1 1v8"/><rect x="3.5" y="4.5" width="7" height="9" rx="1"/><path d="M5.5 7.5h3M5.5 10h3"/>',
 };
 const icon = (n, cls = "") => `<svg class="icon ${cls}" viewBox="0 0 16 16" aria-hidden="true">${ICONS[n] || ""}</svg>`;
@@ -135,9 +139,12 @@ function localHref(href) {
   return m && m[1] === folder ? m[2] : href;
 }
 /* адрес пункта меню: готовый экран из pages.js или подсказка «ещё в работе» */
+/* для экранов с параметром (/specialists/:id) последний сегмент ссылки заменяется на нужный id */
 function pageHref(path) {
   const p = window.SOUS_FIND_PAGE(path);
-  return p && p.href && p.status === "done" ? localHref(p.href) : STAND + path;
+  if (!p || !p.href || p.status !== "done") return STAND + path;
+  const href = p.path.includes(":") ? p.href.replace(/[^/]+$/, path.split("?")[0].replace(/\/+$/, "").split("/").pop()) : p.href;
+  return localHref(href);
 }
 function soon(path) {
   const page = window.SOUS_FIND_PAGE(path);

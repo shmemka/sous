@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Специалисты · СОУС</title>
+<meta name="description" content="Переработанный каталог специалистов и профиль-резюме платформы СОУС: статусы, приглашения и сценарии под роли">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/sous.css?v=202611250044">
+<style>
+.meta .on{color:var(--ok)}
+.action-card .status-line{font-size:13px}
+</style>
+</head>
+<body>
+<a class="sr-only" href="#app">Перейти к содержимому</a>
+<header class="top" id="top"></header>
+<main id="app" tabindex="-1"></main>
+<footer class="footer" id="footer"></footer>
+<div id="modal-root"></div>
+<div id="toast-root" class="toasts" aria-live="polite"></div>
+<div id="proto-root"></div>
+
+<script src="../shared/pages.js?v=202611250044"></script>
+<script src="../shared/sous.js?v=202611250044"></script>
+<script>
+/* =========================================================
+   Специалисты: данные
+   Общие функции, шапка, окна и списки в ../shared/sous.js
+   ========================================================= */
+const SPECS = ["Мойка", "Полировка", "Химчистка", "Керамика", "Оклейка и PPF", "Администратор"];
+const EXPERIENCE = ["До 3 лет", "3–5 лет", "5+ лет"];
+const SALARY_STEPS = [["", "Любые"], ["60000", "до 60 000 ₽"], ["80000", "до 80 000 ₽"], ["100000", "до 100 000 ₽"]];
+const expKey = (y) => y < 3 ? "До 3 лет" : y <= 5 ? "3–5 лет" : "5+ лет";
+const yearsText = (y) => plural(y, "год", "года", "лет");
+
+/* Вакансии и подработки работодателя Shine&Go: в них приглашают */
+const MY_VACANCIES = [["vac-022", "Мастер по PPF", "90 000–125 000 ₽"], ["vac-017", "Администратор детейлинг-студии", "60 000–75 000 ₽"]];
+const MY_GIGS = [["gig-016", "Универсал на выходные", "Сб и Вс", "9 500 ₽"], ["gig-009", "Администратор на субботу", "Сб", "3 000 ₽"]];
+
+/* status: job ищет работу, gig готов к подработке; пусто: не ищет, профиль как портфолио */
+const SPECIALISTS = [
+  { id: "worker-001", name: "Михаил Соколов", role: "Детейлер: полировка и PPF", city: "Москва", spec: "Полировка", years: 6, status: ["job", "gig"], gigWhen: "на выходных", salary: 90000, gigRate: 6000, schedule: "Полный день", rating: "4,9", reviews: 18, positive: 94, verified: true, works: 38, days: 0,
+    desc: "Шесть лет работаю с лакокрасочными покрытиями и защитными материалами. Восстановительная полировка, керамика и установка полиуретановой плёнки. Показываю процесс, фиксирую результат и отвечаю за каждый этап.",
+    skills: ["Восстановительная полировка", "Установка PPF", "Керамические составы", "Химчистка кожи", "Матовое ЛКП", "Фотоотчёт"],
+    jobs: [["С 2022 года", "Старший детейлер", "АвтоПрофи, Москва", "Полировка и защита премиальных автомобилей, контроль качества, обучение младших мастеров"], ["2020–2022", "Детейлер", "CleanLab, Москва", "Комплексная подготовка автомобилей, химчистка салона, керамика"]],
+    certs: [["Мастер детейлинга", "Учебный центр СОУС", "12 октября 2026", "UC-2026-001"], ["Установка PPF, продвинутый курс", "Внешний курс", "24 сентября 2026", "PPF-2026-184"]],
+    reviewsList: [["АвтоПрофи", "Октябрь 2026", "Работал у нас четыре года. Аккуратен с ЛКП, сам ведёт фотоотчёт, клиенты возвращаются к нему по имени"], ["Shine&Go", "Сентябрь 2026", "Брали на подработку на выходные под оклейку капота и бампера. Сделал в срок, кромки чистые"]],
+    extra: [["Гражданство", "Россия"], ["Водительские права", "Категория B"], ["Медкнижка", "Есть"], ["Командировки", "Готов"], ["Языки", "Русский, английский базовый"]] },
+  { id: "worker-002", name: "Александр Волков", role: "Мастер химчистки", city: "Казань", spec: "Химчистка", years: 4, status: ["job", "gig"], gigWhen: "завтра и на выходных", salary: 75000, gigRate: 4000, schedule: "Полный день", rating: "4,8", reviews: 12, positive: 92, verified: true, works: 24, days: 1,
+    desc: "Химчистка текстиля и кожи, озонирование, работа со сложными загрязнениями. Подбираю химию под материал, не пересушиваю кожу.",
+    skills: ["Химчистка текстиля", "Уход за кожей", "Озонирование", "Чистка потолка", "Устранение запахов"],
+    jobs: [["С 2023 года", "Мастер химчистки", "Detail House, Казань", "Химчистка салонов, консультации клиентов по уходу"], ["2021–2023", "Мойщик-универсал", "Мойка 24, Казань", "Мойка кузова и уборка салона"]],
+    certs: [["Химчистка и уход за кожей", "Учебный центр СОУС", "3 июня 2026", "UC-2026-047"]] },
+  { id: "worker-003", name: "Дмитрий Ким", role: "Мойщик", city: "Москва", spec: "Мойка", years: 2, status: ["gig"], gigWhen: "сегодня и завтра", salary: null, gigRate: 2500, schedule: "Сменный", rating: "4,7", reviews: 9, positive: 89, verified: false, works: 0, days: 2,
+    desc: "Выхожу на подменные смены по Москве. Быстро вливаюсь в регламент студии, работаю по двухфазной мойке.",
+    skills: ["Двухфазная мойка", "Уборка салона", "Мойка дисков"],
+    jobs: [["С 2024 года", "Мойщик", "CleanLab, Москва", "Двухфазная мойка, сушка и уборка салона"]], certs: [] },
+  { id: "worker-004", name: "Руслан Галиев", role: "Специалист по керамике", city: "Казань", spec: "Керамика", years: 5, status: ["job", "gig"], gigWhen: "на выходных", salary: 100000, gigRate: 7000, schedule: "Полный день", rating: "4,9", reviews: 15, positive: 96, verified: true, works: 41, days: 4,
+    desc: "Подготовка ЛКП и керамика. Прошёл обучение у двух производителей составов, работаю под лампами и толщиномером.",
+    skills: ["Керамика в 2–3 слоя", "Подготовка ЛКП", "Полировка", "Работа с толщиномером"],
+    jobs: [["С 2022 года", "Мастер по керамике", "Гараж 77, Москва", "Керамика на премиальные автомобили, сдача клиенту"], ["2021–2022", "Детейлер", "Shine&Go, Казань", "Полировка и защитные составы"]],
+    certs: [["Керамические покрытия", "Учебный центр СОУС", "18 августа 2026", "UC-2026-112"], ["Сертификат производителя составов", "Внешний курс", "2 апреля 2025", "CR-2025-031"]] },
+  { id: "worker-005", name: "Елена Орлова", role: "Администратор студии", city: "Санкт-Петербург", spec: "Администратор", years: 1, status: ["job"], salary: 55000, gigRate: null, schedule: "Сменный", rating: "4,5", reviews: 4, positive: 100, verified: false, works: 0, days: 6,
+    desc: "Запись клиентов, работа с CRM, приём и выдача автомобилей с фотофиксацией.",
+    skills: ["CRM", "Запись клиентов", "Приёмка с фотофиксацией", "Кассовая дисциплина"],
+    jobs: [["С 2025 года", "Администратор", "Wrap Lab, Санкт-Петербург", "Запись клиентов, приём и выдача автомобилей"]], certs: [] },
+  { id: "worker-006", name: "Артём Белов", role: "Универсал: мойка и салон", city: "Казань", spec: "Мойка", years: 3, status: ["gig"], gigWhen: "сегодня и на выходных", salary: null, gigRate: 3000, schedule: "Сменный", rating: "4,6", reviews: 7, positive: 86, verified: true, works: 12, days: 3,
+    desc: "Комплексная мойка, уборка салона, подготовка автомобиля к полировке. Беру подработки между основными сменами.",
+    skills: ["Комплексная мойка", "Уборка салона", "Подготовка к полировке"],
+    jobs: [["С 2023 года", "Мойщик-универсал", "Мойка 24, Казань", "Ночные и дневные смены, обучение новичков"]], certs: [] },
+  { id: "worker-007", name: "Ильдар Сафин", role: "Оклейщик PPF", city: "Санкт-Петербург", spec: "Оклейка и PPF", years: 7, status: ["gig"], gigWhen: "со следующей недели", salary: null, gigRate: 5500, schedule: "Полный день", rating: "5,0", reviews: 11, positive: 100, verified: true, works: 56, days: 5,
+    desc: "Полная и частичная оклейка полиуретановой и виниловой плёнкой. Работаю с лекалами и в ручном раскрое.",
+    skills: ["Полная оклейка PPF", "Винил", "Ручной раскрой", "Демонтаж плёнок"],
+    jobs: [["С 2021 года", "Старший оклейщик", "Wrap Lab, Санкт-Петербург", "Полная оклейка, контроль кромок, обучение команды"]],
+    certs: [["Установка PPF, продвинутый курс", "Учебный центр СОУС", "10 мая 2026", "UC-2026-071"]] },
+  { id: "worker-008", name: "Константин Лебедев", role: "Мастер полировки", city: "Екатеринбург", spec: "Полировка", years: 9, status: [], salary: null, gigRate: null, schedule: "Полный день", rating: "4,9", reviews: 27, positive: 96, verified: true, works: 112, days: 9,
+    desc: "Девять лет в полировке, веду свою команду в студии. Работу не ищу, делюсь портфолио и беру учеников.",
+    skills: ["Абразивная полировка", "Восстановление фар", "Обучение мастеров"],
+    jobs: [["С 2019 года", "Руководитель цеха полировки", "Detail House, Екатеринбург", "Команда из пяти мастеров, контроль качества"]],
+    certs: [["Мастер детейлинга", "Учебный центр СОУС", "1 марта 2026", "UC-2026-009"]] },
+];
+
+/* Портфолио и отзывы для тех, у кого не заполнены вручную */
+const GALLERY = {
+  "Мойка": ["Двухфазная мойка кроссовера", "Мойка дисков", "Уборка салона"], "Полировка": ["Полировка капота", "Восстановление фар", "Кузов до и после"],
+  "Химчистка": ["Химчистка сидений", "Кожаный салон", "Потолок и стойки"], "Керамика": ["Керамика на седан", "Подготовка ЛКП", "Контроль под лампой"],
+  "Оклейка и PPF": ["PPF на капот", "Полная оклейка", "Кромки и стыки"], "Администратор": ["", "", ""],
+};
+const reviewsOf = (s) => s.reviewsList || [["Shine&Go", "Октябрь 2026", "Пунктуален, работает по регламенту студии, после смены оставляет пост в порядке"], ["CleanLab", "Август 2026", "Хорошо выполнил свою часть работы, готовы звать снова"]];
+const extraOf = (s) => s.extra || [["Гражданство", "Россия"], ["Медкнижка", "Есть"], ["Командировки", "Не готов"]];
+
+/* ---------- Состояние страницы ---------- */
+const emptyFilters = () => ({ spec: new Set(), exp: new Set(), salary: "", verified: false, certs: false });
+Object.assign(state, {
+  tab: "all",
+  q: "", city: "Все города",
+  f: emptyFilters(),
+  sort: "rating",
+  invited: new Set(), offered: new Set(),
+  visible: true,
+});
+const ME = "worker-001";
+const isMe = (s) => state.role === "worker" && s.id === ME;
+const hires = () => state.role === "guest" || state.role === "employer";
+const statusMarkup = (s) => {
+  const job = s.status.includes("job"), gig = s.status.includes("gig");
+  if (job && gig) return `<span>${icon("briefcase")}Ищет работу, берёт подработки</span>`;
+  if (job) return `<span>${icon("briefcase")}Ищет работу</span>`;
+  if (gig) return `<span class="on">${icon("zap")}Готов к подработке ${s.gigWhen}</span>`;
+  return `<span>${icon("dot")}Не ищет работу</span>`;
+};
+/* в профиле статус подробнее: когда свободен для подработок */
+const statusFull = (s) => {
+  const parts = [];
+  if (s.status.includes("job")) parts.push(`<span>${icon("briefcase")}Ищет работу</span>`);
+  if (s.status.includes("gig")) parts.push(`<span class="on">${icon("zap")}Готов к подработке ${s.gigWhen}</span>`);
+  return parts.join("") || `<span>${icon("dot")}Не ищет работу</span>`;
+};
+const moneyMarkup = (s) => s.status.includes("job") ? `от ${fmt(s.salary)} ₽<small>ожидания в месяц</small>`
+  : s.status.includes("gig") ? `от ${fmt(s.gigRate)} ₽<small>за смену</small>`
+  : `${s.works}<small>работ в портфолио</small>`;
+/* главное действие работодателя зависит от статуса специалиста */
+const mainAction = (s) => s.status.includes("job") ? "invite" : s.status.includes("gig") ? "offer" : "write";
+const ACTION_LABEL = { invite: "Пригласить", offer: "Предложить смену", write: "Написать" };
+
+/* =========================================================
+   Каталог
+   ========================================================= */
+const TABS = [["all", "Все", "#/"], ["job", "Ищут работу", "#/looking"], ["gig", "На подработку", "#/gigs"]];
+const inTab = (s, tab = state.tab) => tab === "all" || s.status.includes(tab);
+const visibleAll = () => SPECIALISTS.filter((s) => s.id !== ME || state.visible || state.role === "worker");
+
+function filtered() {
+  const q = state.q.trim().toLowerCase();
+  const { spec, exp, salary, verified, certs } = state.f;
+  let items = visibleAll().filter((s) => {
+    if (!inTab(s)) return false;
+    if (q && ![s.name, s.role, s.spec, s.desc, s.skills.join(" ")].join(" ").toLowerCase().includes(q)) return false;
+    if (state.city !== "Все города" && s.city !== state.city) return false;
+    if (spec.size && !spec.has(s.spec)) return false;
+    if (exp.size && !exp.has(expKey(s.years))) return false;
+    if (salary && state.tab !== "gig" && (!s.salary || s.salary > Number(salary))) return false;
+    if (verified && !s.verified) return false;
+    if (certs && !s.certs.length) return false;
+    return true;
+  });
+  const num = (r) => Number(r.replace(",", "."));
+  const by = { rating: (a, b) => num(b.rating) - num(a.rating) || b.reviews - a.reviews, exp: (a, b) => b.years - a.years, new: (a, b) => a.days - b.days }[state.sort];
+  items = [...items].sort(by).sort((a, b) => !a.status.length - !b.status.length);
+  if (state.role === "worker") items.sort((a, b) => isMe(b) - isMe(a));
+  return items;
+}
+
+function activeChips() {
+  const chips = [];
+  if (state.city !== "Все города") chips.push(["city", state.city, state.city]);
+  for (const key of ["spec", "exp"]) state.f[key].forEach((v) => chips.push([key, v, key === "exp" ? `Опыт ${v.toLowerCase()}` : v]));
+  if (state.f.salary && state.tab !== "gig") chips.push(["salary", state.f.salary, `Ожидания ${SALARY_STEPS.find(([v]) => v === state.f.salary)[1]}`]);
+  if (state.f.verified) chips.push(["verified", "1", "Документы проверены"]);
+  if (state.f.certs) chips.push(["certs", "1", "С сертификатами"]);
+  return chips;
+}
+
+function headAction() {
+  const r = state.role;
+  if (r === "worker") return `<a class="btn" href="#/v/${ME}" aria-label="Моё резюме">${icon("edit")}<span class="l-full">Моё резюме</span><span class="l-short">Резюме</span></a>`;
+  if (r === "guest") return `<button class="btn" data-act="resume" aria-label="Создать резюме">${icon("plus")}<span class="l-full">Создать резюме</span><span class="l-short">Резюме</span></button>`;
+  if (r === "employer") return `<a class="btn" href="${pageHref("/vacancies")}" aria-label="Мои вакансии">${icon("briefcase")}<span class="l-full">Мои вакансии</span><span class="l-short">Вакансии</span></a>`;
+  return "";
+}
+
+function roleNote() {
+  const notes = {
+    client: `Здесь студии ищут сотрудников. Чтобы найти мастера для своего автомобиля, <a href="${pageHref("/orders")}">оставьте заявку автовладельца</a>, исполнители откликнутся сами`,
+    supplier: `Здесь студии ищут сотрудников. Чтобы предложить товары студиям, откройте <a href="${pageHref("/supply-requests")}">заявки на закупку</a>`,
+    partner: `Здесь студии ищут сотрудников. Акции и кешбэк для клиентов настраиваются в <a href="${pageHref("/promos")}">разделе акций</a>`,
+  };
+  if (state.role === "worker" && !state.visible) return `<div class="note">${icon("info")}<p>Ваше резюме скрыто из поиска, работодатели его не видят. <a href="#/v/${ME}">Вернуть в поиск</a></p></div>`;
+  return notes[state.role] ? `<div class="note">${icon("info")}<p>${notes[state.role]}</p></div>` : "";
+}
+
+function filtersMarkup() {
+  const all = visibleAll().filter((s) => inTab(s));
+  const group = (title, key, values, get) => `<fieldset class="fgroup" style="border:0;margin:0;padding:0"><legend class="sr-only">${title}</legend><b>${title}</b>${values.filter((v) => all.some((s) => get(s) === v) || state.f[key].has(v)).map((v) => `
+    <label class="check"><input type="checkbox" data-filter="${key}" value="${esc(v)}" ${state.f[key].has(v) ? "checked" : ""}><span>${v}</span><span class="c num">${all.filter((s) => get(s) === v).length}</span></label>`).join("")}</fieldset>`;
+  return `${group("Специализация", "spec", SPECS, (s) => s.spec)}
+    ${group("Опыт", "exp", EXPERIENCE, (s) => expKey(s.years))}
+    ${state.tab !== "gig" ? `<div class="field"><span>Ожидания по зарплате</span>${dd({ key: "salary", value: state.f.salary, options: SALARY_STEPS, label: "Ожидания по зарплате" })}</div>` : ""}
+    <label class="toggle-row"><span>Документы проверены</span><input class="switch" type="checkbox" data-filter="verified" ${state.f.verified ? "checked" : ""}></label>
+    <label class="toggle-row"><span>С сертификатами</span><input class="switch" type="checkbox" data-filter="certs" ${state.f.certs ? "checked" : ""}></label>`;
+}
+
+function card(s) {
+  const mine = isMe(s);
+  let action = "";
+  if (mine) action = `<a class="btn sm" href="${pageHref("/resume/resume-001/edit")}">${icon("edit")}Редактировать</a>`;
+  else if (hires()) {
+    const a = mainAction(s), done = a === "invite" ? state.invited.has(s.id) : a === "offer" ? state.offered.has(s.id) : false;
+    action = done ? `<span class="btn sm done">${icon("check")}${a === "invite" ? "Приглашение отправлено" : "Смена предложена"}</span>`
+      : `<button class="btn sm" data-act="${a}" data-id="${s.id}">${ACTION_LABEL[a]}</button>`;
+  }
+  return `<article class="card person ${mine ? "mine" : ""}">
+    <span class="tile round" aria-hidden="true">${initials(s.name)}</span>
+    <div class="c-main">
+      ${mine ? `<span class="mine-tag">${icon("dot")}${state.visible ? "Ваше резюме · так его видят работодатели" : "Ваше резюме скрыто из поиска"}</span>` : ""}
+      <h2 class="c-title"><a href="#/v/${s.id}">${esc(s.name)}</a></h2>
+      <div class="c-org">${esc(s.role)}${s.verified ? verifiedMark("person") : ""}</div>
+      <div class="meta">${statusMarkup(s)}<span>${icon("pin")}${s.city}</span><span>${icon("briefcase")}Опыт ${yearsText(s.years)}</span><span>${icon("star")}${s.rating} · ${plural(s.reviews, "отзыв", "отзыва", "отзывов")}</span></div>
+      <p class="c-desc">${esc(s.desc)}</p>
+    </div>
+    <div class="c-side">
+      <div class="money num">${moneyMarkup(s)}</div>
+      <div class="c-actions">${action}</div>
+    </div>
+  </article>`;
+}
+
+function resultsMarkup() {
+  const items = filtered();
+  const chips = activeChips();
+  const word = plural(items.length, "специалист", "специалиста", "специалистов");
+  const list = items.length
+    ? `<div class="list">${items.map(card).join("")}</div>`
+    : `<div class="empty">${icon("search", "lg")}<h3>Специалисты не найдены</h3><p>Попробуйте другой город, уберите требования к опыту или сбросьте фильтры</p><button class="btn" data-act="reset">Сбросить фильтры</button></div>`;
+  return `<div class="toolbar">
+      <p class="count"><b class="num">${word.split(" ")[0]}</b> ${word.split(" ").slice(1).join(" ")}</p>
+      <button class="btn sm filters-btn" data-act="sheet">${icon("sliders")}Фильтры${chips.length ? `<span class="badge-n num">${chips.length}</span>` : ""}</button>
+      <div class="sort-wrap">${dd({ key: "sort", value: state.sort, options: SORTS, variant: "compact", label: "Сортировка" })}</div>
+    </div>
+    ${chips.length ? `<div class="chips">${chips.map(([k, v, l]) => `<button class="chip" data-act="unchip" data-k="${k}" data-v="${esc(v)}">${esc(l)}${icon("x")}</button>`).join("")}<button class="link" data-act="reset" style="font-size:13px">Сбросить всё</button></div>` : ""}
+    ${roleNote()}
+    ${list}`;
+}
+const SORTS = [["rating", "Сначала с высоким рейтингом"], ["exp", "Сначала опытные"], ["new", "Сначала обновлённые"]];
+
+function catalogView() {
+  document.body.className = "catalog-page";
+  const lead = {
+    all: "Мастера автомоек и детейлинга: опыт, портфолио и отзывы работодателей. Пригласите на вакансию или предложите разовую смену",
+    job: "Резюме мастеров, которые ищут постоянную работу",
+    gig: "Мастера, которые готовы выйти на разовую смену или подмену",
+  }[state.tab];
+  document.title = `${state.tab === "job" ? "Резюме специалистов" : state.tab === "gig" ? "Специалисты на подработку" : "Специалисты"} · СОУС`;
+  return `<section class="head"><div class="wrap head-in">
+      <div class="head-row">
+        <div class="tabs" role="tablist" aria-label="Статус специалиста">
+          ${TABS.map(([k, l, h]) => `<a class="tab" role="tab" aria-selected="${state.tab === k}" href="${h}">${l} <small class="num">${visibleAll().filter((s) => inTab(s, k)).length}</small></a>`).join("")}
+        </div>
+        ${headAction()}
+      </div>
+      <h1>Специалисты</h1>
+      <p class="lead">${lead}</p>
+      <form class="search" role="search" data-act-submit="search">
+        <label class="s-field"><span class="sr-only">Поиск</span>${icon("search", "lg")}<input id="q" type="search" value="${esc(state.q)}" placeholder="Имя, специализация или навык" autocomplete="off"></label>
+        <div class="s-field s-city">${dd({ key: "search-city", name: "city", value: state.city, options: CITIES, variant: "bare", iconName: "pin", label: "Город" })}</div>
+        <button class="btn primary" type="submit">Найти</button>
+      </form>
+    </div></section>
+    <div class="wrap catalog">
+      <aside class="filters" aria-label="Фильтры">
+        <div class="filters-head"><h2>Фильтры</h2>${activeChips().length ? `<button class="link" data-act="reset" style="font-size:13px">Сбросить</button>` : ""}</div>
+        ${filtersMarkup()}
+      </aside>
+      <section id="results" aria-live="polite">${resultsMarkup()}</section>
+    </div>`;
+}
+
+/* =========================================================
+   Профиль и резюме специалиста
+   ========================================================= */
+function detailView(id) {
+  const s = SPECIALISTS.find((x) => x.id === id);
+  if (!s) return `<div class="wrap detail"><a class="back" href="#/">${icon("back")}Все специалисты</a><div class="empty"><h3>Профиль скрыт</h3><p>Специалист скрыл резюме из поиска или удалил профиль</p><a class="btn" href="#/">К специалистам</a></div></div>`;
+  document.body.className = "detail-page";
+  document.title = `${s.name} · ${s.role} · СОУС`;
+  const r = state.role, mine = isMe(s), a = mainAction(s);
+  const related = SPECIALISTS.filter((x) => x.id !== s.id && (x.spec === s.spec || x.city === s.city)).slice(0, 3);
+  while (related.length < 3) { const extra = SPECIALISTS.find((x) => x.id !== s.id && !related.includes(x)); if (!extra) break; related.push(extra); }
+
+  let card, mbar;
+  if (mine) {
+    card = `<section class="panel action-card">
+      <span class="mine-tag">${icon("dot")}Это ваше резюме</span>
+      <p class="hint">${icon("info")}Так его видят работодатели. Чтобы поменять данные, откройте редактор</p>
+      <a class="btn primary lg block" href="${pageHref("/resume/resume-001/edit")}">${icon("edit")}Редактировать резюме</a>
+      <label class="toggle-row"><span>Показывать в поиске</span><input class="switch" type="checkbox" data-act="visible" ${state.visible ? "checked" : ""}></label>
+      ${state.visible ? "" : `<p class="hint">${icon("info")}Работодатели не видят резюме в каталоге и по прямой ссылке</p>`}
+    </section>`;
+    mbar = `<a class="btn primary" href="${pageHref("/resume/resume-001/edit")}">Редактировать</a>`;
+  } else if (hires()) {
+    const done = a === "invite" ? state.invited.has(s.id) : a === "offer" ? state.offered.has(s.id) : false;
+    const primary = done ? `<span class="btn lg block done">${icon("check")}${a === "invite" ? "Приглашение отправлено" : "Смена предложена"}</span>`
+      : `<button class="btn primary lg block" data-act="${a}" data-id="${s.id}">${a === "invite" ? "Пригласить на вакансию" : ACTION_LABEL[a]}</button>`;
+    const offerBtn = `<button class="btn${a === "invite" ? "" : " block"}" data-act="offer" data-id="${s.id}">${state.offered.has(s.id) ? icon("check") + "Смена предложена" : "Предложить смену"}</button>`;
+    const writeBtn = (block) => `<button class="btn${block ? " block" : ""}" data-act="write" data-id="${s.id}">${icon("message")}Написать</button>`;
+    const second = a === "invite" && s.status.includes("gig") ? `<div class="grid2">${offerBtn}${writeBtn(false)}</div>` : a === "write" ? "" : writeBtn(true);
+    card = `<section class="panel action-card">
+      <div class="status-line">${statusFull(s)}</div>
+      <div class="money num">${moneyMarkup(s)}</div>
+      ${primary}
+      ${second}
+      <div class="contact-mask">${icon("phone")}<span class="num">+7 (9••) •••-••-••</span><button class="link" data-act="contacts" style="margin-left:auto;font-size:13px">Показать</button></div>
+      <p class="hint">${icon("message")}Приглашение придёт специалисту в личные сообщения и уведомлением. Переписка останется на платформе</p>
+    </section>`;
+    mbar = done ? `<span class="btn done">${icon("check")}Отправлено</span>` : `<button class="btn primary" data-act="${a}" data-id="${s.id}">${ACTION_LABEL[a]}</button>`;
+  } else {
+    const why = r === "worker" ? "Приглашать специалистов и видеть их контакты могут работодатели" : r === "client" ? `Пригласить мастера в штат могут работодатели. Чтобы найти исполнителя для автомобиля, <a class="link accent" href="${pageHref("/orders")}">оставьте заявку</a>` : "Приглашать специалистов могут работодатели";
+    card = `<section class="panel action-card">
+      <div class="status-line">${statusFull(s)}</div>
+      <div class="money num">${moneyMarkup(s)}</div>
+      <p class="hint">${icon("info")}<span>${why}</span></p>
+    </section>`;
+    mbar = "";
+  }
+
+  const fact1 = s.status.includes("job") ? [`от ${fmt(s.salary)} ₽`, "ожидания в месяц"] : s.status.includes("gig") ? [`от ${fmt(s.gigRate)} ₽`, "за смену"] : [`${s.works}`, "работ в портфолио"];
+  const gallery = (GALLERY[s.spec] || []).filter(Boolean);
+  return `<div class="wrap detail">
+    <a class="back" href="#/">${icon("back")}Все специалисты</a>
+    <div class="d-grid">
+      <div class="d-main">
+        <section class="panel d-head">
+          <div class="d-person"><span class="tile round" aria-hidden="true">${initials(s.name)}</span><div>
+            <h1>${esc(s.name)}</h1>
+            <p>${esc(s.role)}</p>
+            <div class="sub">${s.verified ? `<span class="verified">${icon("shield")}Документы проверены</span>` : ""}<span>${s.city}</span><span>На СОУС с марта 2026</span></div>
+          </div></div>
+          <div class="status-line">${statusFull(s)}</div>
+          <div class="facts">
+            <div><b class="num">${fact1[0]}</b><span>${fact1[1]}</span></div>
+            <div><b>${yearsText(s.years)}</b><span>опыт работы</span></div>
+            <div><b>${s.schedule}</b><span>график</span></div>
+            <div><b class="num">${s.rating} из 5</b><span>${plural(s.reviews, "отзыв", "отзыва", "отзывов")}</span></div>
+          </div>
+        </section>
+        <section class="panel"><h2>О себе</h2><p class="prose">${esc(s.desc)}</p><div class="skills">${s.skills.map((k) => `<span>${esc(k)}</span>`).join("")}</div></section>
+        <section class="panel"><h2>Опыт работы</h2><div class="timeline">${s.jobs.map(([p, t, o, d]) => `<article><time>${p}</time><div><b>${esc(t)}</b><span>${esc(o)}</span><p>${esc(d)}</p></div></article>`).join("")}</div></section>
+        ${s.works && gallery.length ? `<section class="panel"><h2>Портфолио · ${plural(s.works, "работа", "работы", "работ")}</h2><div class="gallery">${gallery.map((c) => `<figure>${icon("image")}<figcaption>${esc(c)}</figcaption></figure>`).join("")}</div></section>` : ""}
+        ${s.certs.length ? `<section class="panel"><h2>Сертификаты</h2>${s.certs.map(([n, by, d, num]) => `<div class="cert">${icon("award")}<div><b>${esc(n)}</b><span>${by} · ${d} · № ${num}</span>${by.includes("СОУС") ? `<div class="verified" style="display:flex;margin-top:4px">${icon("shield")}Подлинность подтверждена</div>` : ""}</div>${by.includes("СОУС") ? `<a class="btn sm" href="${pageHref(`/training/certificate/${num}`)}">Проверить</a>` : `<span></span>`}</div>`).join("")}</section>` : ""}
+        <section class="panel"><h2>Отзывы работодателей</h2>
+          <div class="rating-sum"><b class="num">${s.rating}</b><span>из 5 · ${plural(s.reviews, "отзыв", "отзыва", "отзывов")} · ${s.positive}% положительных</span></div>
+          ${reviewsOf(s).map(([au, d, t]) => `<div class="review"><div class="review-head"><b>${esc(au)}</b><span>${d}</span></div><p>${esc(t)}</p></div>`).join("")}
+        </section>
+        <section class="panel"><h2>Дополнительно</h2><div class="lines">${extraOf(s).map(([k, v]) => `<div class="org-line"><span>${k}</span><b>${v}</b></div>`).join("")}</div></section>
+        ${mine ? "" : `<button class="report" data-act="report">${icon("flag")}Пожаловаться на профиль</button>`}
+      </div>
+      <aside class="aside">${card}</aside>
+    </div>
+    <section class="related">
+      <h2>Похожие специалисты</h2>
+      <div class="related-grid">${related.map((x) => `<a class="mini" href="#/v/${x.id}"><b>${esc(x.name)}</b><span>${esc(x.role)} · ${x.city}</span><span class="money num">${moneyMarkup(x).replace(/<small>.*<\/small>/, "")}</span></a>`).join("")}</div>
+    </section>
+  </div>
+  ${mbar ? `<div class="mbar"><div class="money num">${fact1[0]}<small>${fact1[1]}</small></div>${mbar}</div>` : ""}`;
+}
+
+/* =========================================================
+   Окна страницы
+   ========================================================= */
+const byId = (id) => SPECIALISTS.find((x) => x.id === id);
+
+function inviteModal(id) {
+  const s = byId(id);
+  openModal(`${mHead("Пригласить на вакансию", `${esc(s.name)} · ${esc(s.role)} · от ${fmt(s.salary)} ₽`)}
+    <form class="m-body" id="mform">
+      <div class="field"><span>Вакансия</span>${dd({ key: "f-vacancy", name: "vacancy", value: MY_VACANCIES[0][0], options: MY_VACANCIES.map(([v, t, m]) => [v, `${t} · ${m}`]) })}</div>
+      <label class="field"><span>Сообщение</span><textarea class="textarea" placeholder="Добавьте пару слов: почему зовёте именно этого специалиста" autofocus></textarea><small>Необязательно. Приглашение придёт в личные сообщения, специалист сможет откликнуться в один клик</small></label>
+    </form>
+    <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="invite-send" data-id="${id}">${icon("send")}Отправить приглашение</button></div>`);
+}
+
+function offerModal(id) {
+  const s = byId(id);
+  openModal(`${mHead("Предложить смену", `${esc(s.name)} · свободен ${s.gigWhen} · от ${fmt(s.gigRate)} ₽`)}
+    <form class="m-body" id="mform">
+      <div class="field"><span>Подработка</span>${dd({ key: "f-gig", name: "gig", value: MY_GIGS[0][0], options: MY_GIGS.map(([g, t, w, m]) => [g, `${t} · ${w} · ${m}`]) })}</div>
+      <label class="field"><span>Сообщение</span><textarea class="textarea" placeholder="Когда и куда выйти, что важно знать" autofocus></textarea><small>Если специалист согласится, смена закрепится за ним</small></label>
+    </form>
+    <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="offer-send" data-id="${id}">${icon("send")}Предложить</button></div>`);
+}
+
+function sentSuccess(id, kind) {
+  const s = byId(id);
+  $("#modal-root .modal").innerHTML = `${mHead("", "")}<div class="m-body"><div class="success"><span class="ok-circle">${icon("check")}</span><h3>${kind === "invite" ? "Приглашение отправлено" : "Смена предложена"}</h3><p>${esc(s.name)} получит его в личных сообщениях и уведомлением. Продолжите общение в диалоге, чтобы обсудить детали</p></div></div>
+    <div class="m-foot"><button class="btn" data-act="close">Готово</button><a class="btn primary" href="${pageHref("/messages")}">Перейти к диалогу</a></div>`;
+}
+
+function contactsModal() {
+  openModal(`${mHead("Прямые контакты", "Телефон, email и Telegram специалистов открываются работодателям с подпиской")}
+    <div class="m-body"><p class="hint">${icon("info")}Без подписки связаться можно приглашением на вакансию или в чате: отклик и переписка останутся на платформе. Просмотр контактов фиксируется</p></div>
+    <div class="m-foot"><button class="btn" data-act="close">Позже</button><a class="btn primary" href="${pageHref("/dashboard/billing/history")}">Сравнить тарифы</a></div>`);
+}
+
+function reportModal() {
+  openModal(`${mHead("Пожаловаться на профиль", "Модерация рассмотрит жалобу в течение 24 часов")}
+    <form class="m-body" id="mform">
+      ${["Чужие фото в портфолио", "Недостоверный опыт или документы", "Мошенничество", "Другое"].map((t, i) => `<label class="check"><input type="radio" name="r" style="border-radius:50%" ${i === 0 ? "checked" : ""}><span>${t}</span></label>`).join("")}
+      <label class="field"><span>Комментарий</span><textarea class="textarea" placeholder="Что не так"></textarea></label>
+    </form>
+    <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="report-send">Отправить</button></div>`);
+}
+
+function filtersSheet() {
+  openModal(`${mHead("Фильтры")}<div class="m-body"><div class="sheet-filters" id="sheet"><div class="field"><span>Сортировка</span>${dd({ key: "sort", value: state.sort, options: SORTS, label: "Сортировка" })}</div>${filtersMarkup()}</div></div>
+    <div class="m-foot"><button class="btn" data-act="reset">Сбросить</button><button class="btn primary" data-act="close" id="sheet-apply">Показать: ${filtered().length}</button></div>`);
+}
+
+/* =========================================================
+   Обновление списка и фильтров
+   ========================================================= */
+function renderResults() {
+  const el = $("#results");
+  if (el) el.innerHTML = resultsMarkup();
+  const fh = $(".filters-head");
+  if (fh) fh.innerHTML = `<h2>Фильтры</h2>${activeChips().length ? `<button class="link" data-act="reset" style="font-size:13px">Сбросить</button>` : ""}`;
+  const sa = $("#sheet-apply");
+  if (sa) sa.textContent = `Показать: ${filtered().length}`;
+}
+const BOOL = ["verified", "certs"];
+function syncFilterInputs() {
+  $$("[data-filter]").forEach((el) => {
+    const k = el.dataset.filter;
+    el.checked = BOOL.includes(k) ? state.f[k] : state.f[k].has(el.value);
+  });
+  $$('[data-dd="salary"]').forEach((el) => setDD(el, state.f.salary));
+  $$('[data-dd="sort"]').forEach((el) => setDD(el, state.sort));
+  $$('[data-dd="search-city"]').forEach((el) => setDD(el, state.city));
+}
+function resetFilters() {
+  state.f = emptyFilters();
+  state.city = "Все города"; state.q = "";
+  const q = $("#q"); if (q) q.value = "";
+  syncFilterInputs(); renderResults();
+}
+function refresh() { if (route().startsWith("/v/")) render(); else renderResults(); }
+
+document.addEventListener("input", (e) => {
+  if (e.target.id === "q") { state.q = e.target.value; renderResults(); }
+});
+document.addEventListener("change", (e) => {
+  const t = e.target;
+  const k = t.dataset.filter;
+  if (!k) return;
+  if (BOOL.includes(k)) state.f[k] = t.checked;
+  else t.checked ? state.f[k].add(t.value) : state.f[k].delete(t.value);
+  syncFilterInputs(); renderResults();
+});
+document.addEventListener("submit", (e) => { e.preventDefault(); if (e.target.dataset.actSubmit === "search") { $("#results")?.scrollIntoView({ behavior: "smooth", block: "start" }); } });
+
+/* =========================================================
+   Описание страницы для общего скрипта
+   ========================================================= */
+const PAGE = {
+  section: "/specialists",
+  currentPath: () => route().startsWith("/v/") ? "/specialists/:id" : "/specialists",
+  render() {
+    const m = route().match(/^\/v\/([\w-]+)/);
+    $("#app").innerHTML = m ? detailView(m[1]) : catalogView();
+  },
+  onRoute() {
+    const r = route();
+    if (r === "/") state.tab = "all";
+    if (r === "/looking") state.tab = "job";
+    if (r === "/gigs") state.tab = "gig";
+  },
+  onDD(key, v) {
+    if (key === "search-city") state.city = v;
+    else if (key === "sort") state.sort = v;
+    else if (key === "salary") state.f.salary = v;
+    else return false;
+    syncFilterInputs(); renderResults();
+    return true;
+  },
+  authText(kind, id) {
+    const n = esc(byId(id)?.name || "");
+    return {
+      invite: ["Войдите как работодатель", `После входа вернём вас к профилю ${n}, и приглашение можно будет отправить сразу`],
+      offer: ["Войдите как работодатель", `Предложить смену ${n} можно после входа в аккаунт компании`],
+      write: ["Войдите, чтобы написать", "Переписка со специалистом хранится в «Сообщениях»"],
+      contacts: ["Войдите как работодатель", "Контакты специалистов доступны работодателям с подпиской"],
+      resume: ["Создайте аккаунт специалиста", "Резюме увидят компании, а вы сможете откликаться на вакансии и подработки"],
+    }[kind];
+  },
+  loginRole: (p) => p.kind === "resume" ? "worker" : "employer",
+  afterLogin(p) {
+    if (p.kind === "invite" && p.id) setTimeout(() => inviteModal(p.id), 200);
+    if (p.kind === "offer" && p.id) setTimeout(() => offerModal(p.id), 200);
+    if (p.kind === "contacts") setTimeout(contactsModal, 200);
+    if (p.kind === "resume") setTimeout(() => soon("/resume/new"), 200);
+  },
+  roleHints: { guest: "смотрит без входа", worker: "видит своё резюме", employer: "ищет сотрудника", client: "не целевая роль", supplier: "не целевая роль", partner: "не целевая роль" },
+  actions: {
+    reset: resetFilters,
+    unchip: (el) => {
+      const { k, v } = el.dataset;
+      if (k === "city") state.city = "Все города";
+      else if (k === "salary") state.f.salary = "";
+      else if (BOOL.includes(k)) state.f[k] = false;
+      else state.f[k].delete(v);
+      syncFilterInputs(); renderResults();
+    },
+    sheet: filtersSheet,
+    invite: (el, e, id) => { if (!needAuth("invite", id)) inviteModal(id); },
+    "invite-send": (el, e, id) => { state.invited.add(id); sentSuccess(id, "invite"); refresh(); },
+    offer: (el, e, id) => { if (!needAuth("offer", id)) offerModal(id); },
+    "offer-send": (el, e, id) => { state.offered.add(id); sentSuccess(id, "offer"); refresh(); },
+    write: (el, e, id) => { if (!needAuth("write", id)) soon("/messages"); },
+    contacts: () => { if (!needAuth("contacts")) contactsModal(); },
+    visible: (el) => { state.visible = el.checked; render(); toast(state.visible ? "Резюме снова в поиске" : "Резюме скрыто из поиска", state.visible ? "Работодатели видят его в каталоге" : "Работодатели его не видят. Отклики на вакансии работают как раньше"); },
+    resume: () => { if (!needAuth("resume")) soon("/resume/new"); },
+    report: reportModal,
+    "report-send": () => { closeModal(); toast("Жалоба отправлена", "Ответ придёт в уведомления"); },
+  },
+};
+
+start();
+</script>
+</body>
+</html>

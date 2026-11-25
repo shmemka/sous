@@ -136,6 +136,7 @@ ul{margin:0;padding:0;list-style:none}
 .l-short{display:none}
 .head-row{display:flex;align-items:center;justify-content:space-between;gap:16px}
 .tabs{display:inline-flex;gap:24px}
+.tab{white-space:nowrap}
 .tab{position:relative;display:flex;align-items:center;gap:8px;height:40px;color:var(--text-3);font-size:15px;font-weight:600;transition:color .16s var(--ease)}
 .tab:hover{color:var(--text)}
 .tab[aria-selected="true"]{color:var(--text)}
@@ -273,6 +274,42 @@ ul{margin:0;padding:0;list-style:none}
 .org-card{display:grid;gap:12px}
 .org-line{display:flex;justify-content:space-between;font-size:14px;color:var(--text-2)}
 .org-line b{color:var(--text);font-weight:600}
+/* Профиль человека или компании: шапка, навыки, опыт, портфолио, сертификаты, отзывы */
+.d-person{display:flex;align-items:center;gap:20px}
+.d-person .tile{width:88px;height:88px;border-radius:50%;font:600 28px/1 var(--font-sans)}
+.d-person h1{font:700 48px/1 var(--font-display)}
+.d-person p{margin-top:6px;font-size:15px;color:var(--text-2)}
+.d-person .sub{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;margin-top:6px;font-size:13px;color:var(--text-3)}
+.status-line{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:14px;font-weight:500;color:var(--text-2)}
+.status-line span{display:inline-flex;align-items:center;gap:6px}
+.status-line .on{color:var(--ok)}
+.skills{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.skills span{padding:6px 12px;border-radius:999px;background:var(--fill);font-size:13px;color:var(--text-2)}
+.timeline{display:grid;gap:20px}
+.timeline article{display:grid;grid-template-columns:120px minmax(0,1fr);gap:16px}
+.timeline time{font-size:13px;color:var(--text-3);padding-top:2px}
+.timeline b{display:block;font-size:15px;font-weight:600}
+.timeline span{font-size:13px;color:var(--text-3)}
+.timeline p{margin-top:6px;font-size:14px;color:var(--text-2)}
+.gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.gallery figure{position:relative;margin:0;aspect-ratio:4/3;border-radius:12px;overflow:hidden;background:linear-gradient(135deg,var(--fill-2),var(--fill))}
+.gallery figure .icon{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);width:24px;height:24px;color:var(--text-3)}
+.gallery figcaption{position:absolute;left:0;right:0;bottom:0;padding:10px 12px;font-size:12px;color:var(--text-2)}
+.cert{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px 16px;align-items:center;padding:16px;border-radius:var(--r-card);background:var(--fill)}
+.cert+.cert{margin-top:8px}
+.cert>.icon{width:24px;height:24px;color:var(--text-3);justify-self:center}
+.cert b{display:block;font-size:15px;font-weight:600}
+.cert span{font-size:13px;color:var(--text-3)}
+.rating-sum{display:flex;align-items:baseline;gap:12px;margin-bottom:16px}
+.rating-sum b{font:700 40px/1 var(--font-display)}
+.rating-sum span{font-size:13px;color:var(--text-3)}
+.review{padding:16px 0;border-top:1px solid var(--line)}
+.review-head{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--text-3)}
+.review-head b{font-size:14px;font-weight:600;color:var(--text)}
+.review p{margin-top:6px;font-size:14px;color:var(--text-2)}
+.lines{display:grid;gap:10px}
+.contact-mask{display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;background:var(--fill);font-size:14px;color:var(--text-2)}
+.contact-mask .icon{color:var(--text-3)}
 .related{margin-top:40px}
 .related h2{font:700 32px/1 var(--font-display);margin-bottom:16px}
 .related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
@@ -431,6 +468,15 @@ a.pp-row:hover{background:var(--fill)}
   .m-foot{padding-bottom:calc(16px + env(safe-area-inset-bottom))}
   .m-foot .btn{flex:1}
   .grid2{grid-template-columns:1fr}
+  /* вкладки и действие в одну строку: вкладки прокручиваются, у действия остаётся иконка (подпись в aria-label) */
+  .head-row .tabs{min-width:0;gap:20px;overflow-x:auto;scrollbar-width:none}
+  .head-row .tabs::-webkit-scrollbar{display:none}
+  .head-row:has(.tabs) .btn{flex:none;width:40px;padding:0;justify-content:center}
+  .head-row:has(.tabs) .btn .l-short,.head-row:has(.tabs) .btn .l-full{display:none}
+  .d-person{gap:16px}.d-person .tile{width:64px;height:64px;font-size:20px}.d-person h1{font-size:36px}
+  .timeline article{grid-template-columns:1fr;gap:4px}
+  .gallery{grid-template-columns:1fr 1fr}
+  .cert{grid-template-columns:32px minmax(0,1fr)}.cert .btn{grid-column:2}
   .resp-row{grid-template-columns:40px minmax(0,1fr)}
   .resp-side{grid-column:1/-1;grid-auto-flow:column;justify-content:space-between;align-items:center;text-align:left}
   .toasts{top:auto;bottom:96px;right:16px}
