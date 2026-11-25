@@ -111,7 +111,12 @@ ul{margin:0;padding:0;list-style:none}
 .dp-quick .btn{flex:1}
 
 /* ---------- Шапка: 5 групп вместо 12 ссылок ---------- */
-.top{position:sticky;top:0;z-index:50;background:var(--top-bg);backdrop-filter:blur(12px)}
+.top{position:sticky;top:0;z-index:50;background:var(--top-bg);backdrop-filter:blur(12px);transition:background-color .2s var(--ease),backdrop-filter .2s var(--ease)}
+/* Высота бара: на неё градиентная шапка страницы заезжает под бар */
+:root{--top-h:64px}
+/* Наверху страницы с градиентной шапкой бар прозрачный и лежит поверх градиента; после прокрутки снова сплошной */
+body:has(#app>.head:first-child) .top:not(.scrolled){background:transparent;backdrop-filter:none}
+#app>.head:first-child{margin-top:calc(-1 * var(--top-h));padding-top:var(--top-h)}
 .top-in{width:min(1440px,calc(100% - 48px));margin:0 auto;height:64px;display:flex;align-items:center;gap:24px}
 .logo{display:flex;align-items:center;gap:8px;font:700 28px/1 var(--font-display);color:var(--primary);letter-spacing:.01em}
 .logo img{width:32px;height:32px}
@@ -448,6 +453,7 @@ a.pp-row:hover{background:var(--fill)}
 /* ---------- Телефон: первая вакансия на первом экране ---------- */
 @media (max-width:640px){
   .wrap{width:calc(100% - 32px)}
+  :root{--top-h:56px}
   .top-in{width:calc(100% - 32px);height:56px;gap:12px}
   .logo{font-size:26px}.logo img{width:28px;height:28px}
   .top-actions .hide-m{display:none}

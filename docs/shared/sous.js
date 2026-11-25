@@ -477,7 +477,12 @@ window.addEventListener("hashchange", () => {
 });
 
 /* ---------- Запуск: вызвать в конце скрипта страницы ---------- */
+/* Бар сверху прозрачный, после прокрутки сплошной */
+function syncTop() { $("#top")?.classList.toggle("scrolled", window.scrollY > 4); }
+window.addEventListener("scroll", syncTop, { passive: true });
+
 function start() {
+  syncTop();
   renderFooter();
   PAGE.onRoute?.();
   render();
