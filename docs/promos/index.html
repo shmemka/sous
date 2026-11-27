@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css?v=202611280250">
+<link rel="stylesheet" href="../shared/sous.css?v=202611280255">
 <style>
 .qr-box{width:176px;height:176px;margin:4px auto 14px;padding:14px;border-radius:14px;background:#fff;display:grid;place-items:center}
 .qr-code{text-align:center;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:16px;font-weight:700;letter-spacing:.08em;color:var(--text)}
@@ -18,6 +18,13 @@
 .promo-facts div{display:grid;gap:2px}
 .promo-facts span{font-size:11px;color:var(--text-3)}
 .promo-facts b{font-size:13px;font-weight:600}
+.scan-box{min-height:220px;border-radius:var(--r-card);background:var(--fill);display:grid;place-items:center;gap:12px;padding:24px;text-align:center;color:var(--text-2)}
+.cb-bar{height:8px;border-radius:999px;background:var(--fill-2);overflow:hidden;margin:10px 0 6px}
+.cb-bar>span{display:block;height:100%;background:var(--primary);border-radius:inherit}
+.receipt-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:var(--r-control);background:var(--fill)}
+.receipt-row+.receipt-row{margin-top:8px}
+.receipt-st{font-size:12px;font-weight:500;color:var(--ok)}
+.receipt-st.pending{color:var(--text-2)}
 @media(max-width:520px){.promo-facts{grid-template-columns:1fr}}
 </style>
 </head>
@@ -30,8 +37,8 @@
 <div id="toast-root" class="toasts" aria-live="polite"></div>
 <div id="proto-root"></div>
 
-<script src="../shared/pages.js?v=202611280250"></script>
-<script src="../shared/sous.js?v=202611280250"></script>
+<script src="../shared/pages.js?v=202611280255"></script>
+<script src="../shared/sous.js?v=202611280255"></script>
 <script>
 /* =========================================================
    Кешбэк и акции: данные и состояние
@@ -156,10 +163,23 @@ Object.assign(state, {
   q: "",
   city: "Все города",
   tab: "all",
+  myTab: "active",
+  scanMode: "manual",
+  scanResult: null,
   f: { category: new Set(), kind: new Set(), verified: false },
   sort: "new",
-  activated: new Set(),
+  activated: new Set(["promo-002", "promo-003"]),
   fav: new Set(),
+  receipts: [
+    { date: "12.11.2026", org: "Детейлинг Партнёр", amount: 8500, status: "Одобрено" },
+    { date: "02.11.2026", org: "Детейлинг Партнёр", amount: 6000, status: "Выплачено" }
+  ],
+  scanHistory: [
+    { time: "14:32", title: "Скидка 20% на керамику", note: "Shine&Go" },
+    { time: "13:48", title: "Кешбэк до 3 000 ₽", note: "Детейлинг Партнёр" },
+    { time: "12:16", title: "Диагностика ЛКП", note: "АвтоПрофи" }
+  ],
+  payoutBank: "Сбербанк",
 });
 
 const isMine = (p) => (state.role === "partner" && p.org === MY_ORG) || (state.role === "employer" && p.org === ROLES.employer.name);
@@ -371,6 +391,143 @@ function detailView(id) {
   ${mbar ? `<div class="mbar"><div class="money num">${esc(p.benefit)}<small>${esc(p.benefitSub)}</small></div>${mbar}</div>` : ""}`;
 }
 
+function myPromosView() {
+  document.body.className = "catalog-page";
+  document.title = "Мои промокоды · СОУС";
+  const tabs = `<div class="tabs" role="tablist" aria-label="Статус промокодов">
+    <button type="button" class="tab" role="tab" aria-selected="${state.myTab === "active"}" data-act="mytab" data-tab="active">Готовы</button>
+    <button type="button" class="tab" role="tab" aria-selected="${state.myTab === "used"}" data-act="mytab" data-tab="used">Использованы</button>
+    <button type="button" class="tab" role="tab" aria-selected="${state.myTab === "expired"}" data-act="mytab" data-tab="expired">Истекли</button>
+  </div>`;
+  const listByTab = {
+    active: PROMOS.filter((p) => state.activated.has(p.id) || p.id === "promo-002"),
+    used: [PROMOS[0]],
+    expired: [PROMOS[3]],
+  };
+  const items = listByTab[state.myTab] || [];
+  const noteByTab = {
+    active: "Покажите QR сотруднику до оплаты",
+    used: "Применён 12 ноября 2026",
+    expired: "Срок действия истёк, можно перевыпустить",
+  };
+  return `<section class="head"><div class="wrap head-in">
+      <div class="head-row">${tabs}<a class="btn" href="#/">${icon("back")}Все акции</a></div>
+      <h1>Мои промокоды</h1>
+      <p class="lead">Активированные скидки по QR и программы кешбэка</p>
+    </div></section>
+    <div class="wrap detail" style="padding-top:24px">
+      ${items.length ? `<div class="list">${items.map((p) => `<article class="card">
+        <div class="c-main">
+          <h2 class="c-title"><a href="#/v/${p.id}">${esc(p.title)}</a></h2>
+          <div class="c-org">${esc(p.org)}${p.verified ? verifiedMark() : ""}</div>
+          <div class="meta"><span>${icon("pin")}${p.city}</span><span>${noteByTab[state.myTab]}</span></div>
+        </div>
+        <div class="c-side">
+          <div class="money num">${esc(p.benefit)}<small>${esc(p.benefitSub)}</small></div>
+          <div class="c-actions">
+            ${state.myTab === "active"
+              ? `<button class="btn sm primary" data-act="qr" data-id="${p.id}">Показать QR</button>`
+              : state.myTab === "expired"
+                ? `<button class="btn sm" data-act="reissue" data-id="${p.id}">Перевыпустить</button>`
+                : `<a class="btn sm" href="#/v/${p.id}">Условия</a>`}
+          </div>
+        </div>
+      </article>`).join("")}</div>` : `<div class="empty">${icon("zap", "lg")}<h3>Пока пусто</h3><p>Выберите акцию в каталоге, чтобы получить QR-код</p><a class="btn primary" href="#/">К акциям</a></div>`}
+    </div>`;
+}
+
+function scanView() {
+  document.body.className = "detail-page";
+  document.title = "Сканер промокодов · СОУС";
+  const tabs = `<div class="tabs" role="tablist" aria-label="Режим проверки">
+    <button type="button" class="tab" role="tab" aria-selected="${state.scanMode === "manual"}" data-act="scanmode" data-mode="manual">Ввод кода</button>
+    <button type="button" class="tab" role="tab" aria-selected="${state.scanMode === "camera"}" data-act="scanmode" data-mode="camera">Камера</button>
+  </div>`;
+  const res = state.scanResult;
+  return `<div class="wrap detail">
+    <a class="back" href="#/">${icon("back")}Все акции</a>
+    <div class="d-grid">
+      <div class="d-main">
+        <section class="panel">
+          <div class="head-row" style="margin-bottom:14px"><h1 style="font-size:clamp(28px,4vw,38px)">Сканер промокодов</h1>${tabs}</div>
+          ${state.scanMode === "manual" ? `<form class="m-body" style="padding:0" data-act-submit="scan-check">
+            <label class="field"><span>Код промокода клиента</span><input class="input" id="scanCode" required placeholder="Например, SOUS-2026-8F42" value="SOUS-2026-8F42"></label>
+            <div><button class="btn primary" type="submit">${icon("search")}Проверить код</button></div>
+          </form>` : `<div class="scan-box">
+            ${icon("camera", "lg")}
+            <p>Наведите камеру на QR-код клиента</p>
+            <button type="button" class="btn primary" data-act="scan-demo">Проверить демо-код</button>
+          </div>`}
+        </section>
+        ${res ? `<section class="panel">
+          <div class="success" style="padding:12px 0">
+            <span class="ok-circle">${icon("check")}</span>
+            <h3>${res.ok ? "Промокод действителен" : "Код не найден"}</h3>
+            <p>${esc(res.text)}</p>
+          </div>
+          ${res.ok ? `<div style="display:flex;justify-content:center;gap:10px;margin-top:8px"><button class="btn primary" data-act="scan-apply">Применить к заказу</button><button class="btn" data-act="scan-reset">Сбросить</button></div>` : ""}
+        </section>` : ""}
+      </div>
+      <aside class="aside">
+        <section class="panel">
+          <h2>Последние активации</h2>
+          <div style="display:grid;gap:8px;margin-top:12px">
+            ${state.scanHistory.map((h) => `<div class="receipt-row"><div><b>${esc(h.title)}</b><div class="offer-sub" style="font-size:12px;color:var(--text-3)">${esc(h.note)}</div></div><span class="num" style="font-size:12px;color:var(--text-3)">${h.time}</span></div>`).join("")}
+          </div>
+        </section>
+      </aside>
+    </div>
+  </div>`;
+}
+
+function cashbackView(id) {
+  document.body.className = "detail-page";
+  const p = PROMOS.find((x) => x.id === id) || PROMOS[0];
+  document.title = `${p.title} · Кешбэк · СОУС`;
+  return `<div class="wrap detail">
+    <a class="back" href="#/v/${p.id}">${icon("back")}К акции</a>
+    <div class="d-grid">
+      <div class="d-main">
+        <section class="panel d-head">
+          <h1>${esc(p.title)}</h1>
+          <div class="d-org"><div><b>${esc(p.org)}</b><span class="parts"><span class="verified">${icon("badge")}Партнёр проверен</span><span>${p.city}</span></span></div></div>
+          <div style="margin-top:14px">
+            <div style="display:flex;justify-content:space-between;font-size:13px"><b>Накопленный кешбэк: 1 250 ₽</b><span style="color:var(--text-3)">максимум ${esc(p.benefit)}</span></div>
+            <div class="cb-bar"><span style="width:42%"></span></div>
+          </div>
+        </section>
+        <section class="panel">
+          <h2>Ваши чеки</h2>
+          <div style="margin-top:12px">
+            ${state.receipts.map((r) => `<div class="receipt-row">
+              <div><b>${fmt(r.amount)} ₽</b><div style="font-size:12px;color:var(--text-3)">${r.date}, ${esc(r.org)}</div></div>
+              <span class="receipt-st ${r.status === "На проверке" ? "pending" : ""}">${esc(r.status)}</span>
+            </div>`).join("")}
+          </div>
+        </section>
+        <section class="panel">
+          <h2>Реквизиты для выплаты</h2>
+          <div class="grid2" style="margin-top:12px">
+            <label class="field"><span>Телефон для СБП</span><input class="input" value="+7 (999) 521-22-51"></label>
+            <div class="field"><span>Банк</span>${dd({ key: "payout-bank", value: state.payoutBank, options: ["Сбербанк", "Т-Банк", "ВТБ", "Альфа-Банк"] })}</div>
+          </div>
+        </section>
+      </div>
+      <aside class="aside">
+        <section class="panel">
+          <h2>Отправить новый чек</h2>
+          <form class="m-body" style="padding:12px 0 0" data-act-submit="receipt-send">
+            <div class="field"><span>Дата услуги</span>${datePick({ key: "r-date", name: "date", value: "2026-11-28", min: "2026-11-01", label: "Дата услуги" })}</div>
+            <label class="field"><span>Сумма чека, ₽</span><input class="input num" name="amount" inputmode="numeric" required placeholder="8 500"></label>
+            <label class="field"><span>Фото или PDF чека</span><input class="input" type="file" accept="image/*,.pdf" style="padding-top:9px"></label>
+            <button class="btn primary block" type="submit">${icon("upload")}Отправить на проверку</button>
+          </form>
+        </section>
+      </aside>
+    </div>
+  </div>`;
+}
+
 function qrSvgMarkup(code) {
   let cells = "";
   let seed = [...code].reduce((a, c) => a + c.charCodeAt(0), 17);
@@ -467,20 +624,48 @@ document.addEventListener("change", (e) => {
 });
 document.addEventListener("submit", (e) => {
   e.preventDefault();
-  if (e.target.dataset.actSubmit === "search") $("#results")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  if (e.target.dataset.actSubmit === "search") {
+    $("#results")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  } else if (e.target.dataset.actSubmit === "scan-check") {
+    const code = ($("#scanCode")?.value || "").trim().toUpperCase();
+    const found = PROMOS.find((p) => p.code === code);
+    state.scanResult = found
+      ? { ok: true, promo: found, text: `${found.title}, ${found.org} (${found.benefit})` }
+      : { ok: false, text: "Проверьте код или попросите клиента обновить QR" };
+    render();
+  } else if (e.target.dataset.actSubmit === "receipt-send") {
+    const d = Object.fromEntries(new FormData(e.target));
+    const amount = Number(String(d.amount).replace(/\D/g, "")) || 8500;
+    state.receipts.unshift({ date: d.date || "28.11.2026", org: "Детейлинг Партнёр", amount, status: "На проверке" });
+    render();
+    toast("Чек отправлен", "Начислим кешбэк после проверки");
+  }
 });
 
 const PAGE = {
   section: "/promos",
   textLogo: true,
-  currentPath: () => route().startsWith("/v/") ? "/promos/:id" : "/promos",
+  currentPath: () => {
+    const r = route();
+    if (r === "/my") return "/promos/my";
+    if (r === "/scan") return "/promos/scan";
+    if (r.startsWith("/cashback/")) return "/promos/cashback/:id";
+    if (r.startsWith("/v/")) return "/promos/:id";
+    return "/promos";
+  },
   render() {
-    const m = route().match(/^\/v\/([\w-]+)/);
+    const r = route();
+    if (r === "/my") { $("#app").innerHTML = myPromosView(); return; }
+    if (r === "/scan") { $("#app").innerHTML = scanView(); return; }
+    const cb = r.match(/^\/cashback\/([\w-]+)/);
+    if (cb) { $("#app").innerHTML = cashbackView(cb[1]); return; }
+    const m = r.match(/^\/v\/([\w-]+)/);
     $("#app").innerHTML = m ? detailView(m[1]) : catalogView();
   },
   onDD(key, v) {
     if (key === "search-city") state.city = v;
     else if (key === "sort") state.sort = v;
+    else if (key === "payout-bank") { state.payoutBank = v; return true; }
     else return false;
     render();
     return true;
@@ -512,6 +697,28 @@ const PAGE = {
   actions: {
     reset: resetFilters,
     tab: (el) => { state.tab = el.dataset.tab; render(); },
+    mytab: (el) => { state.myTab = el.dataset.tab; render(); },
+    scanmode: (el) => { state.scanMode = el.dataset.mode; state.scanResult = null; render(); },
+    "scan-demo": () => {
+      const p = PROMOS[1];
+      state.scanResult = { ok: true, promo: p, text: `${p.title}, ${p.org} (${p.benefit})` };
+      render();
+    },
+    "scan-apply": () => {
+      if (state.scanResult?.promo) {
+        state.scanHistory.unshift({ time: "Только что", title: state.scanResult.promo.title, note: state.scanResult.promo.org });
+      }
+      state.scanResult = null;
+      render();
+      toast("Скидка применена", "Использование записано в историю");
+    },
+    "scan-reset": () => { state.scanResult = null; render(); },
+    reissue: (el, e, id) => {
+      state.activated.add(id);
+      state.myTab = "active";
+      render();
+      toast("QR перевыпущен", "Код готов к показу сотруднику");
+    },
     unchip: (el) => {
       const { k, v } = el.dataset;
       if (k === "city") state.city = "Все города";
