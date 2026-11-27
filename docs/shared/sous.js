@@ -465,31 +465,51 @@ function vacancyDesignsMarkup() {
   </section>`;
 }
 
+function pageStatusDot(page) {
+  const status = pageStatus(page);
+  return `<span class="pp-status" title="${ST_LABEL[status]}"><i class="st st-${status}" aria-hidden="true"></i><span class="sr-only">${ST_LABEL[status]}</span></span>`;
+}
 function pageStatusLabel(page) {
   const status = pageStatus(page);
   return `<span class="pp-status"><i class="st st-${status}" aria-hidden="true"></i>${ST_LABEL[status]}</span>`;
 }
 function currentPageIssue(page) {
   const comments = state.issues?.[page.issue]?.comments || 0;
-  const label = pageStatus(page) === "review" ? "Обсуждение и приёмка" : "Обсуждение";
-  return `${label}${comments ? `<span class="pp-comments">${plural(comments, "комментарий", "комментария", "комментариев")}</span>` : ""}`;
+  const label = pageStatus(page) === "review" ? "Обсудить" : "Issue";
+  return `${label}${comments ? `<span class="pp-comments">${comments}</span>` : ""}`;
 }
 function currentPageMarkup(page) {
   if (!page) return "";
   return `<section class="pp-current" aria-label="Текущая страница">
-    <div class="pp-current-meta"><span>Вы здесь</span><span data-pp-current-status>${pageStatusLabel(page)}</span></div>
-    <h4 aria-current="page">${esc(page.title)}</h4>
-    ${page.changes?.length ? `<details class="pp-changes"><summary>Что изменилось</summary>
+    <div class="pp-current-top">
+      <h4 aria-current="page">${esc(page.title)}</h4>
+      <span data-pp-current-status>${pageStatusLabel(page)}</span>
+    </div>
+    <div class="pp-current-actions">
+      ${page.issue ? `<a class="pp-action-btn" data-pp-issue href="${issueUrl(page.issue)}" target="_blank" rel="noopener">${currentPageIssue(page)}</a>` : ""}
+      <button type="button" class="pp-action-btn" data-act="pp-copy">Скопировать ссылку</button>
+    </div>
+    ${page.changes?.length ? `<details class="pp-changes"><summary>Что изменилось (${page.changes.length})</summary>
       <ul>${page.changes.map((change) => `<li>${esc(change)}</li>`).join("")}</ul>
     </details>` : ""}
-    ${page.issue ? `<a class="pp-issue" data-pp-issue href="${issueUrl(page.issue)}" target="_blank" rel="noopener">${currentPageIssue(page)}</a>` : ""}
   </section>`;
 }
 function pageRow(page) {
-  const content = `<span>${esc(page.title)}</span>${pageStatusLabel(page)}`;
-  return pageAvailable(page)
+  const status = pageStatus(page);
+  const avail = pageAvailable(page);
+  const tag = avail ? "" : `<small class="pp-plan">${ST_LABEL[status]}</small>`;
+  const content = `<span class="pp-row-title">${esc(page.title)}</span><span class="pp-row-meta">${tag}${pageStatusDot(page)}</span>`;
+  return avail
     ? `<li><a class="pp-row" href="${esc(localHref(page.href))}" data-act="page-go" data-path="${esc(page.path)}">${content}</a></li>`
     : `<li class="pp-row pp-unavailable">${content}</li>`;
+}
+function pageFilterCounts() {
+  const all = window.SOUS_PAGES.flatMap((g) => g.pages);
+  return {
+    available: all.filter(pageAvailable).length,
+    review: all.filter((p) => pageStatus(p) === "review").length,
+    all: all.length,
+  };
 }
 function pageListMarkup() {
   const current = currentProtoPage();
@@ -523,21 +543,30 @@ function refreshPageStatuses() {
   const issue = $("[data-pp-issue]");
   if (page && status) status.innerHTML = pageStatusLabel(page);
   if (page && issue) issue.innerHTML = currentPageIssue(page);
+  const counts = pageFilterCounts();
+  $$("[data-act=pp-filter]").forEach((btn) => {
+    const c = btn.querySelector(".pp-fcount");
+    if (c && counts[btn.dataset.filter] != null) c.textContent = counts[btn.dataset.filter];
+  });
   refreshPageList();
 }
 function pagesPanel() {
   const filter = state.pageFilter || "available";
   const design = state.pagePanelTab === "design";
+  const counts = pageFilterCounts();
   return `<section class="pages-panel" id="pages-panel" role="dialog" aria-label="Страницы и дизайн прототипа">
     <div class="pp-head">
-      <div class="pp-title"><h3>Страницы</h3><button class="btn sm icon-only" data-act="pages" aria-label="Закрыть страницы">${icon("x")}</button></div>
-      <div class="pp-tabs" role="group" aria-label="Раздел панели">
-        <button data-act="pp-tab" data-tab="pages" aria-pressed="${!design}">Обзор</button>
-        <button data-act="pp-tab" data-tab="design" aria-pressed="${design}">Дизайн</button>
+      <div class="pp-title">
+        <h3>Страницы</h3>
+        <div class="pp-tabs" role="group" aria-label="Раздел панели">
+          <button data-act="pp-tab" data-tab="pages" aria-pressed="${!design}">Экраны</button>
+          <button data-act="pp-tab" data-tab="design" aria-pressed="${design}">Дизайн</button>
+        </div>
+        <button class="btn sm icon-only" data-act="pages" aria-label="Закрыть страницы">${icon("x")}</button>
       </div>
-      ${design ? "" : `<label class="pp-search">${icon("search")}<input type="search" aria-label="Поиск страниц" placeholder="Название или адрес" value="${esc(state.pageQuery || "")}"></label>
+      ${design ? "" : `<label class="pp-search">${icon("search")}<input type="search" aria-label="Поиск страниц" placeholder="Поиск по экранам" value="${esc(state.pageQuery || "")}"></label>
       <div class="pp-filters" role="group" aria-label="Какие страницы показать">
-        ${PAGE_FILTERS.map(([value, label]) => `<button data-act="pp-filter" data-filter="${value}" aria-pressed="${filter === value}">${label}</button>`).join("")}
+        ${PAGE_FILTERS.map(([value, label]) => `<button data-act="pp-filter" data-filter="${value}" aria-pressed="${filter === value}">${label}<span class="pp-fcount num">${counts[value]}</span></button>`).join("")}
       </div>`}
     </div>
     <div class="pp-scroll">${design ? vacancyDesignsMarkup() : `${currentPageMarkup(currentProtoPage())}<div class="pp-list">${pageListMarkup()}</div>`}</div>
@@ -641,6 +670,14 @@ const SHARED_ACTIONS = {
     state.pageFilter = el.dataset.filter;
     for (const button of $$(".pp-filters button")) button.setAttribute("aria-pressed", button === el);
     filterPages();
+  },
+  "pp-copy": async () => {
+    try {
+      await navigator.clipboard.writeText(location.href);
+      toast("Ссылка скопирована", "Можно отправить коллеге или заказчику");
+    } catch {
+      toast("Не удалось скопировать", location.href, "info");
+    }
   },
   "page-go": (el, e) => {
     if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
