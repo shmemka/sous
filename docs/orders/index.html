@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Заявки автовладельцев · СОУС</title>
+<meta name="description" content="Заявки автовладельцев на детейлинг и автоуслуги в СОУС: поиск, фильтры, публикация и предложения исполнителей">
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/sous.css?v=202611280234">
+<style>
+.c-car{font-size:13px;font-weight:500;color:var(--text-2);margin-top:2px}
+.offer-list{display:grid;gap:10px;margin-top:14px}
+.offer-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:14px;border-radius:var(--r-control);background:var(--fill)}
+.offer-main{display:grid;gap:4px;min-width:0}
+.offer-main p{font-size:13px;color:var(--text-2);line-height:1.45}
+.offer-sub{font-size:12px;color:var(--text-3)}
+.offer-side{display:grid;justify-items:end;gap:8px;flex:none}
+.offer-price{font-size:20px;font-weight:700;font-family:var(--font-display)}
+.offer-chosen{color:var(--ok);font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:5px}
+.media-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.media-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:8px;background:var(--fill);font-size:12px;color:var(--text-2)}
+</style>
+</head>
+<body>
+<a class="sr-only" href="#app">Перейти к содержимому</a>
+<header class="top" id="top"></header>
+<main id="app" tabindex="-1"></main>
+<footer class="footer" id="footer"></footer>
+<div id="modal-root"></div>
+<div id="toast-root" class="toasts" aria-live="polite"></div>
+<div id="proto-root"></div>
+
+<script src="../shared/pages.js?v=202611280234"></script>
+<script src="../shared/sous.js?v=202611280234"></script>
+<script>
+/* =========================================================
+   Заявки автовладельцев: данные и состояние
+   ========================================================= */
+const SERVICES = ["Химчистка", "Полировка", "Керамика", "Плёнки и PPF", "Мойка", "Озонирование"];
+const CAR_TYPES = ["Седан", "Хэтчбек", "Кроссовер", "Внедорожник", "Минивэн", "Универсал"];
+const BUDGET_STEPS = [["", "Любой"], ["10000", "от 10 000 ₽"], ["20000", "от 20 000 ₽"], ["30000", "от 30 000 ₽"]];
+const MY_CLIENT = "Иван Михайлов";
+
+let ORDERS = [
+  {
+    id: "order-001",
+    title: "Антибактериальная обработка и химчистка",
+    car: "Toyota RAV4, 2023",
+    carType: "Кроссовер",
+    service: "Химчистка",
+    author: "Иван Михайлов",
+    city: "Москва",
+    area: "Центральный район",
+    budgetTo: 18000,
+    budgetFrom: null,
+    when: "На этой неделе",
+    date: "2026-11-28",
+    days: 0,
+    media: ["2 фото салона"],
+    desc: "После перевозки животных нужна глубокая химчистка салона и антибактериальная обработка с устранением запаха.",
+    details: ["Светлый текстиль и багажник", "Нужна сушка до сухого состояния", "Фотоотчёт до и после приветствуется"],
+    place: "Москва, Центральный район",
+    offers: [
+      { id: "off-1", name: "CleanLab", kind: "Студия", rating: "9,8", price: 16000, term: "За 1 день, 29 ноября", msg: "Полная химчистка салона, антибактериальная обработка и озонирование. Покажем фото до и после", chosen: false }
+    ]
+  },
+  {
+    id: "order-002",
+    title: "Керамическое покрытие в два слоя",
+    car: "BMW X5, 2022",
+    carType: "Внедорожник",
+    service: "Керамика",
+    author: "Ольга Смирнова",
+    city: "Казань",
+    area: "Вахитовский район",
+    budgetFrom: 35000,
+    budgetTo: 50000,
+    when: "Гибкая дата",
+    date: "2026-12-02",
+    days: 1,
+    media: ["3 фото кузова"],
+    desc: "Нужна лёгкая подготовка лакокрасочного покрытия, удаление мелких царапин и нанесение керамики в два слоя.",
+    details: ["Чёрный металлик, пробег 28 000 км", "Интересует состав с гарантией от 1 года", "Готова оставить авто на 2 дня"],
+    place: "Казань, Вахитовский район",
+    offers: [
+      { id: "off-2", name: "Shine&Go", kind: "Студия", rating: "9,8", price: 42000, term: "За 2 дня, 2–3 декабря", msg: "Одношаговая полировка и керамика в 2 слоя, дадим рекомендации по уходу", chosen: false },
+      { id: "off-3", name: "Михаил Соколов", kind: "Мастер", rating: "9,6", price: 38000, term: "За 2 дня", msg: "Работаю с премиальной керамикой, есть портфолио по чёрным кузовам", chosen: false },
+      { id: "off-4", name: "АвтоПрофи", kind: "Студия", rating: "9,5", price: 45000, term: "За 2 дня", msg: "Комплекс под ключ с антидождём на переднюю полусферу в подарок", chosen: false }
+    ]
+  },
+  {
+    id: "order-003",
+    title: "Полная химчистка салона",
+    car: "Kia Rio, 2020",
+    carType: "Седан",
+    service: "Химчистка",
+    author: "Сергей Петров",
+    city: "Санкт-Петербург",
+    area: "Приморский район",
+    budgetFrom: null,
+    budgetTo: 15000,
+    when: "Выходные",
+    date: "2026-11-29",
+    days: 2,
+    media: ["1 видео салона"],
+    desc: "Салон после длительной эксплуатации, тканевые сиденья, ковролин и потолок требуют аккуратной чистки.",
+    details: ["Тканевый салон, есть пятна на заднем диване", "Нужно успеть за субботу или воскресенье"],
+    place: "Санкт-Петербург, Приморский район",
+    offers: []
+  },
+  {
+    id: "order-004",
+    title: "Оклейка передней части плёнкой PPF",
+    car: "Geely Monjaro, 2024",
+    carType: "Кроссовер",
+    service: "Плёнки и PPF",
+    author: "Дмитрий Орлов",
+    city: "Екатеринбург",
+    area: "Центр",
+    budgetFrom: 45000,
+    budgetTo: 65000,
+    when: "На этой неделе",
+    date: "2026-11-30",
+    days: 1,
+    media: ["2 фото"],
+    desc: "Новый автомобиль из салона, нужна оклейка зон риска полиуретановой плёнкой: бампер, капот, фары, стойки.",
+    details: ["Без пробега по трассе, сколов нет", "Важен аккуратный подворот краёв без стыков"],
+    place: "Екатеринбург, Центр",
+    offers: [
+      { id: "off-5", name: "Wrap Lab", kind: "Студия", rating: "9,7", price: 54000, term: "За 1 день", msg: "Оклеим полиуретаном толщиной 200 мкм, гарантия на работу 2 года", chosen: false }
+    ]
+  },
+  {
+    id: "order-005",
+    title: "Восстановительная полировка кузова и фар",
+    car: "Mazda 6, 2019",
+    carType: "Седан",
+    service: "Полировка",
+    author: "Анна Кузнецова",
+    city: "Москва",
+    area: "ЮЗАО",
+    budgetFrom: 18000,
+    budgetTo: 26000,
+    when: "Гибкая дата",
+    date: "2026-12-04",
+    days: 3,
+    media: [],
+    desc: "После нескольких зим появилась паутинка на лаке и помутнели передние фары. Нужна полировка и защита воском или силантом.",
+    details: ["Цвет красный перламутр", "Желательно с полировкой фар"],
+    place: "Москва, ЮЗАО",
+    offers: [
+      { id: "off-6", name: "Гараж 77", kind: "Студия", rating: "9,4", price: 22000, term: "За 1 день", msg: "Двухэтапная полировка кузова, восстановление фар и защитный силант", chosen: false }
+    ]
+  },
+  {
+    id: "order-006",
+    title: "Озонирование и мойка подкапотного пространства",
+    car: "Volkswagen Multivan, 2021",
+    carType: "Минивэн",
+    service: "Озонирование",
+    author: "Иван Михайлов",
+    city: "Москва",
+    area: "ЗАО",
+    budgetFrom: null,
+    budgetTo: 9000,
+    when: "На этой неделе",
+    date: "2026-11-30",
+    days: 4,
+    media: [],
+    desc: "Нужно освежить кондиционер и салон озоном, а также бережно помыть подкапотное пространство с консервацией.",
+    details: ["Дизельный двигатель", "Важна защита электроники при мойке"],
+    place: "Москва, ЗАО",
+    offers: []
+  }
+];
+
+Object.assign(state, {
+  q: "",
+  city: "Все города",
+  tab: "all",
+  f: { service: new Set(), carType: new Set(), budget: "" },
+  sort: "new",
+  fav: new Set(),
+  responded: new Set(),
+});
+
+const isMine = (o) => state.role === "client" && o.author === MY_CLIENT;
+const budgetText = (o) => {
+  if (o.budgetFrom && o.budgetTo) return `${fmt(o.budgetFrom)}–${fmt(o.budgetTo)} ₽`;
+  if (o.budgetFrom) return `от ${fmt(o.budgetFrom)} ₽`;
+  if (o.budgetTo) return `до ${fmt(o.budgetTo)} ₽`;
+  return "По договорённости";
+};
+const budgetMax = (o) => o.budgetTo || o.budgetFrom || 0;
+
+function filtered() {
+  const q = state.q.trim().toLowerCase();
+  const { service, carType, budget } = state.f;
+  let items = ORDERS.filter((o) => {
+    if (state.tab === "mine" && !isMine(o)) return false;
+    if (q && ![o.title, o.car, o.service, o.desc, o.area].join(" ").toLowerCase().includes(q)) return false;
+    if (state.city !== "Все города" && o.city !== state.city) return false;
+    if (service.size && !service.has(o.service)) return false;
+    if (carType.size && !carType.has(o.carType)) return false;
+    if (budget && budgetMax(o) < Number(budget)) return false;
+    return true;
+  });
+  items = [...items].sort((a, b) => state.sort === "budget" ? budgetMax(b) - budgetMax(a) : a.days - b.days);
+  if (state.role === "client") items.sort((a, b) => isMine(b) - isMine(a));
+  return items;
+}
+
+function activeChips() {
+  const chips = [];
+  if (state.city !== "Все города") chips.push(["city", state.city, state.city]);
+  for (const key of ["service", "carType"]) state.f[key].forEach((v) => chips.push([key, v, v]));
+  if (state.f.budget) chips.push(["budget", state.f.budget, BUDGET_STEPS.find(([v]) => v === state.f.budget)[1]]);
+  return chips;
+}
+
+function headAction() {
+  if (state.role === "client" || state.role === "guest") {
+    return `<button class="btn primary" data-act="create">${icon("plus")}<span class="l-full">Оставить заявку</span><span class="l-short">Заявка</span></button>`;
+  }
+  return "";
+}
+
+function roleNote() {
+  const notes = {
+    supplier: `Здесь автовладельцы ищут мастеров и студии. Запросы студий на материалы находятся в <a href="${pageHref("/supply-requests")}">заявках на закупку</a>`,
+    partner: `Здесь автовладельцы ищут мастеров и студии. Акции и кешбэк настраиваются в <a href="${pageHref("/promos")}">разделе акций</a>`,
+  };
+  return notes[state.role] ? `<div class="note">${icon("info")}<p>${notes[state.role]}</p></div>` : "";
+}
+
+function filtersMarkup() {
+  const counter = (key, v) => ORDERS.filter((o) => o[key] === v).length;
+  const group = (title, key, values) => `<fieldset class="fgroup" style="border:0;margin:0;padding:0"><legend class="sr-only">${title}</legend><b>${title}</b>${values.filter((v) => counter(key, v) || state.f[key].has(v)).map((v) => `
+    <label class="check"><input type="checkbox" data-filter="${key}" value="${esc(v)}" ${state.f[key].has(v) ? "checked" : ""}><span>${v}</span><span class="c num">${counter(key, v)}</span></label>`).join("")}</fieldset>`;
+  return `${group("Услуга", "service", SERVICES)}
+    ${group("Тип авто", "carType", CAR_TYPES)}
+    <div class="field"><span>Бюджет</span>${dd({ key: "budget", value: state.f.budget, options: BUDGET_STEPS, label: "Бюджет" })}</div>`;
+}
+
+function orderCard(o) {
+  const mine = isMine(o);
+  const responded = state.responded.has(o.id);
+  const canRespond = state.role === "worker" || state.role === "employer" || state.role === "guest";
+  let action = "";
+  if (mine) {
+    action = `<a class="btn sm" href="#/v/${o.id}">${icon("users")}Предложения<span class="count">${o.offers.length}</span></a>`;
+  } else if (canRespond) {
+    action = responded
+      ? `<span class="btn sm done">${icon("check")}Предложение отправлено</span>`
+      : `<button class="btn sm" data-act="respond" data-id="${o.id}">Предложить услуги</button>`;
+  }
+  const fav = mine ? "" : `<button class="btn sm ghost icon-only fav" data-act="fav" data-id="${o.id}" aria-pressed="${state.fav.has(o.id)}" aria-label="В избранное">${icon("bookmark", "lg")}</button>`;
+  const offersLabel = o.offers.length ? plural(o.offers.length, "предложение", "предложения", "предложений") : "Пока нет предложений";
+  return `<article class="card ${mine ? "mine" : ""}">
+    <div class="c-main">
+      ${mine ? `<span class="mine-tag">${icon("dot")}Ваша заявка</span>` : ""}
+      <h2 class="c-title"><a href="#/v/${o.id}">${esc(o.title)}</a></h2>
+      <div class="c-car">${esc(o.car)}, ${esc(o.carType.toLowerCase())}</div>
+      <div class="meta"><span>${icon("pin")}${o.city}, ${esc(o.area)}</span><span>${icon("clock")}${esc(o.when)}</span><span>${offersLabel}</span></div>
+      <p class="c-desc">${esc(o.desc)}</p>
+    </div>
+    <div class="c-side">
+      <div class="money num">${budgetText(o)}<small>бюджет</small></div>
+      <div class="c-actions">${fav}${action}</div>
+    </div>
+  </article>`;
+}
+
+function catalogView() {
+  document.body.className = "catalog-page";
+  document.title = "Заявки автовладельцев · СОУС";
+  const items = filtered();
+  const chips = activeChips();
+  const word = plural(items.length, "заявка", "заявки", "заявок");
+  const tabs = state.role === "client" ? `<div class="tabs" role="tablist" aria-label="Заявки">
+    <button type="button" class="tab" role="tab" aria-selected="${state.tab === "all"}" data-act="tab" data-tab="all">Все заявки</button>
+    <button type="button" class="tab" role="tab" aria-selected="${state.tab === "mine"}" data-act="tab" data-tab="mine">Мои заявки<span class="count">${ORDERS.filter(isMine).length}</span></button>
+  </div>` : "";
+  const list = items.length
+    ? `<div class="list">${items.map(orderCard).join("")}</div>`
+    : `<div class="empty">${icon("search", "lg")}<h3>Заявок не нашлось</h3><p>Попробуйте другой город или сбросьте фильтры</p><button class="btn" data-act="reset">Сбросить фильтры</button></div>`;
+
+  return `<section class="head"><div class="wrap head-in">
+      <div class="head-row">${tabs || "<span></span>"}${headAction()}</div>
+      <h1>Заявки автовладельцев</h1>
+      <p class="lead">Опишите задачу по автомобилю и сравните предложения мастеров и студий по цене и срокам</p>
+      <form class="search" role="search" data-act-submit="search">
+        <label class="s-field"><span class="sr-only">Поиск</span>${icon("search", "lg")}<input id="q" type="search" value="${esc(state.q)}" placeholder="Услуга, автомобиль или район" autocomplete="off"></label>
+        <div class="s-field s-city">${dd({ key: "search-city", name: "city", value: state.city, options: CITIES, variant: "bare", iconName: "pin", label: "Город" })}</div>
+        <button class="btn primary" type="submit">Найти</button>
+      </form>
+    </div></section>
+    <div class="wrap catalog">
+      <aside class="filters" aria-label="Фильтры">
+        <div class="filters-head"><h2>Фильтры</h2>${chips.length ? `<button class="link" data-act="reset">Сбросить</button>` : ""}</div>
+        ${filtersMarkup()}
+      </aside>
+      <section id="results" aria-live="polite">
+        <div class="toolbar">
+          <p class="count"><b class="num">${word.split(" ")[0]}</b> ${word.split(" ").slice(1).join(" ")}</p>
+          <button class="btn sm filters-btn" data-act="sheet">${icon("sliders")}Фильтры${chips.length ? `<span class="badge-n num">${chips.length}</span>` : ""}</button>
+          <div class="sort-wrap">${dd({ key: "sort", value: state.sort, options: [["new", "Сначала новые"], ["budget", "Сначала с большим бюджетом"]], variant: "compact", label: "Сортировка" })}</div>
+        </div>
+        ${chips.length ? `<div class="chips">${chips.map(([k, v, l]) => `<button class="chip" data-act="unchip" data-k="${k}" data-v="${esc(v)}" aria-label="Убрать фильтр «${esc(l)}»">${esc(l)}${icon("x")}</button>`).join("")}<button class="link" data-act="reset" style="font-size:13px">Сбросить всё</button></div>` : ""}
+        ${roleNote()}
+        ${list}
+      </section>
+    </div>`;
+}
+
+function detailView(id) {
+  document.body.className = "detail-page";
+  const o = ORDERS.find((x) => x.id === id);
+  if (!o) return `<div class="wrap detail"><a class="back" href="#/">${icon("back")}Все заявки</a><div class="empty"><h3>Заявка снята с публикации</h3><p>Посмотрите другие заявки автовладельцев</p><a class="btn" href="#/">К заявкам</a></div></div>`;
+  document.title = `${o.title} · СОУС`;
+  const mine = isMine(o);
+  const responded = state.responded.has(o.id);
+  const canRespond = state.role === "worker" || state.role === "employer" || state.role === "guest";
+  const related = ORDERS.filter((x) => x.id !== o.id).slice(0, 3);
+
+  let card, mbar = "";
+  if (mine) {
+    card = `<section class="panel action-card">
+      <span class="mine-tag">${icon("dot")}Ваша заявка</span>
+      <div class="stat-row"><div><b class="num">${o.offers.length}</b><span>предложений</span></div><div><b class="num">${o.offers.filter((x) => x.chosen).length}</b><span>выбран</span></div></div>
+      <button class="btn" data-act="unpublish" data-id="${o.id}">Снять заявку</button>
+    </section>`;
+  } else if (canRespond) {
+    const btn = responded
+      ? `<span class="btn lg block done">${icon("check")}Предложение отправлено</span>`
+      : `<button class="btn primary lg block" data-act="respond" data-id="${o.id}">Предложить услуги</button>`;
+    card = `<section class="panel action-card">
+      <div class="money num">${budgetText(o)}<small>бюджет</small></div>
+      ${btn}
+      <button class="btn block fav" data-act="fav" data-id="${o.id}" aria-pressed="${state.fav.has(o.id)}">${icon("bookmark")}${state.fav.has(o.id) ? "В избранном" : "Сохранить"}</button>
+    </section>`;
+    mbar = responded ? `<span class="btn done">${icon("check")}Отправлено</span>` : `<button class="btn primary" data-act="respond" data-id="${o.id}">Предложить</button>`;
+  } else {
+    card = `<section class="panel action-card">
+      <div class="money num">${budgetText(o)}<small>бюджет</small></div>
+      <p class="hint">${icon("info")}Откликаться на заявки могут мастера и студии</p>
+      ${state.role === "client" ? `<button class="btn primary block" data-act="create">${icon("plus")}Оставить свою заявку</button>` : ""}
+    </section>`;
+    if (state.role === "client") mbar = `<button class="btn primary" data-act="create">Оставить заявку</button>`;
+  }
+
+  const offersBlock = mine ? `<section class="panel">
+    <h2>Предложения исполнителей</h2>
+    ${o.offers.length ? `<div class="offer-list">${o.offers.map((of) => `<div class="offer-row">
+      <div class="offer-main">
+        <b>${esc(of.name)}</b>
+        <span class="offer-sub">${esc(of.kind)}, рейтинг ${of.rating}, ${esc(of.term)}</span>
+        <p>${esc(of.msg)}</p>
+      </div>
+      <div class="offer-side">
+        <span class="offer-price num">${fmt(of.price)} ₽</span>
+        ${of.chosen ? `<span class="offer-chosen">${icon("check")}Исполнитель выбран</span>` : `<button class="btn sm primary" data-act="choose" data-id="${o.id}" data-offer="${of.id}">Выбрать</button>`}
+      </div>
+    </div>`).join("")}</div>` : `<p class="prose" style="color:var(--text-3)">Пока никто не откликнулся. Как только мастера или студии предложат цену, они появятся здесь</p>`}
+  </section>` : "";
+
+  const addressText = responded || mine
+    ? `${esc(o.place)}, точный адрес: ул. Покровка, 28`
+    : `${esc(o.place)}. Точный адрес виден исполнителю после отклика`;
+
+  return `<div class="wrap detail">
+    <a class="back" href="#/">${icon("back")}Все заявки</a>
+    <div class="d-grid">
+      <div class="d-main">
+        <section class="panel d-head">
+          <h1>${esc(o.title)}</h1>
+          <div class="d-org"><div><b>${esc(o.author)}</b><span class="parts"><span>${esc(o.car)}</span><span>${esc(o.carType)}</span></span></div></div>
+          <div class="facts">
+            <div><b class="num">${budgetText(o)}</b><span>бюджет</span></div>
+            <div><b>${esc(o.when)}</b><span>желаемый срок</span></div>
+            <div><b>${esc(o.service)}</b><span>услуга</span></div>
+            <div><b>${o.days === 0 ? "Сегодня" : ago(o.days)}</b><span>опубликована</span></div>
+          </div>
+        </section>
+        ${offersBlock}
+        <section class="panel"><h2>Описание задачи</h2><p class="prose">${esc(o.desc)}</p></section>
+        <section class="panel"><h2>Об автомобиле</h2>
+          <ul class="bullets">${o.details.map((d) => `<li>${icon("right")}<span>${esc(d)}</span></li>`).join("")}</ul>
+          ${o.media.length ? `<div class="media-chips">${o.media.map((m) => `<span class="media-chip">${icon("camera")}${esc(m)}</span>`).join("")}</div>` : ""}
+        </section>
+        <section class="panel"><h2>Где и когда</h2><p class="place">${icon("pin", "lg")}<span>${addressText}</span></p></section>
+        <button class="report" data-act="report">${icon("flag")}Пожаловаться на заявку</button>
+      </div>
+      <aside class="aside">
+        ${card}
+        <section class="panel org-card">
+          <div class="d-org"><span class="tile round">${initials(o.author)}</span><div><b>${esc(o.author)}</b><span>Автовладелец</span></div></div>
+          <div class="org-line"><span>Город</span><b>${esc(o.city)}</b></div>
+          <div class="org-line"><span>Предложений</span><b class="num">${o.offers.length}</b></div>
+        </section>
+      </aside>
+    </div>
+    <section class="related">
+      <h2>Другие заявки</h2>
+      <div class="related-grid">${related.map((x) => `<a class="mini" href="#/v/${x.id}"><b>${esc(x.title)}</b><span>${esc(x.car)}, ${x.city}</span><span class="money num">${budgetText(x)}</span></a>`).join("")}</div>
+    </section>
+  </div>
+  ${mbar ? `<div class="mbar"><div class="money num">${budgetText(o)}<small>бюджет</small></div>${mbar}</div>` : ""}`;
+}
+
+function respondModal(id) {
+  const o = ORDERS.find((x) => x.id === id);
+  openModal(`${mHead("Предложить услуги", `${esc(o.title)}, ${esc(o.car)}`)}
+    <form class="m-body" id="mform">
+      <div class="grid2">
+        <label class="field"><span>Стоимость работ, ₽</span><input class="input num" name="price" inputmode="numeric" required placeholder="16 000" value="${o.budgetTo || o.budgetFrom || ""}" autofocus></label>
+        <label class="field"><span>Когда выполните</span><input class="input" name="term" required placeholder="Например, за 1 день" value="За 1 день"></label>
+      </div>
+      <label class="field"><span>Что входит в стоимость</span><textarea class="textarea" name="msg" required placeholder="Опишите этапы работ, материалы и гарантию"></textarea></label>
+    </form>
+    <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="respond-send" data-id="${id}">${icon("send")}Отправить предложение</button></div>`);
+}
+
+function createModal() {
+  const guest = state.role === "guest";
+  openModal(`${mHead("Новая заявка", guest ? "Заполните без регистрации: черновик сохранится, а опубликовать можно после входа" : "Исполнители предложат стоимость и сроки")}
+    <form class="m-body" id="mform">
+      <div class="grid2">
+        <div class="field"><span>Услуга</span>${dd({ key: "f-service", name: "service", value: SERVICES[0], options: SERVICES })}</div>
+        <div class="field"><span>Тип авто</span>${dd({ key: "f-cartype", name: "carType", value: CAR_TYPES[2], options: CAR_TYPES })}</div>
+      </div>
+      <label class="field"><span>Автомобиль</span><input class="input" name="car" required placeholder="Например, Toyota RAV4, 2023" autofocus></label>
+      <div class="grid2">
+        <div class="field"><span>Город</span>${dd({ key: "f-city", name: "city", value: "Москва", options: CITIES.slice(1) })}</div>
+        <label class="field"><span>Район</span><input class="input" name="area" placeholder="Например, Центральный"></label>
+      </div>
+      <div class="grid2">
+        <div class="field"><span>Желаемая дата</span>${datePick({ key: "f-date", name: "date", value: "2026-11-28", min: "2026-11-25", label: "Желаемая дата" })}</div>
+        <label class="field"><span>Бюджет до, ₽</span><input class="input num" name="budget" inputmode="numeric" placeholder="18 000"></label>
+      </div>
+      <label class="field"><span>Описание задачи</span><textarea class="textarea" name="desc" required placeholder="Что нужно сделать и в каком состоянии автомобиль"></textarea></label>
+      <label class="field"><span>Фото или видео (до 3 фото или 1 видео)</span><input class="input" type="file" multiple accept="image/*,video/*" style="padding-top:9px"></label>
+    </form>
+    <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="create-send">${guest ? "Сохранить и войти" : "Опубликовать заявку"}</button></div>`);
+}
+
+function filtersSheet() {
+  openModal(`${mHead("Фильтры")}<div class="m-body"><div class="sheet-filters" id="sheet"><div class="field"><span>Сортировка</span>${dd({ key: "sort", value: state.sort, options: [["new", "Сначала новые"], ["budget", "Сначала с большим бюджетом"]], label: "Сортировка" })}</div>${filtersMarkup()}</div></div>
+    <div class="m-foot"><button class="btn" data-act="reset">Сбросить</button><button class="btn primary" data-act="close" id="sheet-apply">Показать: ${filtered().length}</button></div>`);
+}
+
+function syncFilterInputs() {
+  $$("[data-filter]").forEach((el) => { el.checked = state.f[el.dataset.filter].has(el.value); });
+  $$('[data-dd="budget"]').forEach((el) => setDD(el, state.f.budget));
+  $$('[data-dd="sort"]').forEach((el) => setDD(el, state.sort));
+  $$('[data-dd="search-city"]').forEach((el) => setDD(el, state.city));
+}
+
+function resetFilters() {
+  state.f = { service: new Set(), carType: new Set(), budget: "" };
+  state.city = "Все города";
+  state.q = "";
+  const q = $("#q"); if (q) q.value = "";
+  render();
+}
+
+document.addEventListener("input", (e) => {
+  if (e.target.id === "q") { state.q = e.target.value; render(); }
+});
+document.addEventListener("change", (e) => {
+  const k = e.target.dataset.filter;
+  if (!k) return;
+  e.target.checked ? state.f[k].add(e.target.value) : state.f[k].delete(e.target.value);
+  render();
+});
+document.addEventListener("submit", (e) => {
+  e.preventDefault();
+  if (e.target.dataset.actSubmit === "search") $("#results")?.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+
+const PAGE = {
+  section: "/orders",
+  textLogo: true,
+  currentPath: () => route().startsWith("/v/") ? "/orders/:id" : "/orders",
+  render() {
+    const m = route().match(/^\/v\/([\w-]+)/);
+    $("#app").innerHTML = m ? detailView(m[1]) : catalogView();
+  },
+  onDD(key, v) {
+    if (key === "search-city") state.city = v;
+    else if (key === "sort") state.sort = v;
+    else if (key === "budget") state.f.budget = v;
+    else return false;
+    render();
+    return true;
+  },
+  authText(kind, id) {
+    return {
+      respond: ["Войдите, чтобы предложить услуги", `После входа вернём вас к заявке «${esc(ORDERS.find((x) => x.id === id)?.title || "")}»`],
+      fav: ["Войдите, чтобы сохранить", "Избранные заявки будут доступны в личном кабинете"],
+    }[kind];
+  },
+  loginRole: () => "worker",
+  afterLogin(p) {
+    if (p.kind === "respond" && p.id) setTimeout(() => respondModal(p.id), 200);
+    if (p.kind === "fav" && p.id) { state.fav.add(p.id); render(); }
+  },
+  roleHints: {
+    guest: "смотрит без входа",
+    client: "оставляет заявки",
+    worker: "предлагает услуги",
+    employer: "предлагает от студии",
+    supplier: "не целевая роль",
+    partner: "не целевая роль",
+  },
+  actions: {
+    reset: resetFilters,
+    tab: (el) => { state.tab = el.dataset.tab; render(); },
+    unchip: (el) => {
+      const { k, v } = el.dataset;
+      if (k === "city") state.city = "Все города";
+      else if (k === "budget") state.f.budget = "";
+      else state.f[k].delete(v);
+      render();
+    },
+    sheet: filtersSheet,
+    respond: (el, e, id) => { if (!needAuth("respond", id)) respondModal(id); },
+    "respond-send": (el, e, id) => {
+      const f = $("#mform");
+      if (!f.reportValidity()) return;
+      const d = Object.fromEntries(new FormData(f));
+      const o = ORDERS.find((x) => x.id === id);
+      const price = Number(String(d.price).replace(/\D/g, "")) || 0;
+      o.offers.unshift({ id: "off-" + Date.now(), name: ROLES[state.role].name, kind: state.role === "employer" ? "Студия" : "Мастер", rating: "9,7", price, term: d.term, msg: d.msg, chosen: false });
+      state.responded.add(id);
+      closeModal();
+      render();
+      toast("Предложение отправлено", "Автовладелец увидит цену и срок на странице заявки");
+    },
+    choose: (el, e, id) => {
+      const o = ORDERS.find((x) => x.id === id);
+      o.offers.forEach((x) => { x.chosen = x.id === el.dataset.offer; });
+      render();
+      toast("Исполнитель выбран", "Точный адрес открыт исполнителю, детали можно обсудить в сообщениях");
+    },
+    fav: (el, e, id) => {
+      if (needAuth("fav", id)) return;
+      state.fav.has(id) ? state.fav.delete(id) : state.fav.add(id);
+      toast(state.fav.has(id) ? "Сохранено в избранное" : "Убрано из избранного", "");
+      render();
+    },
+    create: () => { if (["guest", "client"].includes(state.role)) createModal(); },
+    "create-send": () => {
+      const f = $("#mform");
+      if (!f.reportValidity()) return;
+      if (state.role === "guest") {
+        closeModal();
+        toast("Черновик сохранён", "Войдите как автовладелец, чтобы опубликовать");
+        setTimeout(() => setRole("client"), 400);
+        return;
+      }
+      const d = Object.fromEntries(new FormData(f));
+      const budget = Number(String(d.budget).replace(/\D/g, "")) || null;
+      ORDERS.unshift({
+        id: "order-" + Date.now(),
+        title: d.service,
+        car: d.car,
+        carType: d.carType,
+        service: d.service,
+        author: MY_CLIENT,
+        city: d.city,
+        area: d.area || "Центр",
+        budgetFrom: null,
+        budgetTo: budget,
+        when: "По дате: " + d.date,
+        date: d.date,
+        days: 0,
+        media: [],
+        desc: d.desc,
+        details: [`Тип кузова: ${d.carType}`],
+        place: `${d.city}${d.area ? `, ${d.area}` : ""}`,
+        offers: []
+      });
+      closeModal();
+      state.tab = "mine";
+      location.hash = "#/";
+      render();
+      toast("Заявка опубликована", "Мастера и студии уже видят её в каталоге");
+    },
+    unpublish: (el, e, id) => {
+      ORDERS = ORDERS.filter((x) => x.id !== id);
+      location.hash = "#/";
+      render();
+      toast("Заявка снята с публикации", "");
+    },
+    report: () => openModal(`${mHead("Пожаловаться на заявку")}
+      <form class="m-body" id="mform">
+        <label class="field"><span>Причина</span><textarea class="textarea" placeholder="Что не так с заявкой"></textarea></label>
+      </form>
+      <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="report-send">Отправить</button></div>`),
+    "report-send": () => { closeModal(); toast("Жалоба отправлена", "Мы проверим заявку"); },
+  },
+};
+
+start();
+</script>
+</body>
+</html>
