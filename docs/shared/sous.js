@@ -398,78 +398,115 @@ function toast(title, text = "", kind = "ok") {
 }
 
 /* ---------- Панель прототипа: роли и страницы (в продукт не входит) ---------- */
-/* Статусы страниц и обсуждение у заказчика: issues с меткой «страница» в GitHub.
-   Закрытое issue = страница принята. Число комментариев берём оттуда же. */
 const REPO = "shmemka/sous";
 const issueUrl = (n) => `https://github.com/${REPO}/issues/${n}`;
-function loadIssues() {
-  if (state.issues) return;
-  try { const c = JSON.parse(sessionStorage.getItem("sous-issues") || "null"); if (c && Date.now() - c.t < 60000) { state.issues = c.d; return; } } catch (e) {}
-  state.issues = {};
-  fetch(`https://api.github.com/repos/${REPO}/issues?labels=${encodeURIComponent("страница")}&state=all&per_page=100`)
-    .then((r) => r.ok ? r.json() : Promise.reject(r.status))
-    .then((list) => {
-      const d = {};
-      list.forEach((i) => { d[i.number] = { closed: i.state === "closed", comments: i.comments }; });
-      state.issues = d;
-      try { sessionStorage.setItem("sous-issues", JSON.stringify({ t: Date.now(), d })); } catch (e) {}
-      if (state.pagesOpen) renderProto();
-    })
-    .catch(() => {});
+async function loadIssues() {
+  if (state.issuesLoading || Date.now() - (state.issuesTime || 0) < 60000) return;
+  try {
+    const cached = JSON.parse(sessionStorage.getItem("sous-issues") || "null");
+    if (cached && Date.now() - cached.t < 60000) {
+      state.issues = cached.d;
+      state.issuesTime = cached.t;
+      return;
+    }
+  } catch {}
+  state.issuesLoading = true;
+  try {
+    const response = await fetch(`https://api.github.com/repos/${REPO}/issues?labels=${encodeURIComponent("страница")}&state=all&per_page=100`);
+    if (!response.ok) return;
+    const issues = await response.json();
+    state.issues = Object.fromEntries(issues.map((issue) => [
+      issue.number, { closed: issue.state === "closed", comments: issue.comments }
+    ]));
+    state.issuesTime = Date.now();
+    try { sessionStorage.setItem("sous-issues", JSON.stringify({ t: state.issuesTime, d: state.issues })); } catch {}
+    if (state.pagesOpen) refreshPageStatuses();
+  } catch {
+    // Если GitHub недоступен, показываем статусы из карты экранов.
+  } finally {
+    state.issuesLoading = false;
+  }
 }
-const pageStatus = (p) => p.status === "review" && state.issues?.[p.issue]?.closed ? "done" : (p.status || "todo");
-const ST_LABEL = { review: "Ждёт рассмотрения", done: "Готово", wip: "В работе", todo: "Не начато" };
-const PP_TABS = [["review", "Ждут рассмотрения"], ["done", "Готово"], ["todo", "Не начаты"]];
-const ppTabOf = (st) => st === "wip" ? "todo" : st;
+const pageStatus = (page) => page.status === "review" && state.issues?.[page.issue]?.closed
+  ? "done" : (page.status || "todo");
+const ST_LABEL = { review: "На проверке", done: "Готово", wip: "В работе", todo: "Не начато" };
+const PAGE_FILTERS = [["available", "Доступные"], ["review", "На проверке"], ["all", "Все"]];
+const currentProtoPage = () => window.SOUS_PAGES.flatMap((group) => group.pages)
+  .find((page) => page.path === (PAGE.currentPath?.() || PAGE.section));
+const pageAvailable = (page) => page.href && ["review", "done"].includes(pageStatus(page));
+const pageSearchText = (value) => value.toLowerCase().replaceAll("ё", "е");
 
-function ppCard(p, cur) {
-  const st = pageStatus(p), here = p.path === cur, iss = p.issue && state.issues?.[p.issue];
-  const comments = iss ? iss.comments : 0;
-  const open = p.href && st !== "todo" && st !== "wip"
-    ? (here ? `<span class="btn sm pp-here" aria-current="page">Вы здесь</span>` : `<a class="btn sm" href="${localHref(p.href)}" data-act="page-go">Открыть</a>`) : "";
-  const acts = [open,
-    st === "review" && p.changes ? `<button class="btn sm" data-act="pp-changes" data-path="${p.path}">Что изменилось?</button>` : "",
-    p.issue ? `<a class="btn sm" href="${issueUrl(p.issue)}" target="_blank" rel="noopener">${icon("message")}Обсудить${comments ? `<span class="num pp-n">${comments}</span>` : ""}</a>` : "",
-    st === "review" && p.issue ? `<a class="btn sm" href="${issueUrl(p.issue)}" target="_blank" rel="noopener">${icon("check")}Принять</a>` : "",
-  ].filter(Boolean);
-  return `<article class="pp-card ${here ? "here" : ""} ${acts.length ? "" : "muted"}">
-    <p class="pp-st"><i class="st st-${st}"></i>${ST_LABEL[st]}</p>
-    <h4>${p.title}</h4><small>${p.note || p.path}</small>
-    ${acts.length ? `<div class="pp-acts">${acts.join("")}</div>` : ""}
-  </article>`;
+function pageStatusLabel(page) {
+  const status = pageStatus(page);
+  return `<span class="pp-status"><i class="st st-${status}" aria-hidden="true"></i>${ST_LABEL[status]}</span>`;
 }
-function ppChanges(p) {
-  const st = pageStatus(p), iss = state.issues?.[p.issue], comments = iss ? iss.comments : 0;
-  return `<div class="pp-detail">
-    <button class="pp-back" data-act="pp-back">${icon("back")}Все страницы</button>
-    <p class="pp-st"><i class="st st-${st}"></i>${ST_LABEL[st]}</p>
-    <h4>${p.title}</h4><small>${p.path}</small>
-    <h5>Что изменилось</h5>
-    <ul class="pp-ch">${p.changes.map((c) => `<li>${icon("check")}<span>${c}</span></li>`).join("")}</ul>
-    <div class="pp-acts">
-      <a class="btn sm" href="${localHref(p.href)}" data-act="page-go">Открыть</a>
-      <a class="btn sm" href="${issueUrl(p.issue)}" target="_blank" rel="noopener">${icon("message")}Обсудить${comments ? `<span class="num pp-n">${comments}</span>` : ""}</a>
-      ${st === "review" ? `<a class="btn sm" href="${issueUrl(p.issue)}" target="_blank" rel="noopener">${icon("check")}Принять</a>` : ""}
-    </div>
-  </div>`;
+function currentPageIssue(page) {
+  const comments = state.issues?.[page.issue]?.comments || 0;
+  const label = pageStatus(page) === "review" ? "Обсуждение и приёмка" : "Обсуждение";
+  return `${label}${comments ? `<span class="pp-comments">${plural(comments, "комментарий", "комментария", "комментариев")}</span>` : ""}`;
+}
+function currentPageMarkup(page) {
+  if (!page) return "";
+  return `<section class="pp-current" aria-label="Текущая страница">
+    <div class="pp-current-meta"><span>Вы здесь</span><span data-pp-current-status>${pageStatusLabel(page)}</span></div>
+    <h4 aria-current="page">${esc(page.title)}</h4>
+    ${page.changes?.length ? `<details class="pp-changes"><summary>Что изменилось</summary>
+      <ul>${page.changes.map((change) => `<li>${esc(change)}</li>`).join("")}</ul>
+    </details>` : ""}
+    ${page.issue ? `<a class="pp-issue" data-pp-issue href="${issueUrl(page.issue)}" target="_blank" rel="noopener">${currentPageIssue(page)}</a>` : ""}
+  </section>`;
+}
+function pageRow(page) {
+  const content = `<span>${esc(page.title)}</span>${pageStatusLabel(page)}`;
+  return pageAvailable(page)
+    ? `<li><a class="pp-row" href="${esc(localHref(page.href))}" data-act="page-go" data-path="${esc(page.path)}">${content}</a></li>`
+    : `<li class="pp-row pp-unavailable">${content}</li>`;
+}
+function pageListMarkup() {
+  const current = currentProtoPage();
+  const filter = state.pageFilter || "available";
+  const query = pageSearchText(state.pageQuery || "").trim().split(/\s+/);
+  const groups = window.SOUS_PAGES.map((group) => {
+    const pages = group.pages.filter((page) => {
+      if (page === current) return false;
+      if (filter === "available" && !pageAvailable(page)) return false;
+      if (filter === "review" && pageStatus(page) !== "review") return false;
+      const text = pageSearchText(`${page.title} ${page.path}`);
+      return query.every((word) => text.includes(word));
+    });
+    return pages.length ? `<section class="pp-group"><h4>${esc(group.title)}</h4><ul>${pages.map(pageRow).join("")}</ul></section>` : "";
+  }).join("");
+  return groups || `<p class="pp-empty" role="status">Других страниц по этому фильтру нет</p>`;
+}
+function refreshPageList() {
+  const list = $(".pp-list");
+  if (!list) return;
+  const focusedPath = list.contains(document.activeElement) && document.activeElement.dataset.path;
+  list.innerHTML = pageListMarkup();
+  if (focusedPath) {
+    const row = $$("[data-path]", list).find((link) => link.dataset.path === focusedPath);
+    (row || $(".pp-search input"))?.focus({ preventScroll: true });
+  }
+}
+function refreshPageStatuses() {
+  const page = currentProtoPage();
+  const status = $("[data-pp-current-status]");
+  const issue = $("[data-pp-issue]");
+  if (page && status) status.innerHTML = pageStatusLabel(page);
+  if (page && issue) issue.innerHTML = currentPageIssue(page);
+  refreshPageList();
 }
 function pagesPanel() {
-  const all = window.SOUS_PAGES.flatMap((g) => g.pages);
-  const cur = PAGE.currentPath?.() || PAGE.section;
-  const count = (t) => all.filter((p) => ppTabOf(pageStatus(p)) === t).length;
-  if (!state.ppTab) state.ppTab = count("review") ? "review" : "done";
-  const detail = state.ppChanges && all.find((p) => p.path === state.ppChanges);
-  const body = detail ? ppChanges(detail)
-    : `<div class="pp-list">${window.SOUS_PAGES.map((g) => {
-        const ps = g.pages.filter((p) => ppTabOf(pageStatus(p)) === state.ppTab);
-        return ps.length ? `<section class="pp-group"><h5>${g.title}</h5><div class="pp-grid">${ps.map((p) => ppCard(p, cur)).join("")}</div></section>` : "";
-      }).join("") || `<p class="pp-empty">Здесь пока пусто</p>`}</div>`;
-  return `<section class="pages-panel" role="dialog" aria-label="Страницы прототипа">
-    <div class="pp-head"><h3>Страницы</h3>
-      <button class="btn sm icon-only" data-act="pages" aria-label="Закрыть">${icon("x")}</button>
-      ${detail ? "" : `<div class="tabs pp-tabs" role="tablist">${PP_TABS.map(([t, l]) => `<button class="tab" role="tab" data-act="pp-tab" data-tab="${t}" aria-selected="${state.ppTab === t}">${l}<small class="num">${count(t)}</small></button>`).join("")}</div>`}
+  const filter = state.pageFilter || "available";
+  return `<section class="pages-panel" id="pages-panel" role="dialog" aria-label="Страницы прототипа">
+    <div class="pp-head">
+      <div class="pp-title"><h3>Страницы</h3><button class="btn sm icon-only" data-act="pages" aria-label="Закрыть страницы">${icon("x")}</button></div>
+      <label class="pp-search">${icon("search")}<input type="search" aria-label="Поиск страниц" placeholder="Название или адрес" value="${esc(state.pageQuery || "")}"></label>
+      <div class="pp-filters" role="group" aria-label="Какие страницы показать">
+        ${PAGE_FILTERS.map(([value, label]) => `<button data-act="pp-filter" data-filter="${value}" aria-pressed="${filter === value}">${label}</button>`).join("")}
+      </div>
     </div>
-    ${body}
+    <div class="pp-scroll">${currentPageMarkup(currentProtoPage())}<div class="pp-list">${pageListMarkup()}</div></div>
   </section>`;
 }
 function renderProto() {
@@ -478,12 +515,29 @@ function renderProto() {
     ${state.protoOpen ? `<section class="proto-panel"><h3>Роль пользователя</h3><p>Служебная панель прототипа. Показывает, как страница меняется для каждой роли</p>
       <div class="roles">${Object.entries(ROLES).map(([id, r]) => `<button data-act="role" data-role="${id}" aria-pressed="${state.role === id}">${r.label}<span>${hints[id] || ""}</span></button>`).join("")}</div></section>` : ""}
     ${state.pagesOpen ? pagesPanel() : ""}
-    <button class="proto-pages" data-act="pages" aria-label="Все страницы прототипа" aria-expanded="${state.pagesOpen}">${icon("pages", "lg")}</button>
+    <button class="proto-pages" data-act="pages" aria-expanded="${state.pagesOpen}">${icon("pages")}Страницы</button>
     <button class="proto-btn" data-act="proto" aria-expanded="${state.protoOpen}">Роль: ${ROLES[state.role].label}${icon("down")}</button>
   </div>`;
-  const list = $(".pp-list"), here = $(".pp-card.here");
-  if (list && here) list.scrollTop = here.offsetTop - list.offsetTop - list.clientHeight / 2 + here.offsetHeight / 2;
 }
+function togglePages() {
+  state.pagesOpen = !state.pagesOpen;
+  state.protoOpen = false;
+  state.pageQuery = "";
+  state.pageFilter = "available";
+  if (state.pagesOpen) loadIssues();
+  renderProto();
+  $(state.pagesOpen ? ".pages-panel [data-act=pages]" : ".proto-pages")?.focus({ preventScroll: true });
+}
+function filterPages() {
+  refreshPageList();
+  const scroll = $(".pp-scroll"), list = $(".pp-list");
+  if (scroll && list) scroll.scrollTop = Math.min(scroll.scrollTop, list.offsetTop);
+}
+document.addEventListener("input", (event) => {
+  if (!event.target.matches(".pp-search input")) return;
+  state.pageQuery = event.target.value;
+  filterPages();
+});
 
 /* ---------- Рендер ---------- */
 function render() { renderHeader(); renderProto(); PAGE.render(); }
@@ -509,7 +563,10 @@ document.addEventListener("keydown", (e) => {
     if (box.classList.contains("dp")) { openDP(box); $(`.dp-day[tabindex="0"]`, ddOpen.pop)?.focus(); } else openDD(box);
     return;
   }
-  if (e.key === "Escape") { closeModal(); closeDrawer(); closeNav(); if (state.pagesOpen) { state.pagesOpen = false; renderProto(); $(".proto-pages")?.focus(); } }
+  if (e.key === "Escape") {
+    if (state.pagesOpen) { togglePages(); return; }
+    closeModal(); closeDrawer(); closeNav();
+  }
 });
 
 const SHARED_ACTIONS = {
@@ -537,10 +594,12 @@ const SHARED_ACTIONS = {
   close: closeModal,
   "close-bg": closeModal,
   proto: () => { state.protoOpen = !state.protoOpen; state.pagesOpen = false; renderProto(); },
-  pages: () => { state.pagesOpen = !state.pagesOpen; state.protoOpen = false; state.ppChanges = null; if (state.pagesOpen) loadIssues(); renderProto(); },
-  "pp-tab": (el) => { state.ppTab = el.dataset.tab; renderProto(); },
-  "pp-changes": (el) => { state.ppChanges = el.dataset.path; renderProto(); },
-  "pp-back": () => { state.ppChanges = null; renderProto(); },
+  pages: togglePages,
+  "pp-filter": (el) => {
+    state.pageFilter = el.dataset.filter;
+    for (const button of $$(".pp-filters button")) button.setAttribute("aria-pressed", button === el);
+    filterPages();
+  },
   "page-go": () => { state.pagesOpen = false; renderProto(); },
   role: (el) => { state.protoOpen = false; setRole(el.dataset.role); },
 };
