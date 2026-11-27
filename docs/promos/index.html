@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css?v=202611280246">
+<link rel="stylesheet" href="../shared/sous.css?v=202611280250">
 <style>
 .qr-box{width:176px;height:176px;margin:4px auto 14px;padding:14px;border-radius:14px;background:#fff;display:grid;place-items:center}
 .qr-code{text-align:center;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:16px;font-weight:700;letter-spacing:.08em;color:var(--text)}
@@ -30,8 +30,8 @@
 <div id="toast-root" class="toasts" aria-live="polite"></div>
 <div id="proto-root"></div>
 
-<script src="../shared/pages.js?v=202611280246"></script>
-<script src="../shared/sous.js?v=202611280246"></script>
+<script src="../shared/pages.js?v=202611280250"></script>
+<script src="../shared/sous.js?v=202611280250"></script>
 <script>
 /* =========================================================
    Кешбэк и акции: данные и состояние
@@ -224,7 +224,7 @@ function promoCard(p) {
   const active = state.activated.has(p.id);
   let action = "";
   if (mine) {
-    action = `<button class="btn sm" data-act="details" data-id="${p.id}">Условия и статистика</button>`;
+    action = `<a class="btn sm" href="#/v/${p.id}">Условия и статистика</a>`;
   } else if (p.kind === "cashback") {
     action = active
       ? `<span class="btn sm done">${icon("check")}Вы участвуете</span>`
@@ -239,7 +239,7 @@ function promoCard(p) {
   return `<article class="card ${mine ? "mine" : ""}">
     <div class="c-main">
       ${mine ? `<span class="mine-tag">${icon("dot")}Ваша акция</span>` : ""}
-      <h2 class="c-title"><a href="#/p/${p.id}" data-act="details" data-id="${p.id}">${esc(p.title)}</a></h2>
+      <h2 class="c-title"><a href="#/v/${p.id}">${esc(p.title)}</a></h2>
       <div class="c-org">${esc(p.org)}${p.verified ? verifiedMark() : ""}</div>
       <div class="meta"><span>${icon("pin")}${p.city}</span><span>${icon("clock")}${esc(p.until)}</span><span>${icon("zap")}${mechLabel}</span><span>${esc(p.left)}</span></div>
       <p class="c-desc">${esc(p.desc)}</p>
@@ -292,6 +292,83 @@ function catalogView() {
         ${list}
       </section>
     </div>`;
+}
+
+function detailView(id) {
+  document.body.className = "detail-page";
+  const p = PROMOS.find((x) => x.id === id);
+  if (!p) return `<div class="wrap detail"><a class="back" href="#/">${icon("back")}Все акции</a><div class="empty"><h3>Акция завершена</h3><p>Посмотрите другие предложения партнёров</p><a class="btn" href="#/">К акциям</a></div></div>`;
+  document.title = `${p.title} · ${p.org} · СОУС`;
+  const mine = isMine(p);
+  const active = state.activated.has(p.id);
+  const mechLabel = p.kind === "cashback" ? "Растущий кешбэк" : "Скидка по QR";
+  const related = PROMOS.filter((x) => x.id !== p.id).slice(0, 3);
+
+  let card, mbar = "";
+  if (mine) {
+    card = `<section class="panel action-card">
+      <span class="mine-tag">${icon("dot")}Ваша акция</span>
+      <div class="stat-row"><div><b class="num">${p.benefit}</b><span>выгода</span></div><div><b class="num">${p.city}</b><span>регион</span></div></div>
+      <button class="btn" data-act="unpublish" data-id="${p.id}">Снять акцию</button>
+    </section>`;
+  } else {
+    let mainBtn = "";
+    if (p.kind === "cashback") {
+      mainBtn = active
+        ? `<a class="btn primary lg block" href="${pageHref("/promos/cashback/promo-001")}">Загрузить чек</a>`
+        : `<button class="btn primary lg block" data-act="activate" data-id="${p.id}">Участвовать в кешбэке</button>`;
+      mbar = active
+        ? `<a class="btn primary" href="${pageHref("/promos/cashback/promo-001")}">Загрузить чек</a>`
+        : `<button class="btn primary" data-act="activate" data-id="${p.id}">Участвовать</button>`;
+    } else {
+      mainBtn = active
+        ? `<button class="btn primary lg block" data-act="qr" data-id="${p.id}">Показать QR-код</button>`
+        : `<button class="btn primary lg block" data-act="activate" data-id="${p.id}">Получить QR-код</button>`;
+      mbar = `<button class="btn primary" data-act="${active ? "qr" : "activate"}" data-id="${p.id}">${active ? "Показать QR" : "Получить QR"}</button>`;
+    }
+    card = `<section class="panel action-card">
+      <div class="money num">${esc(p.benefit)}<small>${esc(p.benefitSub)}</small></div>
+      ${mainBtn}
+      <button class="btn block fav" data-act="fav" data-id="${p.id}" aria-pressed="${state.fav.has(p.id)}">${icon("bookmark")}${state.fav.has(p.id) ? "В избранном" : "Сохранить"}</button>
+    </section>`;
+  }
+
+  return `<div class="wrap detail">
+    <a class="back" href="#/">${icon("back")}Все акции</a>
+    <div class="d-grid">
+      <div class="d-main">
+        <section class="panel d-head">
+          <h1>${esc(p.title)}</h1>
+          <div class="d-org"><div><b>${esc(p.org)}</b><span class="parts">${p.verified ? `<span class="verified">${icon("badge")}Партнёр проверен</span>` : ""}<span>${p.city}</span></span></div></div>
+          <div class="facts">
+            <div><b class="num">${esc(p.benefit)}</b><span>${esc(p.benefitSub)}</span></div>
+            <div><b>${esc(p.until)}</b><span>срок действия</span></div>
+            <div><b>${mechLabel}</b><span>механика</span></div>
+            <div><b>${esc(p.left)}</b><span>лимит</span></div>
+          </div>
+        </section>
+        <section class="panel"><h2>Описание акции</h2><p class="prose">${esc(p.desc)}</p></section>
+        <section class="panel"><h2>Условия и как воспользоваться</h2><ul class="bullets">${p.terms.map((t) => `<li>${icon("check")}<span>${esc(t)}</span></li>`).join("")}</ul></section>
+        <section class="panel"><h2>Где действует</h2><p class="place">${icon("pin", "lg")}<span>${esc(p.city)}. ${p.kind === "cashback" ? "После оказания услуги загрузите чек в программе кешбэка" : "Покажите QR-код сотруднику до оплаты услуги"}</span></p></section>
+        <button class="report" data-act="report">${icon("flag")}Пожаловаться на акцию</button>
+      </div>
+      <aside class="aside">
+        ${card}
+        <section class="panel org-card">
+          <div class="d-org"><span class="tile">${initials(p.org)}</span><div><b>${esc(p.org)}</b><span>${p.city}</span></div></div>
+          <div class="org-line"><span>Рейтинг</span><b class="num">${p.verified ? "9,8/10" : "Пока нет отзывов"}</b></div>
+          <div class="org-line"><span>Активных акций</span><b class="num">${PROMOS.filter((x) => x.org === p.org).length}</b></div>
+          <a class="btn block" href="${pageHref("/companies/company-001")}">Профиль партнёра</a>
+        </section>
+        ${p.kind === "cashback" ? `<section class="panel"><h2>Растущий кешбэк</h2><p class="prose" style="font-size:13px;color:var(--text-2);margin-bottom:12px">Сумма возврата увеличивается с каждой новой активацией. Отслеживайте начисления в программе.</p><a class="btn block" href="${pageHref("/promos/cashback/promo-001")}">Страница программы</a></section>` : ""}
+      </aside>
+    </div>
+    <section class="related">
+      <h2>Другие акции</h2>
+      <div class="related-grid">${related.map((x) => `<a class="mini" href="#/v/${x.id}"><b>${esc(x.title)}</b><span>${esc(x.org)}, ${x.city}</span><span class="money num">${esc(x.benefit)}</span></a>`).join("")}</div>
+    </section>
+  </div>
+  ${mbar ? `<div class="mbar"><div class="money num">${esc(p.benefit)}<small>${esc(p.benefitSub)}</small></div>${mbar}</div>` : ""}`;
 }
 
 function qrSvgMarkup(code) {
@@ -396,9 +473,10 @@ document.addEventListener("submit", (e) => {
 const PAGE = {
   section: "/promos",
   textLogo: true,
-  currentPath: () => "/promos",
+  currentPath: () => route().startsWith("/v/") ? "/promos/:id" : "/promos",
   render() {
-    $("#app").innerHTML = catalogView();
+    const m = route().match(/^\/v\/([\w-]+)/);
+    $("#app").innerHTML = m ? detailView(m[1]) : catalogView();
   },
   onDD(key, v) {
     if (key === "search-city") state.city = v;
@@ -499,9 +577,16 @@ const PAGE = {
     unpublish: (el, e, id) => {
       PROMOS = PROMOS.filter((x) => x.id !== id);
       closeModal();
+      location.hash = "#/";
       render();
       toast("Акция снята с публикации", "");
     },
+    report: () => openModal(`${mHead("Пожаловаться на акцию")}
+      <form class="m-body" id="mform">
+        <label class="field"><span>Причина</span><textarea class="textarea" placeholder="Что не так с акцией"></textarea></label>
+      </form>
+      <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="report-send">Отправить</button></div>`),
+    "report-send": () => { closeModal(); toast("Жалоба отправлена", "Мы проверим акцию"); },
   },
 };
 

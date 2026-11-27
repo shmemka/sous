@@ -1,6 +1,6 @@
-# Кешбэк и акции (`/promos`)
+# Кешбэк и акции (`/promos` и `/promos/:id`)
 
-[Каталог акций](https://shmemka.github.io/sous/promos/#/).
+[Каталог акций](https://shmemka.github.io/sous/promos/#/) и [детальная акции](https://shmemka.github.io/sous/promos/#/v/promo-001).
 
 ## Что изменилось
 - Убраны три строки промо-статистики в шапке, оставлен один счётчик над списком.
