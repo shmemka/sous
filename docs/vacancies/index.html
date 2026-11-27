@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Вакансии и резюме · СОУС</title>
 <meta name="description" content="Переработанная страница вакансий и резюме платформы СОУС: структура, сценарии и состояния под роли">
-<link rel="icon" href="../assets/logo.png">
+<link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css?v=202611280200">
-<link rel="stylesheet" href="designs.css?v=202611280200">
+<link rel="stylesheet" href="../shared/sous.css?v=202611280247">
+<link rel="stylesheet" href="designs.css?v=202611280247">
 </head>
 <body>
 <a class="sr-only" href="#app">Перейти к содержимому</a>
@@ -22,7 +22,7 @@
 <div id="proto-root"></div>
 
 <script src="../shared/pages.js?v=202611280111"></script>
-<script src="../shared/sous.js?v=202611280200"></script>
+<script src="../shared/sous.js?v=202611280247"></script>
 <script>
 /* =========================================================
    Вакансии и резюме: данные
@@ -163,47 +163,128 @@ function vacancyCard(v) {
   </article>`;
 }
 
+function marketPanel(items, design) {
+  const verified = items.filter((v) => v.verified).length;
+  const entry = items.filter((v) => v.exp === "Без опыта").length;
+  const shift = items.filter((v) => v.schedule === "Сменный").length;
+  const top = items.length ? Math.max(...items.map((v) => v.to || v.from)) : 0;
+  const figures = [[verified, "Проверены"], [entry, "Без опыта"], [shift, "Сменный график"]];
+  if (design === "sprint") {
+    return `<section class="market market-rings"><h2>По вашей подборке</h2>
+      <div class="rings">${figures.map(([n, label]) => `<div>
+        <span class="ring num" style="--arc:${items.length ? 100 * n / items.length : 0}%">${n}<small>из ${items.length}</small></span>
+        <span>${label}</span>
+      </div>`).join("")}</div></section>`;
+  }
+  if (design === "redline") {
+    return `<section class="market market-stats" aria-label="Сводка по вакансиям">
+      ${[[items.length, "Вакансии"], [verified, "С проверкой компании"], [new Set(items.map((v) => v.city)).size, "Города"], [top ? `${fmt(top)} ₽` : "Нет данных", "Доход до"]].map(([n, label]) => `<div><span>${label}</span><b class="num">${n}</b></div>`).join("")}</section>`;
+  }
+  return `<section class="market market-feature">
+    <h2>В подборке ${plural(items.length, "вакансия", "вакансии", "вакансий")}</h2>
+    <div class="feature-track" aria-hidden="true"><span style="--share:${VACANCIES.length ? 100 * items.length / VACANCIES.length : 0}%"></span></div>
+    <p>${verified} с проверкой компании${top ? `<span>До ${fmt(top)} ₽ в месяц</span>` : ""}</p>
+  </section>`;
+}
+
+function resultsSide(items, design) {
+  if (design === "redline") {
+    const v = items[0];
+    return v ? `<aside class="market spotlight"><h2>Первая в выдаче</h2>
+      <div><span>${esc(v.org)}</span><h3>${esc(v.title)}</h3><b class="money num">${salary(v.from, v.to)}</b></div>
+      <p>${esc(v.desc)}</p>
+      <div class="meta"><span>${icon("pin")}${v.city}</span><span>${icon("clock")}${v.schedule}</span></div>
+      <a class="btn primary" href="#/v/${v.id}">Открыть вакансию ${icon("right")}</a>
+    </aside>` : "";
+  }
+  if (design === "sprint") {
+    const cities = CITIES.slice(1).map((city) => [city, items.filter((v) => v.city === city).length]);
+    return `<aside class="market market-cities"><h2>Вакансии по городам</h2>
+      ${cities.map(([city, n]) => `<div><span>${city}</span><b class="num">${n}</b>
+        <span class="city-track" aria-hidden="true"><i style="--share:${items.length ? 100 * n / items.length : 0}%"></i></span></div>`).join("")}
+    </aside>`;
+  }
+  return `<aside class="market market-specs"><h2>Специализации</h2>
+    ${SPECS.filter((spec) => VACANCIES.some((v) => v.spec === spec)).map((spec) => `
+      <button class="spec-tile" data-act="quick-spec" data-spec="${esc(spec)}" aria-pressed="${state.f.spec.has(spec)}"><span>${spec}</span><b class="num">${VACANCIES.filter((v) => v.spec === spec).length}</b></button>`).join("")}
+  </aside>`;
+}
+
 function resultsMarkup() {
   const items = filtered();
   const chips = activeChips();
   const word = plural(items.length, "вакансия", "вакансии", "вакансий");
+  const design = vacancyDesign();
   const list = items.length
     ? `<div class="list">${items.map(vacancyCard).join("")}</div>`
     : `<div class="empty">${icon("search", "lg")}<h3>Ничего не нашлось</h3><p>Попробуйте другой город, уберите требования к опыту или сбросьте фильтры</p><button class="btn" data-act="reset">Сбросить фильтры</button></div>`;
-  return `<div class="toolbar">
+  const toolbar = `<div class="toolbar">
       <p class="count"><b class="num">${word.split(" ")[0]}</b> ${word.split(" ").slice(1).join(" ")}</p>
       <button class="btn sm filters-btn" data-act="sheet">${icon("sliders")}Фильтры${chips.length ? `<span class="badge-n num">${chips.length}</span>` : ""}</button>
       <div class="sort-wrap">${dd({ key: "sort", value: state.sort, options: [["new", "Сначала новые"], ["salary", "Сначала с большей зарплатой"]], variant: "compact", label: "Сортировка" })}</div>
     </div>
     ${chips.length ? `<div class="chips">${chips.map(([k, v, l]) => `<button class="chip" data-act="unchip" data-k="${k}" data-v="${esc(v)}" aria-label="Убрать фильтр «${esc(l)}»">${esc(l)}${icon("x")}</button>`).join("")}<button class="link" data-act="reset" style="font-size:13px">Сбросить всё</button></div>` : ""}
-    ${roleNote()}
-    ${list}`;
+    ${roleNote()}`;
+  const listing = `${toolbar}${list}`;
+  if (!design || design === "original-html") return listing;
+  const summary = marketPanel(items, design);
+  const side = resultsSide(items, design);
+  return `<div class="market-layout">${summary}<div class="market-results">${listing}</div>${side}</div>`;
+}
+
+function searchForm() {
+  return `<form class="search" role="search" data-act-submit="search">
+    <label class="s-field"><span class="sr-only">Поиск</span>${icon("search", "lg")}<input id="q" type="search" value="${esc(state.q)}" placeholder="Должность или компания" autocomplete="off"></label>
+    <div class="s-field s-city">${dd({ key: "search-city", name: "city", value: state.city, options: CITIES, variant: "bare", iconName: "pin", label: "Город" })}</div>
+    <button class="btn primary" type="submit">Найти</button>
+  </form>`;
+}
+
+function workLinks() {
+  return `<nav class="work-links" aria-label="Работа">
+    <a class="btn primary" href="#/?design=original-html" aria-current="page">Вакансии</a>
+    <a class="btn" href="${pageHref("/specialists")}">Резюме</a>
+    <a class="btn" href="${pageHref("/companies")}">Компании</a>
+    <a class="btn" href="${pageHref("/gigs")}">Подработки</a>
+  </nav>`;
+}
+
+function catalogFilters() {
+  return `<aside class="filters" aria-label="Фильтры">
+    <div class="filters-head"><h2>Фильтры</h2>${activeChips().length ? `<button class="link" data-act="reset">Сбросить</button>` : ""}</div>
+    ${filtersMarkup()}
+  </aside>`;
 }
 
 function catalogView() {
   document.body.className = "catalog-page";
   document.title = "Вакансии · СОУС";
   const design = vacancyDesign();
-  const quickFilters = design === "graphite" ? `<div class="vacancy-quick" role="group" aria-label="Специализация">
-    ${SPECS.filter((spec) => VACANCIES.some((vacancy) => vacancy.spec === spec)).map((spec) => `
-      <button class="btn sm" data-act="quick-spec" data-spec="${esc(spec)}" aria-pressed="${state.f.spec.has(spec)}">${esc(spec)}</button>`).join("")}
-  </div>` : "";
+  const lead = design
+    ? `<p class="lead">Работа в автомойках, детейлинг-студиях и автосервисах</p>`
+    : `<p class="lead">Постоянная работа в автомойках, детейлинг-студиях и автосервисах. Разовые смены ищите в разделе <a class="link accent" href="${pageHref("/gigs")}">Подработки</a></p>`;
+  const heading = `<div class="head-row"><h1>${design === "original-html" ? "Вакансии и резюме" : "Вакансии"}</h1>${design === "original-html" ? "" : headAction()}</div>`;
+  const results = `<section id="results" aria-live="polite">${resultsMarkup()}</section>`;
+  if (design === "sprint" || design === "redline") {
+    return `<div class="wrap desk">
+      ${catalogFilters()}
+      <div class="desk-main">
+        <section class="head desk-head"><div class="head-in">${heading}${searchForm()}</div></section>
+        ${results}
+      </div>
+    </div>`;
+  }
   return `<section class="head"><div class="wrap head-in">
-      <div class="head-row"><h1>Вакансии</h1>${headAction()}</div>
-      <p class="lead">Постоянная работа в автомойках, детейлинг-студиях и автосервисах. Разовые смены ищите в разделе <a class="link accent" href="${pageHref("/gigs")}">Подработки</a></p>
-      <form class="search" role="search" data-act-submit="search">
-        <label class="s-field"><span class="sr-only">Поиск</span>${icon("search", "lg")}<input id="q" type="search" value="${esc(state.q)}" placeholder="Должность или компания" autocomplete="off"></label>
-        <div class="s-field s-city">${dd({ key: "search-city", name: "city", value: state.city, options: CITIES, variant: "bare", iconName: "pin", label: "Город" })}</div>
-        <button class="btn primary" type="submit">Найти</button>
-      </form>
-      ${quickFilters}
+      ${heading}${lead}
+      ${design === "original-html" ? `${workLinks()}
+        <div class="reference-tools">${searchForm()}
+          <button class="btn" data-act="sheet">${icon("sliders")}Фильтры</button>
+          ${headAction()}
+        </div>` : searchForm()}
     </div></section>
     <div class="wrap catalog">
-      <aside class="filters" aria-label="Фильтры">
-        <div class="filters-head"><h2>Фильтры</h2>${activeChips().length ? `<button class="link" data-act="reset" style="font-size:13px">Сбросить</button>` : ""}</div>
-        ${filtersMarkup()}
-      </aside>
-      <section id="results" aria-live="polite">${resultsMarkup()}</section>
+      ${design ? "" : catalogFilters()}
+      ${results}
     </div>`;
 }
 
@@ -356,7 +437,6 @@ function filtersSheet() {
 function renderResults() {
   const el = $("#results");
   if (el) el.innerHTML = resultsMarkup();
-  $$("[data-act=quick-spec]").forEach((button) => button.setAttribute("aria-pressed", state.f.spec.has(button.dataset.spec)));
   const fh = $(".filters-head");
   if (fh) fh.innerHTML = `<h2>Фильтры</h2>${activeChips().length ? `<button class="link" data-act="reset" style="font-size:13px">Сбросить</button>` : ""}`;
   const sa = $("#sheet-apply");
@@ -398,6 +478,7 @@ document.addEventListener("submit", (e) => { e.preventDefault(); if (e.target.da
    ========================================================= */
 const PAGE = {
   section: "/vacancies",
+  textLogo: true,
   currentPath: () => route().startsWith("/v/") ? "/vacancies/:id" : "/vacancies",
   render() {
     const m = route().match(/^\/v\/([\w-]+)/);
@@ -438,6 +519,7 @@ const PAGE = {
       if (state.f.spec.has(spec)) state.f.spec.delete(spec);
       else state.f.spec.add(spec);
       syncFilterInputs(); renderResults();
+      $$("[data-act=quick-spec]").find((button) => button.dataset.spec === spec)?.focus({ preventScroll: true });
     },
     unchip: (el, e, id) => {
       const { k, v } = el.dataset;

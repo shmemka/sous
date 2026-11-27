@@ -330,7 +330,7 @@ function renderHeader() {
        <a class="btn ghost icon-only hide-m" href="${pageHref("/notifications")}" aria-label="Уведомления">${icon("bell", "lg")}</a>
        <a class="avatar" href="${pageHref("/dashboard")}" title="Кабинет: ${esc(user.name)}">${user.initials}</a>`;
   $("#top").innerHTML = `<div class="top-in">
-    <a class="logo" href="${pageHref("/")}"><img src="../assets/logo.png" alt=""><span>СОУС</span></a>
+    <a class="logo" href="${pageHref("/")}">${PAGE.textLogo ? "" : '<img src="../assets/logo.png" alt="">'}<span>СОУС</span></a>
     <nav class="nav" aria-label="Разделы">${NAV.map(([title, items], i) => `
       <div class="nav-item" data-nav="${i}">
         <button class="nav-btn ${i === cur ? "current" : ""}" aria-expanded="false" data-act="nav" data-i="${i}">${title}${icon("down")}</button>
@@ -351,7 +351,7 @@ function mobileMenu() {
   wrap.dataset.act = "close-drawer";
   const r = state.role;
   wrap.innerHTML = `<aside class="drawer" role="dialog" aria-modal="true" aria-label="Меню">
-    <div class="drawer-head"><a class="logo" href="${pageHref("/")}"><img src="../assets/logo.png" alt=""><span>СОУС</span></a><button class="btn icon-only" data-act="close-drawer" aria-label="Закрыть">${icon("x", "lg")}</button></div>
+    <div class="drawer-head"><a class="logo" href="${pageHref("/")}">${PAGE.textLogo ? "" : '<img src="../assets/logo.png" alt="">'}<span>СОУС</span></a><button class="btn icon-only" data-act="close-drawer" aria-label="Закрыть">${icon("x", "lg")}</button></div>
     <div class="drawer-body">
       ${r === "guest" ? `<div class="grid2"><button class="btn" data-act="login">Войти</button><button class="btn primary" data-act="register">Регистрация</button></div>`
         : `<div class="grid2"><a class="btn" href="${pageHref("/messages")}">${icon("message")}Сообщения</a><a class="btn" href="${pageHref("/dashboard")}">Кабинет</a></div>`}
@@ -363,7 +363,7 @@ function mobileMenu() {
 function closeDrawer() { $(".drawer-wrap")?.remove(); document.body.classList.remove("lock"); }
 function renderFooter() {
   const f = $("#footer");
-  if (f) f.innerHTML = `<div class="wrap"><a class="logo" href="${pageHref("/")}"><img src="../assets/logo.png" alt=""><span>СОУС</span></a><span>Работа, автоуслуги, закупки и обучение для индустрии автоуслуг</span><nav><a href="${pageHref("/contacts")}">Контакты</a><a href="${pageHref("/terms")}">Оферта</a><a href="${pageHref("/privacy")}">Приватность</a></nav></div>`;
+  if (f) f.innerHTML = `<div class="wrap"><a class="logo" href="${pageHref("/")}">${PAGE.textLogo ? "" : '<img src="../assets/logo.png" alt="">'}<span>СОУС</span></a><span>Работа, автоуслуги, закупки и обучение для индустрии автоуслуг</span><nav><a href="${pageHref("/contacts")}">Контакты</a><a href="${pageHref("/terms")}">Оферта</a><a href="${pageHref("/privacy")}">Приватность</a></nav></div>`;
 }
 
 /* ---------- Окна, вход, уведомления ---------- */
@@ -432,9 +432,10 @@ const pageStatus = (page) => page.status === "review" && state.issues?.[page.iss
 const ST_LABEL = { review: "На проверке", done: "Готово", wip: "В работе", todo: "Не начато" };
 const PAGE_FILTERS = [["available", "Доступные"], ["review", "На проверке"], ["all", "Все"]];
 const VACANCY_DESIGNS = [
-  { id: "studio", title: "Светлая студия", description: "Тёплый фон, иллюстрация и просторные карточки" },
-  { id: "graphite", title: "Графит", description: "Мягкий градиент и сетка из двух колонок" },
-  { id: "compact", title: "Компактный каталог", description: "Светлый фон, короткие строки и зарплата на виду" },
+  { id: "original-html", title: "В духе СОУС", description: "Композиция HTML-референса, горизонтальный поиск и сетка карточек" },
+  { id: "sprint", title: "Графит и медь", description: "Боковые фильтры, модульная выдача и круговые показатели" },
+  { id: "redline", title: "Красная линия", description: "Компактный список, сводка и выделенная вакансия справа" },
+  { id: "ember", title: "Тлеющий градиент", description: "Крупная мозаика с обзором вакансий и специализациями" },
 ];
 const currentProtoPage = () => window.SOUS_PAGES.flatMap((group) => group.pages)
   .find((page) => page.path === (PAGE.currentPath?.() || PAGE.section));

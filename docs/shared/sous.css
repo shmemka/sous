@@ -417,9 +417,10 @@ a.pp-row:hover{background:var(--fill-2)}
 .pp-design>.icon{color:var(--text-3)}
 .pp-design[aria-current="true"]>.icon{color:var(--primary)}
 .pp-swatch{height:34px;border-radius:6px}
-.pp-swatch-studio{background:linear-gradient(145deg,#fff8ee 58%,#ec693c 59%)}
-.pp-swatch-graphite{background:linear-gradient(145deg,#455a73 58%,#ff8a57 59%)}
-.pp-swatch-compact{background:linear-gradient(145deg,#eef2f7 58%,#314760 59%)}
+.pp-swatch-original-html{background:linear-gradient(140deg,#281a15 58%,#f45426 59%)}
+.pp-swatch-sprint{background:linear-gradient(140deg,#333130 58%,#e66c47 59%)}
+.pp-swatch-redline{background:linear-gradient(140deg,#302027 58%,#dc234b 59%)}
+.pp-swatch-ember{background:linear-gradient(140deg,#542b20 58%,#fa6132 59%)}
 .pp-original{margin:8px 0 0 8px}
 .pp-original[aria-current="true"]{font-weight:600}
 .st{width:8px;height:8px;flex:none;border-radius:50%;background:var(--fill-2);box-shadow:inset 0 0 0 1.5px var(--text-3);opacity:.7}
