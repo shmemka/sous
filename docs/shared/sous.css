@@ -245,7 +245,9 @@ ul{margin:0;padding:0;list-style:none}
 .money{font:700 28px/1 var(--font-display);white-space:nowrap}
 .money small{display:block;margin-top:4px;font:400 12px/1.3 var(--font-sans);color:var(--text-3)}
 .c-actions{position:relative;z-index:1;display:flex;align-items:center;gap:8px}
-.fav[aria-pressed="true"] .icon{color:var(--primary)}
+.fav[aria-pressed="false"] .icon .i-o{display:inline}
+.fav[aria-pressed="false"] .icon .i-f{display:none}
+.fav[aria-pressed="true"] .icon{color:var(--preview-accent,var(--primary))}
 .empty{display:grid;justify-items:center;gap:8px;padding:56px 24px;border-radius:var(--r-card);background:var(--surface);text-align:center}
 .empty h3{font:700 28px/1.1 var(--font-display)}
 .empty p{max-width:420px;color:var(--text-2);font-size:14px}

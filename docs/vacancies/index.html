@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css?v=202611280247">
+<link rel="stylesheet" href="../shared/sous.css?v=202611280300">
 <link rel="stylesheet" href="designs.css?v=202611280247">
 </head>
 <body>
@@ -22,7 +22,7 @@
 <div id="proto-root"></div>
 
 <script src="../shared/pages.js?v=202611280111"></script>
-<script src="../shared/sous.js?v=202611280247"></script>
+<script src="../shared/sous.js?v=202611280300"></script>
 <script>
 /* =========================================================
    Вакансии и резюме: данные
@@ -147,7 +147,7 @@ function vacancyCard(v) {
   else if (r === "guest" || r === "worker") action = state.applied.has(v.id)
     ? `<span class="btn sm done">${icon("check")}Отклик отправлен</span>`
     : `<button class="btn sm" data-act="apply" data-id="${v.id}">Откликнуться</button>`;
-  const fav = mine ? "" : `<button class="btn sm ghost icon-only fav" data-act="fav" data-id="${v.id}" aria-pressed="${state.fav.has(v.id)}" aria-label="В избранное">${icon("heart", "lg")}</button>`;
+  const fav = mine ? "" : `<button class="btn sm ghost icon-only fav" data-act="fav" data-id="${v.id}" aria-pressed="${state.fav.has(v.id)}" aria-label="В избранное">${icon("bookmark", "lg")}</button>`;
   return `<article class="card ${mine ? "mine" : ""}">
     <div class="c-main">
       ${mine ? `<span class="mine-tag">${icon("dot")}Ваша вакансия${v.fresh ? `: ${plural(v.fresh, "новый отклик", "новых отклика", "новых откликов")}` : ""}</span>` : ""}
@@ -315,7 +315,7 @@ function detailView(id) {
     card = `<section class="panel action-card">
       <div class="money num">${salary(v.from, v.to)}<small>в месяц на руки</small></div>
       ${btn}
-      <button class="btn block fav" data-act="fav" data-id="${v.id}" aria-pressed="${state.fav.has(v.id)}">${icon("heart")}${state.fav.has(v.id) ? "В избранном" : "Сохранить"}</button>
+      <button class="btn block fav" data-act="fav" data-id="${v.id}" aria-pressed="${state.fav.has(v.id)}">${icon("bookmark")}${state.fav.has(v.id) ? "В избранном" : "Сохранить"}</button>
     </section>`;
     mbar = applied ? `<span class="btn done">${icon("check")}Отправлен</span>` : `<button class="btn primary" data-act="apply" data-id="${v.id}">Откликнуться</button>`;
   } else {

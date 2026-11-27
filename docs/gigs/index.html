@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css?v=202611280247">
+<link rel="stylesheet" href="../shared/sous.css?v=202611280300">
 <style>
 .when-line{display:flex;align-items:center;gap:12px;color:var(--text-2);font-size:15px;margin-top:12px}
 .when-line .icon{color:var(--text-3)}
@@ -26,7 +26,7 @@
 <div id="proto-root"></div>
 
 <script src="../shared/pages.js?v=202611280111"></script>
-<script src="../shared/sous.js?v=202611280247"></script>
+<script src="../shared/sous.js?v=202611280300"></script>
 <script>
 /* =========================================================
    Подработки и подмены: данные
@@ -218,7 +218,7 @@ function gigCard(g) {
   else if (r === "guest" || r === "worker") action = state.applied.has(g.id)
     ? `<span class="btn sm done">${icon("check")}Отклик отправлен</span>`
     : `<button class="btn sm" data-act="apply" data-id="${g.id}">Откликнуться</button>`;
-  const fav = mine || !["guest", "worker"].includes(r) ? "" : `<button class="btn sm ghost icon-only fav" data-act="fav" data-id="${g.id}" aria-pressed="${state.fav.has(g.id)}" aria-label="В избранное">${icon("heart", "lg")}</button>`;
+  const fav = mine || !["guest", "worker"].includes(r) ? "" : `<button class="btn sm ghost icon-only fav" data-act="fav" data-id="${g.id}" aria-pressed="${state.fav.has(g.id)}" aria-label="В избранное">${icon("bookmark", "lg")}</button>`;
   const chosen = state.chosen[g.id];
   let tag = "";
   if (mine) {
@@ -362,7 +362,7 @@ function detailView(id) {
   } else if (r === "guest" || r === "worker") {
     const btn = applied
       ? `<span class="btn lg block done">${icon("check")}Отклик отправлен</span><a class="btn block" href="${pageHref("/messages")}">${icon("message")}Перейти к диалогу</a>`
-      : `<button class="btn primary lg block" data-act="apply" data-id="${g.id}">Откликнуться</button><button class="btn block fav" data-act="fav" data-id="${g.id}" aria-pressed="${state.fav.has(g.id)}">${icon("heart")}${state.fav.has(g.id) ? "В избранном" : "Сохранить"}</button>`;
+      : `<button class="btn primary lg block" data-act="apply" data-id="${g.id}">Откликнуться</button><button class="btn block fav" data-act="fav" data-id="${g.id}" aria-pressed="${state.fav.has(g.id)}">${icon("bookmark")}${state.fav.has(g.id) ? "В избранном" : "Сохранить"}</button>`;
     card = `<section class="panel action-card">
       ${money}
       ${btn}
