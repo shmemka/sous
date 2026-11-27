@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Кешбэк и акции · СОУС</title>
+<meta name="description" content="Кешбэк и акции партнёров СОУС: скидки по QR, растущий кешбэк, фильтры по услугам и активация">
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/sous.css?v=202611280246">
+<style>
+.qr-box{width:176px;height:176px;margin:4px auto 14px;padding:14px;border-radius:14px;background:#fff;display:grid;place-items:center}
+.qr-code{text-align:center;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:16px;font-weight:700;letter-spacing:.08em;color:var(--text)}
+.qr-sub{text-align:center;font-size:13px;color:var(--text-3);margin-top:6px}
+.promo-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:12px;border-radius:var(--r-control);background:var(--fill)}
+.promo-facts div{display:grid;gap:2px}
+.promo-facts span{font-size:11px;color:var(--text-3)}
+.promo-facts b{font-size:13px;font-weight:600}
+@media(max-width:520px){.promo-facts{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<a class="sr-only" href="#app">Перейти к содержимому</a>
+<header class="top" id="top"></header>
+<main id="app" tabindex="-1"></main>
+<footer class="footer" id="footer"></footer>
+<div id="modal-root"></div>
+<div id="toast-root" class="toasts" aria-live="polite"></div>
+<div id="proto-root"></div>
+
+<script src="../shared/pages.js?v=202611280246"></script>
+<script src="../shared/sous.js?v=202611280246"></script>
+<script>
+/* =========================================================
+   Кешбэк и акции: данные и состояние
+   ========================================================= */
+const CATEGORIES = ["Химчистка", "Керамика", "Мойка", "Полировка", "Диагностика", "Кросс-промо"];
+const MECHANICS = [["qr", "Скидка по QR"], ["cashback", "Растущий кешбэк"]];
+const PROMO_CITIES = ["Все города", "Вся Россия", ...CITIES.slice(1)];
+const MY_ORG = "Детейлинг Партнёр";
+
+let PROMOS = [
+  {
+    id: "promo-001",
+    title: "Кешбэк до 3 000 ₽ за химчистку салона",
+    org: "Детейлинг Партнёр",
+    city: "Москва",
+    verified: true,
+    category: "Химчистка",
+    kind: "cashback",
+    benefit: "до 3 000 ₽",
+    benefitSub: "кешбэк на карту",
+    benefitVal: 3000,
+    until: "До 30 ноября",
+    left: "Осталось 42 активации",
+    code: "SOUS-CB-001",
+    desc: "Получите услугу у партнёра, загрузите чек и получите кешбэк после проверки. Сумма возврата растёт с каждой новой активацией в программе.",
+    terms: ["Действует на полную и частичную химчистку", "Чек нужно загрузить в течение 3 дней после визита", "Выплата по СБП после проверки чека"],
+    days: 0,
+  },
+  {
+    id: "promo-002",
+    title: "Скидка 20% на керамическое покрытие",
+    org: "Shine&Go",
+    city: "Казань",
+    verified: true,
+    category: "Керамика",
+    kind: "qr",
+    benefit: "−20%",
+    benefitSub: "скидка по QR",
+    benefitVal: 2000,
+    until: "До 15 декабря",
+    left: "Осталось 18 из 50",
+    code: "SOUS-2026-8F42",
+    desc: "Скидка на комплекс восстановительной полировки и нанесения керамического покрытия кузова в два слоя.",
+    terms: ["Покажите QR администратору студии до оплаты", "Не суммируется с другими акциями студии", "Предварительная запись обязательна"],
+    days: 1,
+  },
+  {
+    id: "promo-003",
+    title: "Бесплатная диагностика ЛКП толщиномером",
+    org: "АвтоПрофи",
+    city: "Санкт-Петербург",
+    verified: true,
+    category: "Диагностика",
+    kind: "qr",
+    benefit: "0 ₽",
+    benefitSub: "по записи",
+    benefitVal: 500,
+    until: "До 20 декабря",
+    left: "Без ограничений",
+    code: "SOUS-2026-3D19",
+    desc: "Оценка состояния лакокрасочного покрытия, поиск перекрашенных элементов и рекомендации по полировке или защите плёнкой.",
+    terms: ["Длительность осмотра около 20 минут", "Покажите QR мастеру при приёмке", "Действует во всех филиалах сети"],
+    days: 2,
+  },
+  {
+    id: "promo-004",
+    title: "Скидка 500 ₽ на двухфазную мойку",
+    org: "CleanLab",
+    city: "Москва",
+    verified: true,
+    category: "Мойка",
+    kind: "qr",
+    benefit: "−500 ₽",
+    benefitSub: "скидка по QR",
+    benefitVal: 500,
+    until: "До 10 декабря",
+    left: "Осталось 29 из 100",
+    code: "SOUS-2026-7A04",
+    desc: "Бережная двухфазная мойка кузова, очистка дисков, сушка турбосушкой и уборка ковриков.",
+    terms: ["Действует в будние дни с 10:00 до 17:00", "Один QR-код на один визит"],
+    days: 3,
+  },
+  {
+    id: "promo-005",
+    title: "Кофе и лаунж в подарок при полировке",
+    org: "CoffeeBox & Detail",
+    city: "Вся Россия",
+    verified: false,
+    category: "Кросс-промо",
+    kind: "qr",
+    benefit: "Подарок",
+    benefitSub: "кросс-промо",
+    benefitVal: 300,
+    until: "До 31 декабря",
+    left: "Осталось 64 активации",
+    code: "SOUS-2026-9C11",
+    desc: "Пока автомобиль проходит полировку или оклейку, получите два авторских напитка в соседней кофейне-партнёре.",
+    terms: ["Покажите QR бариста после сдачи автомобиля в работу", "Действует у партнёров сети по всей России"],
+    days: 4,
+  },
+  {
+    id: "promo-006",
+    title: "Кешбэк 1 500 ₽ на полировку фар",
+    org: "Detail House",
+    city: "Екатеринбург",
+    verified: true,
+    category: "Полировка",
+    kind: "cashback",
+    benefit: "1 500 ₽",
+    benefitSub: "кешбэк по чеку",
+    benefitVal: 1500,
+    until: "До 25 декабря",
+    left: "Осталось 12 активаций",
+    code: "SOUS-CB-006",
+    desc: "Восстановление прозрачности передней оптики с последующей защитой полиуретаном. Возврат части оплаты после загрузки чека.",
+    terms: ["Загрузите фото чека в карточке программы", "Выплата в течение 24 часов после подтверждения"],
+    days: 5,
+  }
+];
+
+Object.assign(state, {
+  q: "",
+  city: "Все города",
+  tab: "all",
+  f: { category: new Set(), kind: new Set(), verified: false },
+  sort: "new",
+  activated: new Set(),
+  fav: new Set(),
+});
+
+const isMine = (p) => (state.role === "partner" && p.org === MY_ORG) || (state.role === "employer" && p.org === ROLES.employer.name);
+
+function filtered() {
+  const q = state.q.trim().toLowerCase();
+  const { category, kind, verified } = state.f;
+  let items = PROMOS.filter((p) => {
+    if (state.tab !== "all" && p.kind !== state.tab) return false;
+    if (q && ![p.title, p.org, p.category, p.desc].join(" ").toLowerCase().includes(q)) return false;
+    if (state.city !== "Все города" && p.city !== state.city && p.city !== "Вся Россия") return false;
+    if (category.size && !category.has(p.category)) return false;
+    if (kind.size && !kind.has(p.kind)) return false;
+    if (verified && !p.verified) return false;
+    return true;
+  });
+  items = [...items].sort((a, b) => state.sort === "benefit" ? b.benefitVal - a.benefitVal : a.days - b.days);
+  if (state.role === "partner" || state.role === "employer") items.sort((a, b) => isMine(b) - isMine(a));
+  return items;
+}
+
+function activeChips() {
+  const chips = [];
+  if (state.city !== "Все города") chips.push(["city", state.city, state.city]);
+  state.f.category.forEach((v) => chips.push(["category", v, v]));
+  state.f.kind.forEach((v) => chips.push(["kind", v, MECHANICS.find(([k]) => k === v)[1]]));
+  if (state.f.verified) chips.push(["verified", "1", "Проверенные партнёры"]);
+  return chips;
+}
+
+function headAction() {
+  if (state.role === "partner" || state.role === "employer") {
+    return `<button class="btn primary" data-act="create">${icon("plus")}<span class="l-full">Создать акцию</span><span class="l-short">Акция</span></button>`;
+  }
+  if (state.role === "client" || state.role === "worker") {
+    return `<a class="btn" href="${pageHref("/promos/my")}">${icon("zap")}<span class="l-full">Мои промокоды</span><span class="l-short">Промокоды</span></a>`;
+  }
+  return `<button class="btn" data-act="create">${icon("plus")}<span class="l-full">Разместить акцию</span><span class="l-short">Акция</span></button>`;
+}
+
+function roleNote() {
+  if (state.role === "supplier") {
+    return `<div class="note">${icon("info")}<p>Здесь размещаются скидки и кешбэк для автовладельцев. Оптовые предложения для студий находятся в <a href="${pageHref("/suppliers")}">каталоге поставщиков</a></p></div>`;
+  }
+  return "";
+}
+
+function filtersMarkup() {
+  const catCount = (v) => PROMOS.filter((p) => p.category === v).length;
+  const kindCount = (v) => PROMOS.filter((p) => p.kind === v).length;
+  return `<fieldset class="fgroup" style="border:0;margin:0;padding:0"><legend class="sr-only">Услуга</legend><b>Услуга</b>
+      ${CATEGORIES.filter((v) => catCount(v) || state.f.category.has(v)).map((v) => `<label class="check"><input type="checkbox" data-filter="category" value="${esc(v)}" ${state.f.category.has(v) ? "checked" : ""}><span>${v}</span><span class="c num">${catCount(v)}</span></label>`).join("")}
+    </fieldset>
+    <fieldset class="fgroup" style="border:0;margin:0;padding:0"><legend class="sr-only">Механика</legend><b>Механика</b>
+      ${MECHANICS.map(([k, label]) => `<label class="check"><input type="checkbox" data-filter="kind" value="${k}" ${state.f.kind.has(k) ? "checked" : ""}><span>${label}</span><span class="c num">${kindCount(k)}</span></label>`).join("")}
+    </fieldset>
+    <label class="toggle-row"><span>Только проверенные партнёры</span><input class="switch" type="checkbox" data-filter="verified" ${state.f.verified ? "checked" : ""}></label>`;
+}
+
+function promoCard(p) {
+  const mine = isMine(p);
+  const active = state.activated.has(p.id);
+  let action = "";
+  if (mine) {
+    action = `<button class="btn sm" data-act="details" data-id="${p.id}">Условия и статистика</button>`;
+  } else if (p.kind === "cashback") {
+    action = active
+      ? `<span class="btn sm done">${icon("check")}Вы участвуете</span>`
+      : `<button class="btn sm" data-act="activate" data-id="${p.id}">Участвовать</button>`;
+  } else {
+    action = active
+      ? `<button class="btn sm" data-act="qr" data-id="${p.id}">Показать QR</button>`
+      : `<button class="btn sm" data-act="activate" data-id="${p.id}">Получить QR</button>`;
+  }
+  const fav = mine ? "" : `<button class="btn sm ghost icon-only fav" data-act="fav" data-id="${p.id}" aria-pressed="${state.fav.has(p.id)}" aria-label="В избранное">${icon("bookmark", "lg")}</button>`;
+  const mechLabel = p.kind === "cashback" ? "Растущий кешбэк" : "По QR";
+  return `<article class="card ${mine ? "mine" : ""}">
+    <div class="c-main">
+      ${mine ? `<span class="mine-tag">${icon("dot")}Ваша акция</span>` : ""}
+      <h2 class="c-title"><a href="#/p/${p.id}" data-act="details" data-id="${p.id}">${esc(p.title)}</a></h2>
+      <div class="c-org">${esc(p.org)}${p.verified ? verifiedMark() : ""}</div>
+      <div class="meta"><span>${icon("pin")}${p.city}</span><span>${icon("clock")}${esc(p.until)}</span><span>${icon("zap")}${mechLabel}</span><span>${esc(p.left)}</span></div>
+      <p class="c-desc">${esc(p.desc)}</p>
+    </div>
+    <div class="c-side">
+      <div class="money num">${esc(p.benefit)}<small>${esc(p.benefitSub)}</small></div>
+      <div class="c-actions">${fav}${action}</div>
+    </div>
+  </article>`;
+}
+
+function catalogView() {
+  document.body.className = "catalog-page";
+  document.title = "Кешбэк и акции · СОУС";
+  const items = filtered();
+  const chips = activeChips();
+  const word = plural(items.length, "акция", "акции", "акций");
+  const tabs = `<div class="tabs" role="tablist" aria-label="Тип акций">
+    <button type="button" class="tab" role="tab" aria-selected="${state.tab === "all"}" data-act="tab" data-tab="all">Все акции</button>
+    <button type="button" class="tab" role="tab" aria-selected="${state.tab === "cashback"}" data-act="tab" data-tab="cashback">Кешбэк</button>
+    <button type="button" class="tab" role="tab" aria-selected="${state.tab === "qr"}" data-act="tab" data-tab="qr">По QR</button>
+  </div>`;
+  const list = items.length
+    ? `<div class="list">${items.map(promoCard).join("")}</div>`
+    : `<div class="empty">${icon("search", "lg")}<h3>Акций не нашлось</h3><p>Попробуйте другой город или сбросьте фильтры</p><button class="btn" data-act="reset">Сбросить фильтры</button></div>`;
+
+  return `<section class="head"><div class="wrap head-in">
+      <div class="head-row">${tabs}${headAction()}</div>
+      <h1>Кешбэк и акции</h1>
+      <p class="lead">Скидки по QR-коду и растущий кешбэк от проверенных студий и партнёров</p>
+      <form class="search" role="search" data-act-submit="search">
+        <label class="s-field"><span class="sr-only">Поиск</span>${icon("search", "lg")}<input id="q" type="search" value="${esc(state.q)}" placeholder="Услуга, акция или студия" autocomplete="off"></label>
+        <div class="s-field s-city">${dd({ key: "search-city", name: "city", value: state.city, options: PROMO_CITIES, variant: "bare", iconName: "pin", label: "Город" })}</div>
+        <button class="btn primary" type="submit">Найти</button>
+      </form>
+    </div></section>
+    <div class="wrap catalog">
+      <aside class="filters" aria-label="Фильтры">
+        <div class="filters-head"><h2>Фильтры</h2>${chips.length ? `<button class="link" data-act="reset">Сбросить</button>` : ""}</div>
+        ${filtersMarkup()}
+      </aside>
+      <section id="results" aria-live="polite">
+        <div class="toolbar">
+          <p class="count"><b class="num">${word.split(" ")[0]}</b> ${word.split(" ").slice(1).join(" ")}</p>
+          <button class="btn sm filters-btn" data-act="sheet">${icon("sliders")}Фильтры${chips.length ? `<span class="badge-n num">${chips.length}</span>` : ""}</button>
+          <div class="sort-wrap">${dd({ key: "sort", value: state.sort, options: [["new", "Сначала новые"], ["benefit", "Сначала с большей выгодой"]], variant: "compact", label: "Сортировка" })}</div>
+        </div>
+        ${chips.length ? `<div class="chips">${chips.map(([k, v, l]) => `<button class="chip" data-act="unchip" data-k="${k}" data-v="${esc(v)}" aria-label="Убрать фильтр «${esc(l)}»">${esc(l)}${icon("x")}</button>`).join("")}<button class="link" data-act="reset" style="font-size:13px">Сбросить всё</button></div>` : ""}
+        ${roleNote()}
+        ${list}
+      </section>
+    </div>`;
+}
+
+function qrSvgMarkup(code) {
+  let cells = "";
+  let seed = [...code].reduce((a, c) => a + c.charCodeAt(0), 17);
+  for (let y = 0; y < 9; y++) {
+    for (let x = 0; x < 9; x++) {
+      const corner = (x < 3 && y < 3) || (x > 5 && y < 3) || (x < 3 && y > 5);
+      seed = (seed * 37 + x * 13 + y * 7) % 97;
+      if (corner || seed % 2 === 0) {
+        cells += `<rect x="${x * 16}" y="${y * 16}" width="14" height="14" rx="2" fill="#121214"/>`;
+      }
+    }
+  }
+  return `<svg width="144" height="144" viewBox="0 0 144 144" aria-hidden="true">${cells}</svg>`;
+}
+
+function detailsModal(id) {
+  const p = PROMOS.find((x) => x.id === id);
+  if (!p) return;
+  const active = state.activated.has(p.id);
+  const cta = isMine(p)
+    ? `<button class="btn" data-act="unpublish" data-id="${p.id}">Снять акцию</button>`
+    : p.kind === "cashback"
+      ? (active ? `<a class="btn primary" href="${pageHref("/promos/cashback/promo-001")}">Перейти к программе</a>` : `<button class="btn primary" data-act="activate" data-id="${p.id}">Участвовать</button>`)
+      : `<button class="btn primary" data-act="${active ? "qr" : "activate"}" data-id="${p.id}">${active ? "Показать QR" : "Получить QR"}</button>`;
+  openModal(`${mHead(p.title, `${esc(p.org)}, ${p.city}`)}
+    <div class="m-body">
+      <div class="promo-facts">
+        <div><span>Выгода</span><b>${esc(p.benefit)}</b></div>
+        <div><span>Срок</span><b>${esc(p.until)}</b></div>
+        <div><span>Остаток</span><b>${esc(p.left)}</b></div>
+      </div>
+      <p class="prose">${esc(p.desc)}</p>
+      <ul class="bullets">${p.terms.map((t) => `<li>${icon("check")}<span>${esc(t)}</span></li>`).join("")}</ul>
+    </div>
+    <div class="m-foot"><button class="btn" data-act="close">Закрыть</button>${cta}</div>`);
+}
+
+function qrModal(id) {
+  const p = PROMOS.find((x) => x.id === id);
+  if (!p) return;
+  openModal(`${mHead("Покажите QR сотруднику", `${esc(p.title)}, ${esc(p.org)}`)}
+    <div class="m-body">
+      <div class="qr-box">${qrSvgMarkup(p.code)}</div>
+      <div class="qr-code">${esc(p.code)}</div>
+      <p class="qr-sub">Действует до оплаты услуги. Не сканируйте код самостоятельно</p>
+    </div>
+    <div class="m-foot"><button class="btn" data-act="close">Готово</button><a class="btn primary" href="${pageHref("/promos/my")}">Мои промокоды</a></div>`);
+}
+
+function createModal() {
+  const guest = state.role === "guest";
+  openModal(`${mHead("Новая акция", guest ? "Заполните форму, а опубликовать можно после входа" : "Акция сразу появится в каталоге")}
+    <form class="m-body" id="mform">
+      <label class="field"><span>Название акции</span><input class="input" name="title" required placeholder="Например, скидка 20% на керамику" autofocus></label>
+      <div class="grid2">
+        <div class="field"><span>Услуга</span>${dd({ key: "f-cat", name: "category", value: CATEGORIES[0], options: CATEGORIES })}</div>
+        <div class="field"><span>Механика</span>${dd({ key: "f-kind", name: "kind", value: "qr", options: MECHANICS })}</div>
+      </div>
+      <div class="grid2">
+        <label class="field"><span>Размер выгоды</span><input class="input" name="benefit" required placeholder="−20% или 2 000 ₽"></label>
+        <div class="field"><span>Действует до</span>${datePick({ key: "f-until", name: "until", value: "2026-12-15", min: "2026-11-28", label: "Действует до" })}</div>
+      </div>
+      <div class="grid2">
+        <div class="field"><span>Город</span>${dd({ key: "f-city", name: "city", value: "Москва", options: PROMO_CITIES.slice(1) })}</div>
+        <label class="field"><span>Лимит использований</span><input class="input num" name="limit" inputmode="numeric" placeholder="50" value="50"></label>
+      </div>
+      <label class="field"><span>Условия акции</span><textarea class="textarea" name="desc" required placeholder="На какие услуги распространяется и как воспользоваться"></textarea></label>
+    </form>
+    <div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" data-act="create-send">${guest ? "Сохранить и войти" : "Опубликовать акцию"}</button></div>`);
+}
+
+function filtersSheet() {
+  openModal(`${mHead("Фильтры")}<div class="m-body"><div class="sheet-filters" id="sheet"><div class="field"><span>Сортировка</span>${dd({ key: "sort", value: state.sort, options: [["new", "Сначала новые"], ["benefit", "Сначала с большей выгодой"]], label: "Сортировка" })}</div>${filtersMarkup()}</div></div>
+    <div class="m-foot"><button class="btn" data-act="reset">Сбросить</button><button class="btn primary" data-act="close" id="sheet-apply">Показать: ${filtered().length}</button></div>`);
+}
+
+function resetFilters() {
+  state.f = { category: new Set(), kind: new Set(), verified: false };
+  state.city = "Все города";
+  state.q = "";
+  const q = $("#q"); if (q) q.value = "";
+  render();
+}
+
+document.addEventListener("input", (e) => {
+  if (e.target.id === "q") { state.q = e.target.value; render(); }
+});
+document.addEventListener("change", (e) => {
+  const k = e.target.dataset.filter;
+  if (!k) return;
+  if (k === "verified") state.f.verified = e.target.checked;
+  else e.target.checked ? state.f[k].add(e.target.value) : state.f[k].delete(e.target.value);
+  render();
+});
+document.addEventListener("submit", (e) => {
+  e.preventDefault();
+  if (e.target.dataset.actSubmit === "search") $("#results")?.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+
+const PAGE = {
+  section: "/promos",
+  textLogo: true,
+  currentPath: () => "/promos",
+  render() {
+    $("#app").innerHTML = catalogView();
+  },
+  onDD(key, v) {
+    if (key === "search-city") state.city = v;
+    else if (key === "sort") state.sort = v;
+    else return false;
+    render();
+    return true;
+  },
+  authText(kind, id) {
+    return {
+      activate: ["Войдите, чтобы активировать акцию", `Промокод «${esc(PROMOS.find((x) => x.id === id)?.title || "")}» сохранится в вашем разделе`],
+      fav: ["Войдите, чтобы сохранить", "Избранные акции будут доступны в личном кабинете"],
+    }[kind];
+  },
+  loginRole: () => "client",
+  afterLogin(p) {
+    if (p.kind === "activate" && p.id) {
+      state.activated.add(p.id);
+      render();
+      const promo = PROMOS.find((x) => x.id === p.id);
+      if (promo?.kind === "qr") setTimeout(() => qrModal(p.id), 200);
+    }
+    if (p.kind === "fav" && p.id) { state.fav.add(p.id); render(); }
+  },
+  roleHints: {
+    guest: "смотрит без входа",
+    client: "получает скидки",
+    worker: "получает скидки",
+    employer: "создаёт акции студии",
+    partner: "создаёт акции и кешбэк",
+    supplier: "не целевая роль",
+  },
+  actions: {
+    reset: resetFilters,
+    tab: (el) => { state.tab = el.dataset.tab; render(); },
+    unchip: (el) => {
+      const { k, v } = el.dataset;
+      if (k === "city") state.city = "Все города";
+      else if (k === "verified") state.f.verified = false;
+      else state.f[k].delete(v);
+      render();
+    },
+    sheet: filtersSheet,
+    details: (el, e, id) => { e.preventDefault(); detailsModal(id); },
+    qr: (el, e, id) => qrModal(id),
+    activate: (el, e, id) => {
+      if (needAuth("activate", id)) return;
+      state.activated.add(id);
+      render();
+      const p = PROMOS.find((x) => x.id === id);
+      if (p?.kind === "cashback") {
+        closeModal();
+        toast("Вы участвуете в программе", "Загрузите чек после оказания услуги");
+      } else {
+        qrModal(id);
+      }
+    },
+    fav: (el, e, id) => {
+      if (needAuth("fav", id)) return;
+      state.fav.has(id) ? state.fav.delete(id) : state.fav.add(id);
+      toast(state.fav.has(id) ? "Сохранено в избранное" : "Убрано из избранного", "");
+      render();
+    },
+    create: () => createModal(),
+    "create-send": () => {
+      const f = $("#mform");
+      if (!f.reportValidity()) return;
+      if (state.role === "guest") {
+        closeModal();
+        toast("Черновик сохранён", "Войдите как партнёр, чтобы опубликовать");
+        setTimeout(() => setRole("partner"), 400);
+        return;
+      }
+      const d = Object.fromEntries(new FormData(f));
+      const limit = Number(String(d.limit).replace(/\D/g, "")) || 50;
+      PROMOS.unshift({
+        id: "promo-" + Date.now(),
+        title: d.title,
+        org: ROLES[state.role].name,
+        city: d.city,
+        verified: true,
+        category: d.category,
+        kind: d.kind,
+        benefit: d.benefit,
+        benefitSub: d.kind === "cashback" ? "кешбэк на карту" : "скидка по QR",
+        benefitVal: 1000,
+        until: "До " + d.until,
+        left: `Осталось ${limit} активаций`,
+        code: "SOUS-2026-" + Math.floor(1000 + Math.random() * 8999),
+        desc: d.desc,
+        terms: ["Покажите QR до оплаты услуги"],
+        days: 0,
+      });
+      closeModal();
+      render();
+      toast("Акция опубликована", "Она уже видна в каталоге");
+    },
+    unpublish: (el, e, id) => {
+      PROMOS = PROMOS.filter((x) => x.id !== id);
+      closeModal();
+      render();
+      toast("Акция снята с публикации", "");
+    },
+  },
+};
+
+start();
+</script>
+</body>
+</html>
