@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Заявки автовладельцев · СОУС</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/sous.css?v=202611280044">
+<style>
+.orders-list{max-width:1040px;padding-top:28px;padding-bottom:72px}
+.order-heading,.order-tools{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.order-tools{margin-bottom:16px}.order-tools .dd{min-width:180px}
+.orders-list .card,.detail .panel{overflow-wrap:anywhere}
+.order-media{display:flex;gap:12px;flex-wrap:wrap}.order-media img,.order-media video{display:block;width:220px;max-width:100%;max-height:230px;object-fit:contain;border-radius:var(--r-control)}
+.order-choice{color:var(--ok)}.order-offer{display:grid;gap:8px;padding:12px 0}
+@media(max-width:700px){.order-heading{align-items:start}.orders-list{padding-top:20px}.order-tools .dd{min-width:0}.mbar .btn{white-space:normal}}
+</style></head>
+<body>
+<a class="sr-only" href="#app">Перейти к содержимому</a>
+<header class="top" id="top"></header>
+<main id="app" tabindex="-1"></main>
+<footer class="footer" id="footer"></footer>
+<div id="modal-root"></div>
+<div id="toast-root" class="toasts" aria-live="polite"></div>
+<div id="proto-root"></div>
+
+<script src="../shared/pages.js?v=202611280044"></script>
+<script src="../shared/sous.js?v=202611280044"></script>
+<script>
+const services = ["Химчистка", "Озонирование", "Полировка", "Керамика", "Плёнки и PPF", "Мойка"];
+const bodyTypes = ["Седан", "Хэтчбек", "Кроссовер", "Внедорожник", "Минивэн", "Универсал"];
+const examples = [
+  {id:"order-001", service:"Химчистка", title:"Антибактериальная обработка", car:"Toyota RAV4", body:"Кроссовер", city:"Москва", area:"Сокол", address:"Демо-адрес, ул. Песчаная, 3", when:"На этой неделе", budget:"до 18 000 ₽", author:"Иван Михайлов", mine:true, description:"После перевозки животных нужна глубокая химчистка салона и обработка от запаха.", offers:[{role:"demo", name:"Студия Чистый салон", price:16500, timing:"В субботу, за один день", note:"Химчистка сидений и озонирование салона."}]},
+  {id:"order-002", service:"Керамика", title:"Керамическое покрытие", car:"BMW X5", body:"Кроссовер", city:"Казань", area:"Центр", address:"Демо-адрес, ул. Лесная, 8", when:"Гибкая дата", budget:"35 000–50 000 ₽", author:"Ольга Смирнова", description:"Нужна лёгкая подготовка лакокрасочного покрытия и нанесение керамики в два слоя.", offers:[]},
+  {id:"order-003", service:"Химчистка", title:"Полная химчистка салона", car:"Kia Rio", body:"Седан", city:"Санкт-Петербург", area:"Приморский район", address:"Демо-адрес, ул. Полевая, 6", when:"В выходные", budget:"до 15 000 ₽", author:"Сергей Петров", description:"Тканевые сиденья и потолок после длительной эксплуатации.", offers:[]}
+];
+let orders = examples.slice();
+let database;
+let filter = {query:"",city:CITIES[0],service:"Все услуги"};
+let mediaUrls = [];
+let pendingSubmit;
+const own = o => state.role === "client" && o.mine;
+const myOffer = o => o.offers.find(x => x.role === state.role);
+const mayOffer = () => ["guest","employer","worker"].includes(state.role);
+const linkTo = o => "#/v/" + o.id;
+const orderById = id => orders.find(o => o.id === id);
+const budgetText = o => o.budget || "По договорённости";
+
+function openDatabase() {
+  return new Promise((resolve,reject) => {
+    const req = indexedDB.open("sous-orders-v1",1);
+    req.onupgradeneeded = () => req.result.createObjectStore("orders",{keyPath:"id"});
+    req.onerror = () => reject(req.error);
+    req.onsuccess = () => resolve(req.result);
+  });
+}
+function reloadOrders() {
+  return new Promise((resolve,reject) => {
+    const req = database.transaction("orders").objectStore("orders").getAll();
+    req.onerror = () => reject(req.error);
+    req.onsuccess = () => {
+      const rows = new Map(examples.map(o => [o.id,o]));
+      for (const row of req.result) rows.set(row.id,row);
+      orders = [...rows.values()].sort((a,b) => (b.created || 0)-(a.created || 0));
+      resolve();
+    };
+  });
+}
+// Read and change the latest row in one transaction, including attached files.
+async function changeOrder(id, update) {
+  if (!database) throw Error("Хранилище браузера недоступно");
+  await new Promise((resolve,reject) => {
+    const tx = database.transaction("orders","readwrite");
+    const table = tx.objectStore("orders");
+    const req = table.get(id);
+    let failure;
+    req.onsuccess = () => {
+      try { table.put(update(req.result || examples.find(o => o.id === id))); }
+      catch (e) { failure = e; tx.abort(); }
+    };
+    tx.oncomplete = resolve;
+    tx.onabort = () => reject(failure || Error("Не удалось сохранить изменения"));
+  });
+  await reloadOrders();
+}
+function action(o) {
+  if (own(o)) return '<a class="btn" href="'+linkTo(o)+'#offers">Предложения ('+o.offers.length+')</a>';
+  if (o.selected) return '<span class="order-choice">Исполнитель выбран</span>';
+  if (myOffer(o)) return '<span class="order-choice">Предложение отправлено</span>';
+  if (mayOffer()) return '<button class="btn primary" data-act="offer" data-id="'+o.id+'">Предложить услуги</button>';
+  return "";
+}
+function card(o) {
+  return `<article class="card"><div class="c-main"><h2 class="c-title"><a href="${linkTo(o)}">${esc(o.title)}</a></h2><div class="c-org">${esc(o.car)}</div>
+    <div class="meta"><span>${icon("pin")}${esc(o.city)}, ${esc(o.area)}</span><span>${icon("calendar")}${esc(o.when)}</span></div>
+    <p class="c-desc">${esc(o.description)}</p></div><div class="c-side"><div class="money">${esc(budgetText(o))}</div><div class="c-actions">${action(o)}</div></div></article>`;
+}
+function catalog() {
+  const mine = route() === "/mine" && state.role === "client";
+  const rows = orders.filter(o => (!mine || own(o)) && (filter.city === CITIES[0] || o.city === filter.city) &&
+    (filter.service === "Все услуги" || o.service === filter.service) &&
+    [o.car,o.title,o.service,o.description].join(" ").toLowerCase().includes(filter.query.toLowerCase()));
+  return `<section class="head"><div class="wrap head-in"><div class="order-heading"><h1>Заявки автовладельцев</h1>
+    ${["guest","client"].includes(state.role)?'<button class="btn primary" data-act="create">'+icon("plus")+'Создать заявку</button>':""}</div>
+    <form class="search" id="search"><label class="s-field">${icon("search")}<span class="sr-only">Услуга или автомобиль</span><input type="search" name="query" placeholder="Услуга или автомобиль" value="${esc(filter.query)}"></label>
+    <div class="s-field s-city">${dd({key:"city",value:filter.city,options:CITIES,variant:"bare",label:"Город"})}</div><button class="btn primary">Найти</button></form></div></section>
+    <div class="wrap orders-list"><div class="order-tools"><div>${state.role === "client"?`<nav class="tabs"><a class="tab" role="tab" aria-selected="${!mine}" href="#/">Все заявки</a><a class="tab" role="tab" aria-selected="${mine}" href="#/mine">Мои заявки</a></nav>`:""} <span>${plural(rows.length,"заявка","заявки","заявок")}</span></div>
+    ${dd({key:"service",value:filter.service,options:["Все услуги",...services],label:"Услуга"})}</div>
+    <div class="list">${rows.length?rows.map(card).join(""):'<div class="empty"><h2>Заявок не найдено</h2><button class="btn" data-act="reset">Сбросить фильтры</button></div>'}</div></div>`;
+}
+function offerRows(o) {
+  const rows = own(o) ? o.offers : o.offers.filter(x => x.role === state.role);
+  if (!own(o) && !rows.length) return "";
+  return `<section class="panel" id="offers"><h2>${own(o)?"Предложения исполнителей":"Ваше предложение"}</h2>${rows.map(x => `<div class="order-offer"><b>${esc(x.name)}, ${fmt(x.price)} ₽</b><span>${esc(x.timing)}</span><p>${esc(x.note)}</p>
+    ${o.selected===x.role?'<strong class="order-choice">Исполнитель выбран</strong>':own(o)&&!o.selected?`<button class="btn" data-act="choose" data-id="${o.id}" data-role="${x.role}">Выбрать исполнителя</button>`:""}</div>`).join("") || "<p>Пока никто не откликнулся</p>"}</section>`;
+}
+function detail(o) {
+  if (!o) return '<div class="wrap detail"><h1>Заявка не найдена</h1><a class="btn" href="#/">Все заявки</a></div>';
+  const visibleAddress = own(o) || myOffer(o);
+  const media = (o.files || []).map(file => {
+    const url = URL.createObjectURL(file); mediaUrls.push(url);
+    return file.type.startsWith("video/")?`<video src="${url}" controls></video>`:`<a href="${url}" target="_blank" rel="noopener"><img src="${url}" alt="${esc(file.name)}"></a>`;
+  }).join("");
+  const cta = own(o)?'<button class="btn" data-act="see-offers">Посмотреть предложения</button>':action(o);
+  return `<div class="wrap detail"><a class="back" href="#/">${icon("back")}Все заявки</a><div class="d-grid"><div class="d-main"><section class="panel d-head"><h1>${esc(o.title)}</h1>
+    <div class="meta"><span>${esc(o.car)}, ${esc(o.body)}</span><span>${esc(o.author)}</span></div><p>${esc(o.description)}</p>${media?'<div class="order-media">'+media+'</div>':""}</section>
+    <section class="panel"><h2>Место и срок</h2><p>${esc(o.city)}, ${esc(o.area)}</p>${visibleAddress&&o.address?`<p>${esc(o.address)}</p>`:""}<p>${esc(o.when)}</p></section>${offerRows(o)}</div>
+    <aside class="aside"><section class="panel action-card"><h2>Бюджет</h2><div class="money">${esc(budgetText(o))}</div>${cta}</section></aside></div>
+    <div class="mbar"><div class="money">${esc(budgetText(o))}</div>${cta}</div></div>`;
+}
+function field(label,name,attributes="required") {
+  return `<label class="field"><span>${label}</span><input class="input" name="${name}" ${attributes}></label>`;
+}
+function formModal(title,id,fields,button) {
+  openModal(mHead(title)+`<form class="m-body" id="${id}">${fields}</form><div class="m-foot"><button class="btn" data-act="close">Отмена</button><button class="btn primary" type="submit" form="${id}">${button}</button></div>`);
+}
+function createForm() {
+  formModal("Новая заявка","create-order",`
+    <div class="grid2"><div class="field"><span>Услуга</span>${dd({key:"new-service",name:"service",value:services[0],options:services,label:"Услуга"})}</div>
+    <div class="field"><span>Тип авто</span>${dd({key:"body",value:bodyTypes[0],options:bodyTypes,label:"Тип авто"})}</div></div>
+    ${field("Марка и модель","car",'required maxlength="100" placeholder="Например, Toyota RAV4"')}
+    <label class="field"><span>Что нужно сделать</span><textarea class="textarea" name="description" required maxlength="2000"></textarea></label>
+    <div class="grid2"><div class="field"><span>Город</span>${dd({key:"new-city",name:"city",value:CITIES[1],options:CITIES.slice(1),label:"Город"})}</div>
+    ${field("Район","area",'required maxlength="100"')}</div>
+    ${field("Точный адрес (виден после отклика)","address",'maxlength="180"')}
+    <div class="grid2"><div class="field"><span>Желаемая дата</span>${datePick({key:"when",value:isoDate(new Date()),min:isoDate(new Date()),label:"Желаемая дата"})}</div>
+    ${field("Бюджет до, ₽ (необязательно)","budget",'type="number" min="1" step="1"')}</div>
+    <label class="field"><span>До 3 фото или 1 видео</span><input class="input" type="file" name="files" accept="image/*,video/*" multiple></label>`,"Опубликовать");
+}
+function offerForm(id) {
+  formModal("Предложить услуги","send-offer",`<input type="hidden" name="id" value="${id}">
+    ${field("Стоимость работ, ₽","price",'type="number" min="1" step="1" required')}
+    ${field("Когда можете выполнить","timing",'required maxlength="140"')}
+    <label class="field"><span>Что входит в стоимость</span><textarea class="textarea" name="note" required maxlength="1500"></textarea></label>`,"Отправить предложение");
+}
+async function save(kind,data) {
+  try {
+    if (kind === "create") {
+      if (state.role !== "client") return;
+      const id = "order-"+crypto.randomUUID();
+      await changeOrder(id,() => ({...data,id,title:data.service,author:ROLES.client.name,mine:true,created:Date.now(),offers:[]}));
+      closeModal(); location.hash="/v/"+id; toast("Заявка опубликована");
+    } else {
+      const role = state.role;
+      if (!["worker","employer"].includes(role)) return;
+      await changeOrder(data.id,o => {
+        if (!o || o.selected || o.offers.some(x => x.role===role)) throw Error("Заявка уже обновлена");
+        return {...o,offers:[...o.offers,{...data,role,name:ROLES[role].name}]};
+      });
+      closeModal(); location.hash="/v/"+data.id; render(); toast("Предложение отправлено");
+    }
+  } catch(e) { toast("Изменения не сохранены",esc(e.message),"info"); }
+}
+document.addEventListener("submit",async e => {
+  const form = e.target;
+  if (!["search","create-order","send-offer"].includes(form.id)) return;
+  e.preventDefault();
+  const f = new FormData(form);
+  if (form.id==="search") { filter.query=f.get("query").trim(); render(); return; }
+  const kind=form.id==="create-order"?"create":"offer";
+  const data=Object.fromEntries(f);
+  if (kind==="create") {
+    data.files=[...form.elements.files.files];
+    const images=data.files.every(x=>x.type.startsWith("image/")) && data.files.length<=3;
+    const video=data.files.length===1 && data.files[0].type.startsWith("video/");
+    if (!images && !video) { toast("Добавьте до трёх фото или одно видео","","info"); return; }
+    data.when=data.when?dateLabel(data.when):"Гибкая дата";
+    data.budget=data.budget?"до "+fmt(Number(data.budget))+" ₽":"";
+  } else data.price=Number(data.price);
+  if (state.role==="guest") { pendingSubmit=data; authModal(kind,data.id); return; }
+  if (e.submitter) e.submitter.disabled=true;
+  await save(kind,data);
+  if (e.submitter) e.submitter.disabled=false;
+});
+const PAGE={
+  section:"/orders",
+  currentPath:()=>route().startsWith("/v/")?"/orders/:id":"/orders",
+  render(){
+    mediaUrls.forEach(url=>URL.revokeObjectURL(url)); mediaUrls=[];
+    const match=route().match(/^\/v\/([\w-]+)(#offers)?$/);
+    document.body.classList.toggle("detail-page",!!match);
+    $("#app").innerHTML=match?detail(orderById(match[1])):catalog();
+    if(match?.[2]) $("#offers")?.scrollIntoView();
+  },
+  onDD(key,value){
+    if (!["city","service"].includes(key)) return false;
+    filter.query=$("#search").elements.query.value.trim();
+    filter[key]=value; render(); return true;
+  },
+  authText:kind=>({create:["Войдите, чтобы опубликовать заявку"],offer:["Войдите, чтобы отправить предложение"]})[kind],
+  loginRole:p=>p.kind==="create"?"client":"worker",
+  afterLogin(p){if(pendingSubmit && ["create","offer"].includes(p.kind)){const data=pendingSubmit;pendingSubmit=null;save(p.kind,data);}},
+  roleHints:{guest:"смотрит заявки",client:"публикует заявку и выбирает исполнителя",worker:"предлагает услуги",employer:"предлагает услуги студии",partner:"смотрит заявки",supplier:"смотрит заявки"},
+  actions:{
+    create:createForm,offer:(el,e,id)=>offerForm(id),
+    reset:()=>{filter={query:"",city:CITIES[0],service:"Все услуги"}; render();},
+    "see-offers":()=>$("#offers")?.scrollIntoView({behavior:"smooth"}),
+    choose:async(el,e,id)=>{
+      if(state.role!=="client") return;
+      try {
+        await changeOrder(id,o=>{
+          if(!own(o)||o.selected||!o.offers.some(x=>x.role===el.dataset.role)) throw Error("Предложение уже изменилось");
+          return {...o,selected:el.dataset.role};
+        });
+        render();toast("Исполнитель выбран");
+      } catch(err){toast("Выбор не сохранён",esc(err.message),"info");}
+    }
+  }
+};
+(async()=>{
+  try {database=await openDatabase(); await reloadOrders();}
+  catch {toast("Хранилище браузера недоступно","Можно посмотреть примеры заявок","info");}
+  start();
+})();
+</script>
+</body>
+</html>
