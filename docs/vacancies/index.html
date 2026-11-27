@@ -9,8 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css?v=202611280300">
-<link rel="stylesheet" href="designs.css?v=202611280247">
+<link rel="stylesheet" href="../shared/sous.css?v=202611280223">
+<link rel="stylesheet" href="designs.css?v=202611280223">
 </head>
 <body>
 <a class="sr-only" href="#app">Перейти к содержимому</a>
@@ -21,8 +21,8 @@
 <div id="toast-root" class="toasts" aria-live="polite"></div>
 <div id="proto-root"></div>
 
-<script src="../shared/pages.js?v=202611280111"></script>
-<script src="../shared/sous.js?v=202611280300"></script>
+<script src="../shared/pages.js?v=202611280223"></script>
+<script src="../shared/sous.js?v=202611280223"></script>
 <script>
 /* =========================================================
    Вакансии и резюме: данные
@@ -76,6 +76,7 @@ Object.assign(state, {
   sort: "new",
   applied: new Set(),
   fav: new Set(),
+  previewId: null,
 });
 const isMine = (v) => state.role === "employer" && v.org === ROLES.employer.name;
 
@@ -163,51 +164,80 @@ function vacancyCard(v) {
   </article>`;
 }
 
-function marketPanel(items, design) {
-  const verified = items.filter((v) => v.verified).length;
-  const entry = items.filter((v) => v.exp === "Без опыта").length;
-  const shift = items.filter((v) => v.schedule === "Сменный").length;
-  const top = items.length ? Math.max(...items.map((v) => v.to || v.from)) : 0;
-  const figures = [[verified, "Проверены"], [entry, "Без опыта"], [shift, "Сменный график"]];
-  if (design === "sprint") {
-    return `<section class="market market-rings"><h2>По вашей подборке</h2>
-      <div class="rings">${figures.map(([n, label]) => `<div>
-        <span class="ring num" style="--arc:${items.length ? 100 * n / items.length : 0}%">${n}<small>из ${items.length}</small></span>
-        <span>${label}</span>
-      </div>`).join("")}</div></section>`;
-  }
-  if (design === "redline") {
-    return `<section class="market market-stats" aria-label="Сводка по вакансиям">
-      ${[[items.length, "Вакансии"], [verified, "С проверкой компании"], [new Set(items.map((v) => v.city)).size, "Города"], [top ? `${fmt(top)} ₽` : "Нет данных", "Доход до"]].map(([n, label]) => `<div><span>${label}</span><b class="num">${n}</b></div>`).join("")}</section>`;
-  }
-  return `<section class="market market-feature">
-    <h2>В подборке ${plural(items.length, "вакансия", "вакансии", "вакансий")}</h2>
-    <div class="feature-track" aria-hidden="true"><span style="--share:${VACANCIES.length ? 100 * items.length / VACANCIES.length : 0}%"></span></div>
-    <p>${verified} с проверкой компании${top ? `<span>До ${fmt(top)} ₽ в месяц</span>` : ""}</p>
+function specCounts() {
+  return SPECS
+    .filter((spec) => VACANCIES.some((v) => v.spec === spec))
+    .map((spec) => [spec, VACANCIES.filter((v) => v.spec === spec).length]);
+}
+
+function quickSpecsBar() {
+  return `<div class="spec-pills" role="group" aria-label="Быстрый выбор специализации">
+    ${specCounts().map(([spec, count]) => `<button type="button" class="spec-pill" data-act="quick-spec" data-spec="${esc(spec)}" aria-pressed="${state.f.spec.has(spec)}">
+      <span>${spec}</span><span class="c num">${count}</span>
+    </button>`).join("")}
+  </div>`;
+}
+
+function specShowcase() {
+  return `<section class="spec-showcase" aria-label="Направления">
+    ${specCounts().map(([spec, count]) => `<button type="button" class="spec-tile" data-act="quick-spec" data-spec="${esc(spec)}" aria-pressed="${state.f.spec.has(spec)}">
+      <b class="num">${count}</b>
+      <span>${spec}</span>
+    </button>`).join("")}
   </section>`;
 }
 
-function resultsSide(items, design) {
-  if (design === "redline") {
-    const v = items[0];
-    return v ? `<aside class="market spotlight"><h2>Первая в выдаче</h2>
-      <div><span>${esc(v.org)}</span><h3>${esc(v.title)}</h3><b class="money num">${salary(v.from, v.to)}</b></div>
-      <p>${esc(v.desc)}</p>
-      <div class="meta"><span>${icon("pin")}${v.city}</span><span>${icon("clock")}${v.schedule}</span></div>
-      <a class="btn primary" href="#/v/${v.id}">Открыть вакансию ${icon("right")}</a>
-    </aside>` : "";
+function spotlightPreview(items) {
+  if (!items.length) return "";
+  const v = items.find((x) => x.id === state.previewId) || items[0];
+  const mine = isMine(v);
+  const applied = state.applied.has(v.id);
+  const r = state.role;
+  let action = `<a class="btn primary" href="#/v/${v.id}">Открыть вакансию</a>`;
+  if (!mine && (r === "guest" || r === "worker")) {
+    action = applied
+      ? `<span class="btn done">${icon("check")}Отклик отправлен</span>`
+      : `<button class="btn primary" data-act="apply" data-id="${v.id}">Откликнуться</button>`;
+  } else if (mine) {
+    action = `<a class="btn primary" href="#/v/${v.id}">${icon("users")}Отклики<span class="count">${v.responses}</span></a>`;
   }
-  if (design === "sprint") {
-    const cities = CITIES.slice(1).map((city) => [city, items.filter((v) => v.city === city).length]);
-    return `<aside class="market market-cities"><h2>Вакансии по городам</h2>
-      ${cities.map(([city, n]) => `<div><span>${city}</span><b class="num">${n}</b>
-        <span class="city-track" aria-hidden="true"><i style="--share:${items.length ? 100 * n / items.length : 0}%"></i></span></div>`).join("")}
-    </aside>`;
-  }
-  return `<aside class="market market-specs"><h2>Специализации</h2>
-    ${SPECS.filter((spec) => VACANCIES.some((v) => v.spec === spec)).map((spec) => `
-      <button class="spec-tile" data-act="quick-spec" data-spec="${esc(spec)}" aria-pressed="${state.f.spec.has(spec)}"><span>${spec}</span><b class="num">${VACANCIES.filter((v) => v.spec === spec).length}</b></button>`).join("")}
+  return `<aside class="spotlight" aria-label="Предпросмотр вакансии">
+    <div class="spotlight-head">
+      <div>
+        <div class="c-org">${esc(v.org)}${v.verified ? verifiedMark() : ""}</div>
+        <h3><a href="#/v/${v.id}">${esc(v.title)}</a></h3>
+      </div>
+      <div class="money num">${salary(v.from, v.to)}<small>в месяц на руки</small></div>
+    </div>
+    <div class="meta"><span>${icon("pin")}${v.city}</span><span>${icon("clock")}${v.schedule}</span><span>${icon("briefcase")}${v.exp}</span><span>${v.days === 0 ? "Сегодня" : ago(v.days)}</span></div>
+    <p class="spotlight-desc">${esc(v.desc)}</p>
+    <div class="spotlight-block">
+      <b>Обязанности</b>
+      <ul class="bullets">${v.duties.map((d) => `<li>${icon("right")}<span>${esc(d)}</span></li>`).join("")}</ul>
+    </div>
+    <div class="spotlight-block">
+      <b>Условия</b>
+      <ul class="bullets">${v.terms.map((d) => `<li>${icon("check")}<span>${esc(d)}</span></li>`).join("")}</ul>
+    </div>
+    <div class="spotlight-actions">
+      ${action}
+      <a class="btn" href="#/v/${v.id}">Подробнее${icon("right")}</a>
+    </div>
   </aside>`;
+}
+
+function redlineRow(v, activeId) {
+  const active = v.id === activeId;
+  return `<article class="card row-card ${active ? "is-selected" : ""}" data-preview-id="${v.id}">
+    <div class="c-main">
+      <h2 class="c-title"><a href="#/v/${v.id}" data-act="select-preview" data-id="${v.id}">${esc(v.title)}</a></h2>
+      <div class="c-org">${esc(v.org)}${v.verified ? verifiedMark() : ""}</div>
+      <div class="meta"><span>${icon("pin")}${v.city}</span><span>${icon("clock")}${v.schedule}</span><span>${v.days === 0 ? "Сегодня" : ago(v.days)}</span></div>
+    </div>
+    <div class="c-side">
+      <div class="money num">${salary(v.from, v.to)}</div>
+    </div>
+  </article>`;
 }
 
 function resultsMarkup() {
@@ -215,9 +245,12 @@ function resultsMarkup() {
   const chips = activeChips();
   const word = plural(items.length, "вакансия", "вакансии", "вакансий");
   const design = vacancyDesign();
+  const activeId = (items.find((x) => x.id === state.previewId) || items[0])?.id;
+
   const list = items.length
-    ? `<div class="list">${items.map(vacancyCard).join("")}</div>`
+    ? `<div class="list">${design === "redline" ? items.map((v) => redlineRow(v, activeId)).join("") : items.map(vacancyCard).join("")}</div>`
     : `<div class="empty">${icon("search", "lg")}<h3>Ничего не нашлось</h3><p>Попробуйте другой город, уберите требования к опыту или сбросьте фильтры</p><button class="btn" data-act="reset">Сбросить фильтры</button></div>`;
+
   const toolbar = `<div class="toolbar">
       <p class="count"><b class="num">${word.split(" ")[0]}</b> ${word.split(" ").slice(1).join(" ")}</p>
       <button class="btn sm filters-btn" data-act="sheet">${icon("sliders")}Фильтры${chips.length ? `<span class="badge-n num">${chips.length}</span>` : ""}</button>
@@ -225,11 +258,13 @@ function resultsMarkup() {
     </div>
     ${chips.length ? `<div class="chips">${chips.map(([k, v, l]) => `<button class="chip" data-act="unchip" data-k="${k}" data-v="${esc(v)}" aria-label="Убрать фильтр «${esc(l)}»">${esc(l)}${icon("x")}</button>`).join("")}<button class="link" data-act="reset" style="font-size:13px">Сбросить всё</button></div>` : ""}
     ${roleNote()}`;
-  const listing = `${toolbar}${list}`;
-  if (!design || design === "original-html") return listing;
-  const summary = marketPanel(items, design);
-  const side = resultsSide(items, design);
-  return `<div class="market-layout">${summary}<div class="market-results">${listing}</div>${side}</div>`;
+
+  if (design === "sprint") return `${quickSpecsBar()}${toolbar}${list}`;
+  if (design === "ember") return `${specShowcase()}${toolbar}${list}`;
+  if (design === "redline") {
+    return `${toolbar}<div class="split-view">${list}${spotlightPreview(items)}</div>`;
+  }
+  return `${toolbar}${list}`;
 }
 
 function searchForm() {
@@ -265,25 +300,15 @@ function catalogView() {
     : `<p class="lead">Постоянная работа в автомойках, детейлинг-студиях и автосервисах. Разовые смены ищите в разделе <a class="link accent" href="${pageHref("/gigs")}">Подработки</a></p>`;
   const heading = `<div class="head-row"><h1>${design === "original-html" ? "Вакансии и резюме" : "Вакансии"}</h1>${design === "original-html" ? "" : headAction()}</div>`;
   const results = `<section id="results" aria-live="polite">${resultsMarkup()}</section>`;
-  if (design === "sprint" || design === "redline") {
-    return `<div class="wrap desk">
-      ${catalogFilters()}
-      <div class="desk-main">
-        <section class="head desk-head"><div class="head-in">${heading}${searchForm()}</div></section>
-        ${results}
-      </div>
-    </div>`;
-  }
+  const hasSidebar = !design || design === "sprint";
+  const hasTopTools = design === "original-html" || design === "redline" || design === "ember";
   return `<section class="head"><div class="wrap head-in">
       ${heading}${lead}
-      ${design === "original-html" ? `${workLinks()}
-        <div class="reference-tools">${searchForm()}
-          <button class="btn" data-act="sheet">${icon("sliders")}Фильтры</button>
-          ${headAction()}
-        </div>` : searchForm()}
+      ${design === "original-html" ? workLinks() : ""}
+      ${hasTopTools ? `<div class="reference-tools">${searchForm()}<button class="btn" data-act="sheet">${icon("sliders")}Фильтры</button>${design === "original-html" ? headAction() : ""}</div>` : searchForm()}
     </div></section>
     <div class="wrap catalog">
-      ${design ? "" : catalogFilters()}
+      ${hasSidebar ? catalogFilters() : ""}
       ${results}
     </div>`;
 }
@@ -520,6 +545,12 @@ const PAGE = {
       else state.f.spec.add(spec);
       syncFilterInputs(); renderResults();
       $$("[data-act=quick-spec]").find((button) => button.dataset.spec === spec)?.focus({ preventScroll: true });
+    },
+    "select-preview": (el, e) => {
+      if (vacancyDesign() !== "redline" || window.innerWidth <= 960) return;
+      e.preventDefault();
+      state.previewId = el.dataset.id;
+      renderResults();
     },
     unchip: (el, e, id) => {
       const { k, v } = el.dataset;

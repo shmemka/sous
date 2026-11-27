@@ -432,10 +432,10 @@ const pageStatus = (page) => page.status === "review" && state.issues?.[page.iss
 const ST_LABEL = { review: "На проверке", done: "Готово", wip: "В работе", todo: "Не начато" };
 const PAGE_FILTERS = [["available", "Доступные"], ["review", "На проверке"], ["all", "Все"]];
 const VACANCY_DESIGNS = [
-  { id: "original-html", title: "В духе СОУС", description: "Композиция HTML-референса, горизонтальный поиск и сетка карточек" },
-  { id: "sprint", title: "Графит и медь", description: "Боковые фильтры, модульная выдача и круговые показатели" },
-  { id: "redline", title: "Красная линия", description: "Компактный список, сводка и выделенная вакансия справа" },
-  { id: "ember", title: "Тлеющий градиент", description: "Крупная мозаика с обзором вакансий и специализациями" },
+  { id: "original-html", title: "Классика СОУС", description: "Тёплая палитра референса, верхняя навигация и сетка карточек" },
+  { id: "sprint", title: "Графит и медь", description: "Матовый графит, боковые фильтры и быстрые теги специализаций" },
+  { id: "redline", title: "Список и превью", description: "Компактный список слева и карточка выбранной вакансии справа" },
+  { id: "ember", title: "Витрина направлений", description: "Крупная типографика, плитки специализаций и двухколоночная сетка" },
 ];
 const currentProtoPage = () => window.SOUS_PAGES.flatMap((group) => group.pages)
   .find((page) => page.path === (PAGE.currentPath?.() || PAGE.section));
