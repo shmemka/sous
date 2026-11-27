@@ -377,6 +377,10 @@ ul{margin:0;padding:0;list-style:none}
 .pp-head{display:grid;gap:10px;padding:12px 14px 8px}
 .pp-title{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .pp-title h3{font:700 28px/1 var(--font-display)}
+.pp-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:var(--r-control);background:var(--fill)}
+.pp-tabs button{min-height:34px;border-radius:7px;color:var(--text-2);font-size:13px;font-weight:600}
+.pp-tabs button:hover,.pp-tabs button[aria-pressed="true"]{background:var(--surface-hover);color:var(--text)}
+.pp-tabs button[aria-pressed="true"]{box-shadow:0 1px 4px rgba(0,0,0,.16)}
 .pp-search{display:flex;align-items:center;gap:8px;min-height:38px;padding:0 10px;border-radius:var(--r-control);background:var(--fill);color:var(--text-2)}
 .pp-search:focus-within{box-shadow:var(--ring)}
 .pp-search input{width:100%;min-width:0;padding:8px 0;border:0;outline:none;background:none;color:var(--text);font:inherit;font-size:13px}
@@ -402,6 +406,22 @@ ul{margin:0;padding:0;list-style:none}
 a.pp-row:hover{background:var(--fill-2)}
 .pp-unavailable,.pp-unavailable .pp-status{color:var(--text-3)}
 .pp-empty{padding:14px 8px;color:var(--text-3);font-size:13px}
+.pp-designs{padding:4px 0 2px}
+.pp-designs h4{margin:2px 0 8px;font-size:14px;font-weight:600}
+.pp-designs ul{display:grid;gap:6px}
+.pp-design{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:10px;min-height:61px;padding:8px;border-radius:var(--r-control);background:var(--fill)}
+.pp-design:hover,.pp-design[aria-current="true"]{background:var(--fill-2)}
+.pp-design b,.pp-design small{display:block}
+.pp-design b{font-size:13px;font-weight:600}
+.pp-design small{margin-top:2px;color:var(--text-2);font-size:11px}
+.pp-design>.icon{color:var(--text-3)}
+.pp-design[aria-current="true"]>.icon{color:var(--primary)}
+.pp-swatch{height:34px;border-radius:6px}
+.pp-swatch-studio{background:linear-gradient(145deg,#fff8ee 58%,#ec693c 59%)}
+.pp-swatch-graphite{background:linear-gradient(145deg,#455a73 58%,#ff8a57 59%)}
+.pp-swatch-compact{background:linear-gradient(145deg,#eef2f7 58%,#314760 59%)}
+.pp-original{margin:8px 0 0 8px}
+.pp-original[aria-current="true"]{font-weight:600}
 .st{width:8px;height:8px;flex:none;border-radius:50%;background:var(--fill-2);box-shadow:inset 0 0 0 1.5px var(--text-3);opacity:.7}
 .st.st-done{background:var(--ok);box-shadow:none;opacity:1}
 .st.st-review{background:var(--primary);box-shadow:none;opacity:1}

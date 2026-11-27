@@ -431,10 +431,38 @@ const pageStatus = (page) => page.status === "review" && state.issues?.[page.iss
   ? "done" : (page.status || "todo");
 const ST_LABEL = { review: "На проверке", done: "Готово", wip: "В работе", todo: "Не начато" };
 const PAGE_FILTERS = [["available", "Доступные"], ["review", "На проверке"], ["all", "Все"]];
+const VACANCY_DESIGNS = [
+  { id: "studio", title: "Светлая студия", description: "Тёплый фон, иллюстрация и просторные карточки" },
+  { id: "graphite", title: "Графит", description: "Мягкий градиент и сетка из двух колонок" },
+  { id: "compact", title: "Компактный каталог", description: "Светлый фон, короткие строки и зарплата на виду" },
+];
 const currentProtoPage = () => window.SOUS_PAGES.flatMap((group) => group.pages)
   .find((page) => page.path === (PAGE.currentPath?.() || PAGE.section));
 const pageAvailable = (page) => page.href && ["review", "done"].includes(pageStatus(page));
 const pageSearchText = (value) => value.toLowerCase().replaceAll("ё", "е");
+
+function vacancyDesign() {
+  const [path, query] = route().split("?");
+  if (PAGE.section !== "/vacancies" || path !== "/") return "";
+  const id = new URLSearchParams(query).get("design");
+  return VACANCY_DESIGNS.some((design) => design.id === id) ? id : "";
+}
+
+function vacancyDesignsMarkup() {
+  const current = vacancyDesign();
+  const onCatalog = currentProtoPage()?.path === "/vacancies";
+  const href = pageHref("/vacancies");
+  return `<section class="pp-designs" aria-label="Варианты дизайна вакансий">
+    <h4>Вакансии</h4>
+    <ul>${VACANCY_DESIGNS.map(({ id, title, description }) => `
+      <li><a class="pp-design" data-act="page-go" href="${href}?design=${id}" ${id === current ? 'aria-current="true"' : ""}>
+        <span class="pp-swatch pp-swatch-${id}" aria-hidden="true"></span>
+        <span><b>${title}</b><small>${description}</small></span>
+        ${icon(id === current ? "check" : "right")}
+      </a></li>`).join("")}</ul>
+    <a class="pp-issue pp-original" data-act="page-go" href="${href}" ${onCatalog && !current ? 'aria-current="true"' : ""}>Исходный вариант</a>
+  </section>`;
+}
 
 function pageStatusLabel(page) {
   const status = pageStatus(page);
@@ -498,33 +526,40 @@ function refreshPageStatuses() {
 }
 function pagesPanel() {
   const filter = state.pageFilter || "available";
-  return `<section class="pages-panel" id="pages-panel" role="dialog" aria-label="Страницы прототипа">
+  const design = state.pagePanelTab === "design";
+  return `<section class="pages-panel" id="pages-panel" role="dialog" aria-label="Страницы и дизайн прототипа">
     <div class="pp-head">
       <div class="pp-title"><h3>Страницы</h3><button class="btn sm icon-only" data-act="pages" aria-label="Закрыть страницы">${icon("x")}</button></div>
-      <label class="pp-search">${icon("search")}<input type="search" aria-label="Поиск страниц" placeholder="Название или адрес" value="${esc(state.pageQuery || "")}"></label>
+      <div class="pp-tabs" role="group" aria-label="Раздел панели">
+        <button data-act="pp-tab" data-tab="pages" aria-pressed="${!design}">Обзор</button>
+        <button data-act="pp-tab" data-tab="design" aria-pressed="${design}">Дизайн</button>
+      </div>
+      ${design ? "" : `<label class="pp-search">${icon("search")}<input type="search" aria-label="Поиск страниц" placeholder="Название или адрес" value="${esc(state.pageQuery || "")}"></label>
       <div class="pp-filters" role="group" aria-label="Какие страницы показать">
         ${PAGE_FILTERS.map(([value, label]) => `<button data-act="pp-filter" data-filter="${value}" aria-pressed="${filter === value}">${label}</button>`).join("")}
-      </div>
+      </div>`}
     </div>
-    <div class="pp-scroll">${currentPageMarkup(currentProtoPage())}<div class="pp-list">${pageListMarkup()}</div></div>
+    <div class="pp-scroll">${design ? vacancyDesignsMarkup() : `${currentPageMarkup(currentProtoPage())}<div class="pp-list">${pageListMarkup()}</div>`}</div>
   </section>`;
 }
 function renderProto() {
   const hints = PAGE.roleHints || {};
+  const pagesFocused = document.activeElement?.matches(".proto-pages");
   $("#proto-root").innerHTML = `<div class="proto">
     ${state.protoOpen ? `<section class="proto-panel"><h3>Роль пользователя</h3><p>Служебная панель прототипа. Показывает, как страница меняется для каждой роли</p>
       <div class="roles">${Object.entries(ROLES).map(([id, r]) => `<button data-act="role" data-role="${id}" aria-pressed="${state.role === id}">${r.label}<span>${hints[id] || ""}</span></button>`).join("")}</div></section>` : ""}
     ${state.pagesOpen ? pagesPanel() : ""}
-    <button class="proto-pages" data-act="pages" aria-expanded="${state.pagesOpen}">${icon("pages")}Страницы</button>
+    <button class="proto-pages" data-act="pages" aria-expanded="${state.pagesOpen}"${state.pagesOpen ? ' aria-controls="pages-panel"' : ""}>${icon("pages")}Страницы</button>
     <button class="proto-btn" data-act="proto" aria-expanded="${state.protoOpen}">Роль: ${ROLES[state.role].label}${icon("down")}</button>
   </div>`;
+  if (pagesFocused) $(".proto-pages").focus({ preventScroll: true });
 }
 function togglePages() {
   state.pagesOpen = !state.pagesOpen;
   state.protoOpen = false;
   state.pageQuery = "";
   state.pageFilter = "available";
-  if (state.pagesOpen) loadIssues();
+  if (state.pagesOpen && state.pagePanelTab !== "design") loadIssues();
   renderProto();
   $(state.pagesOpen ? ".pages-panel [data-act=pages]" : ".proto-pages")?.focus({ preventScroll: true });
 }
@@ -595,12 +630,23 @@ const SHARED_ACTIONS = {
   "close-bg": closeModal,
   proto: () => { state.protoOpen = !state.protoOpen; state.pagesOpen = false; renderProto(); },
   pages: togglePages,
+  "pp-tab": (el) => {
+    state.pagePanelTab = el.dataset.tab;
+    if (state.pagePanelTab === "pages") loadIssues();
+    renderProto();
+    $(".pp-tabs [aria-pressed=true]")?.focus({ preventScroll: true });
+  },
   "pp-filter": (el) => {
     state.pageFilter = el.dataset.filter;
     for (const button of $$(".pp-filters button")) button.setAttribute("aria-pressed", button === el);
     filterPages();
   },
-  "page-go": () => { state.pagesOpen = false; renderProto(); },
+  "page-go": (el, e) => {
+    if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    state.pagesOpen = false;
+    renderProto();
+    $(".proto-pages")?.focus({ preventScroll: true });
+  },
   role: (el) => { state.protoOpen = false; setRole(el.dataset.role); },
 };
 

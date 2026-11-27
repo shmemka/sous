@@ -5,10 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Вакансии и резюме · СОУС</title>
 <meta name="description" content="Переработанная страница вакансий и резюме платформы СОУС: структура, сценарии и состояния под роли">
+<link rel="icon" href="../assets/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css?v=202611280111">
+<link rel="stylesheet" href="../shared/sous.css?v=202611280200">
+<link rel="stylesheet" href="designs.css?v=202611280200">
 </head>
 <body>
 <a class="sr-only" href="#app">Перейти к содержимому</a>
@@ -20,7 +22,7 @@
 <div id="proto-root"></div>
 
 <script src="../shared/pages.js?v=202611280111"></script>
-<script src="../shared/sous.js?v=202611280111"></script>
+<script src="../shared/sous.js?v=202611280200"></script>
 <script>
 /* =========================================================
    Вакансии и резюме: данные
@@ -173,7 +175,7 @@ function resultsMarkup() {
       <button class="btn sm filters-btn" data-act="sheet">${icon("sliders")}Фильтры${chips.length ? `<span class="badge-n num">${chips.length}</span>` : ""}</button>
       <div class="sort-wrap">${dd({ key: "sort", value: state.sort, options: [["new", "Сначала новые"], ["salary", "Сначала с большей зарплатой"]], variant: "compact", label: "Сортировка" })}</div>
     </div>
-    ${chips.length ? `<div class="chips">${chips.map(([k, v, l]) => `<button class="chip" data-act="unchip" data-k="${k}" data-v="${esc(v)}">${esc(l)}${icon("x")}</button>`).join("")}<button class="link" data-act="reset" style="font-size:13px">Сбросить всё</button></div>` : ""}
+    ${chips.length ? `<div class="chips">${chips.map(([k, v, l]) => `<button class="chip" data-act="unchip" data-k="${k}" data-v="${esc(v)}" aria-label="Убрать фильтр «${esc(l)}»">${esc(l)}${icon("x")}</button>`).join("")}<button class="link" data-act="reset" style="font-size:13px">Сбросить всё</button></div>` : ""}
     ${roleNote()}
     ${list}`;
 }
@@ -181,6 +183,11 @@ function resultsMarkup() {
 function catalogView() {
   document.body.className = "catalog-page";
   document.title = "Вакансии · СОУС";
+  const design = vacancyDesign();
+  const quickFilters = design === "graphite" ? `<div class="vacancy-quick" role="group" aria-label="Специализация">
+    ${SPECS.filter((spec) => VACANCIES.some((vacancy) => vacancy.spec === spec)).map((spec) => `
+      <button class="btn sm" data-act="quick-spec" data-spec="${esc(spec)}" aria-pressed="${state.f.spec.has(spec)}">${esc(spec)}</button>`).join("")}
+  </div>` : "";
   return `<section class="head"><div class="wrap head-in">
       <div class="head-row"><h1>Вакансии</h1>${headAction()}</div>
       <p class="lead">Постоянная работа в автомойках, детейлинг-студиях и автосервисах. Разовые смены ищите в разделе <a class="link accent" href="${pageHref("/gigs")}">Подработки</a></p>
@@ -189,6 +196,7 @@ function catalogView() {
         <div class="s-field s-city">${dd({ key: "search-city", name: "city", value: state.city, options: CITIES, variant: "bare", iconName: "pin", label: "Город" })}</div>
         <button class="btn primary" type="submit">Найти</button>
       </form>
+      ${quickFilters}
     </div></section>
     <div class="wrap catalog">
       <aside class="filters" aria-label="Фильтры">
@@ -203,9 +211,10 @@ function catalogView() {
    Детальная вакансии
    ========================================================= */
 function detailView(id) {
-  const v = VACANCIES.find((x) => x.id === id);
-  if (!v) return `<div class="wrap detail"><a class="back" href="#/">${icon("back")}Все вакансии</a><div class="empty"><h3>Вакансия снята с публикации</h3><p>Посмотрите похожие предложения в каталоге</p><a class="btn" href="#/">К вакансиям</a></div></div>`;
+  const catalogHref = state.vacancyCatalogHref || "#/";
   document.body.className = "detail-page";
+  const v = VACANCIES.find((x) => x.id === id);
+  if (!v) return `<div class="wrap detail"><a class="back" href="${catalogHref}">${icon("back")}Все вакансии</a><div class="empty"><h3>Вакансия снята с публикации</h3><p>Посмотрите похожие предложения в каталоге</p><a class="btn" href="${catalogHref}">К вакансиям</a></div></div>`;
   document.title = `${v.title} · ${v.org} · СОУС`;
   const r = state.role, mine = isMine(v), applied = state.applied.has(v.id);
   const related = VACANCIES.filter((x) => x.id !== v.id && (x.spec === v.spec || x.city === v.city)).slice(0, 3);
@@ -239,7 +248,7 @@ function detailView(id) {
   }
 
   return `<div class="wrap detail">
-    <a class="back" href="#/">${icon("back")}Все вакансии</a>
+    <a class="back" href="${catalogHref}">${icon("back")}Все вакансии</a>
     <div class="d-grid">
       <div class="d-main">
         <section class="panel d-head">
@@ -347,6 +356,7 @@ function filtersSheet() {
 function renderResults() {
   const el = $("#results");
   if (el) el.innerHTML = resultsMarkup();
+  $$("[data-act=quick-spec]").forEach((button) => button.setAttribute("aria-pressed", state.f.spec.has(button.dataset.spec)));
   const fh = $(".filters-head");
   if (fh) fh.innerHTML = `<h2>Фильтры</h2>${activeChips().length ? `<button class="link" data-act="reset" style="font-size:13px">Сбросить</button>` : ""}`;
   const sa = $("#sheet-apply");
@@ -395,6 +405,11 @@ const PAGE = {
   },
   onRoute() {
     if (route() === "/resumes") location.replace(pageHref("/specialists"));
+    const design = vacancyDesign();
+    const root = document.documentElement;
+    if (design) root.dataset.vacancyDesign = design;
+    else delete root.dataset.vacancyDesign;
+    if (!route().startsWith("/v/")) state.vacancyCatalogHref = design ? `#/?design=${design}` : "#/";
   },
   onDD(key, v) {
     if (key === "search-city") state.city = v;
@@ -418,6 +433,12 @@ const PAGE = {
   roleHints: { guest: "смотрит без входа", worker: "ищет работу", employer: "размещает вакансии", client: "не целевая роль", supplier: "не целевая роль", partner: "не целевая роль" },
   actions: {
     reset: resetFilters,
+    "quick-spec": (el) => {
+      const spec = el.dataset.spec;
+      if (state.f.spec.has(spec)) state.f.spec.delete(spec);
+      else state.f.spec.add(spec);
+      syncFilterInputs(); renderResults();
+    },
     unchip: (el, e, id) => {
       const { k, v } = el.dataset;
       if (k === "city") state.city = "Все города";
@@ -448,10 +469,10 @@ const PAGE = {
       }
       VACANCIES.unshift({ id: "vac-" + Date.now(), title: d.title, org: "Shine&Go", city: "Казань", from: num(d.from), to: num(d.to) || null, schedule: d.schedule, exp: d.exp, spec: d.spec, days: 0, verified: true, responses: 0, fresh: 0,
         desc: d.desc, duties: [d.desc], terms: ["Условия уточняются у работодателя"], place: d.city });
-      closeModal(); location.hash = "#/"; render(); toast("Вакансия размещена", "Она уже в каталоге, отклики придут в «Сообщения»");
+      closeModal(); location.hash = state.vacancyCatalogHref || "#/"; render(); toast("Вакансия размещена", "Она уже в каталоге, отклики придут в «Сообщения»");
     },
     unpublish: (el, e, id) => unpublishModal(id),
-    "unpublish-send": (el, e, id) => { VACANCIES = VACANCIES.filter((v) => v.id !== id); closeModal(); location.hash = "#/"; toast("Вакансия снята с публикации", "Вернуть её можно в кабинете"); },
+    "unpublish-send": (el, e, id) => { VACANCIES = VACANCIES.filter((v) => v.id !== id); closeModal(); location.hash = state.vacancyCatalogHref || "#/"; toast("Вакансия снята с публикации", "Вернуть её можно в кабинете"); },
     report: reportModal,
     "report-send": (el, e, id) => { closeModal(); toast("Жалоба отправлена", "Ответ придёт в уведомления"); },
   },
