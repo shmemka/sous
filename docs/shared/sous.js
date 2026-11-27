@@ -124,6 +124,7 @@ const ICONS = {
   upload: '<path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 9l5 -5l5 5"/><path d="M12 4l0 12"/>', // upload
   camera: '<path d="M5 7h1a2 2 0 0 0 2 -2a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2"/><path d="M9 13a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/>', // camera
   pages: '<path d="M15 3v4a1 1 0 0 0 1 1h4"/><path d="M18 17h-7a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h4l5 5v7a2 2 0 0 1 -2 2"/><path d="M16 17v2a2 2 0 0 1 -2 2h-7a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h2"/>', // files
+  copy: '<path d="M7 7m0 2.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z"/><path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"/>', // copy
 };
 /* Filled-варианты Tabler: в кнопках иконки всегда залитые (CSS в sous.css, «Иконки в кнопках»).
    Линейные знаки (x, plus, check, стрелки, меню) остаются линейными: их filled-версии те же линии, только тоньше. */
@@ -430,7 +431,7 @@ async function loadIssues() {
 const pageStatus = (page) => page.status === "review" && state.issues?.[page.issue]?.closed
   ? "done" : (page.status || "todo");
 const ST_LABEL = { review: "На проверке", done: "Готово", wip: "В работе", todo: "Не начато" };
-const PAGE_FILTERS = [["available", "Доступные"], ["review", "На проверке"], ["all", "Все"]];
+const PAGE_FILTERS = [["available", "Готовые"], ["all", "Все"]];
 const VACANCY_DESIGNS = [
   { id: "original-html", title: "Классика СОУС", description: "Тёплая палитра референса, верхняя навигация и сетка карточек" },
   { id: "sprint", title: "Графит и медь", description: "Матовый графит, боковые фильтры и быстрые теги специализаций" },
@@ -475,30 +476,30 @@ function pageStatusLabel(page) {
 }
 function currentPageIssue(page) {
   const comments = state.issues?.[page.issue]?.comments || 0;
-  const label = pageStatus(page) === "review" ? "Обсудить" : "Issue";
-  return `${label}${comments ? `<span class="pp-comments">${comments}</span>` : ""}`;
+  return `Обсудить${comments ? ` (${comments})` : ""}`;
 }
 function currentPageMarkup(page) {
   if (!page) return "";
-  return `<section class="pp-current" aria-label="Текущая страница">
-    <div class="pp-current-top">
-      <h4 aria-current="page">${esc(page.title)}</h4>
-      <span data-pp-current-status>${pageStatusLabel(page)}</span>
+  return `<div class="pp-now" aria-label="Текущий экран">
+    <div class="pp-now-info">
+      <span class="pp-now-title">${esc(page.title)}</span>
+      <code class="pp-route">${esc(page.path)}</code>
     </div>
-    <div class="pp-current-actions">
-      ${page.issue ? `<a class="pp-action-btn" data-pp-issue href="${issueUrl(page.issue)}" target="_blank" rel="noopener">${currentPageIssue(page)}</a>` : ""}
-      <button type="button" class="pp-action-btn" data-act="pp-copy">Скопировать ссылку</button>
+    <div class="pp-now-acts">
+      ${page.issue ? `<a class="pp-now-link" data-pp-issue href="${issueUrl(page.issue)}" target="_blank" rel="noopener">${currentPageIssue(page)}</a>` : ""}
+      <button type="button" class="pp-now-copy" data-act="pp-copy" title="Скопировать ссылку" aria-label="Скопировать ссылку">${icon("copy")}</button>
     </div>
-    ${page.changes?.length ? `<details class="pp-changes"><summary>Что изменилось (${page.changes.length})</summary>
-      <ul>${page.changes.map((change) => `<li>${esc(change)}</li>`).join("")}</ul>
-    </details>` : ""}
-  </section>`;
+  </div>`;
 }
-function pageRow(page) {
+function pageRow(page, isCurrent) {
   const status = pageStatus(page);
   const avail = pageAvailable(page);
-  const tag = avail ? "" : `<small class="pp-plan">${ST_LABEL[status]}</small>`;
-  const content = `<span class="pp-row-title">${esc(page.title)}</span><span class="pp-row-meta">${tag}${pageStatusDot(page)}</span>`;
+  const content = `<span class="pp-row-main">
+      <span class="pp-row-title">${esc(page.title)}</span>
+      <code class="pp-route">${esc(page.path)}</code>
+    </span>
+    ${pageStatusDot(page)}`;
+  if (isCurrent) return `<li class="pp-row pp-row-cur" aria-current="page">${content}</li>`;
   return avail
     ? `<li><a class="pp-row" href="${esc(localHref(page.href))}" data-act="page-go" data-path="${esc(page.path)}">${content}</a></li>`
     : `<li class="pp-row pp-unavailable">${content}</li>`;
@@ -507,7 +508,6 @@ function pageFilterCounts() {
   const all = window.SOUS_PAGES.flatMap((g) => g.pages);
   return {
     available: all.filter(pageAvailable).length,
-    review: all.filter((p) => pageStatus(p) === "review").length,
     all: all.length,
   };
 }
@@ -517,15 +517,13 @@ function pageListMarkup() {
   const query = pageSearchText(state.pageQuery || "").trim().split(/\s+/);
   const groups = window.SOUS_PAGES.map((group) => {
     const pages = group.pages.filter((page) => {
-      if (page === current) return false;
       if (filter === "available" && !pageAvailable(page)) return false;
-      if (filter === "review" && pageStatus(page) !== "review") return false;
       const text = pageSearchText(`${page.title} ${page.path}`);
       return query.every((word) => text.includes(word));
     });
-    return pages.length ? `<section class="pp-group"><h4>${esc(group.title)}</h4><ul>${pages.map(pageRow).join("")}</ul></section>` : "";
+    return pages.length ? `<section class="pp-group"><h4>${esc(group.title)}</h4><ul>${pages.map((p) => pageRow(p, p === current)).join("")}</ul></section>` : "";
   }).join("");
-  return groups || `<p class="pp-empty" role="status">Других страниц по этому фильтру нет</p>`;
+  return groups || `<p class="pp-empty" role="status">Ничего не найдено</p>`;
 }
 function refreshPageList() {
   const list = $(".pp-list");
@@ -539,9 +537,7 @@ function refreshPageList() {
 }
 function refreshPageStatuses() {
   const page = currentProtoPage();
-  const status = $("[data-pp-current-status]");
   const issue = $("[data-pp-issue]");
-  if (page && status) status.innerHTML = pageStatusLabel(page);
   if (page && issue) issue.innerHTML = currentPageIssue(page);
   const counts = pageFilterCounts();
   $$("[data-act=pp-filter]").forEach((btn) => {
@@ -564,9 +560,11 @@ function pagesPanel() {
         </div>
         <button class="btn sm icon-only" data-act="pages" aria-label="Закрыть страницы">${icon("x")}</button>
       </div>
-      ${design ? "" : `<label class="pp-search">${icon("search")}<input type="search" aria-label="Поиск страниц" placeholder="Поиск по экранам" value="${esc(state.pageQuery || "")}"></label>
-      <div class="pp-filters" role="group" aria-label="Какие страницы показать">
-        ${PAGE_FILTERS.map(([value, label]) => `<button data-act="pp-filter" data-filter="${value}" aria-pressed="${filter === value}">${label}<span class="pp-fcount num">${counts[value]}</span></button>`).join("")}
+      ${design ? "" : `<div class="pp-bar">
+        <label class="pp-search">${icon("search")}<input type="search" aria-label="Поиск страниц" placeholder="Название или /путь" value="${esc(state.pageQuery || "")}"></label>
+        <div class="pp-filters" role="group" aria-label="Какие страницы показать">
+          ${PAGE_FILTERS.map(([value, label]) => `<button data-act="pp-filter" data-filter="${value}" aria-pressed="${filter === value}">${label}<span class="pp-fcount num">${counts[value]}</span></button>`).join("")}
+        </div>
       </div>`}
     </div>
     <div class="pp-scroll">${design ? vacancyDesignsMarkup() : `${currentPageMarkup(currentProtoPage())}<div class="pp-list">${pageListMarkup()}</div>`}</div>
