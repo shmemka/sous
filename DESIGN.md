@@ -49,7 +49,7 @@
 | Поля | `.field > span + .input / .textarea`, подсказка `small` |
 | Выпадающий список | `dd({ key, name, value, options, variant: "bare" / "compact", iconName, label })`, опция `[value, label, sub?]`, выбор ловит `PAGE.onDD` |
 | Выбор даты | `datePick({ key, name, value, min, max, label })`: кнопка «Чт, 26 ноября» и календарь на русском, неделя с понедельника, «Сегодня» и «Завтра» внизу, стрелки и PageUp/PageDown с клавиатуры. Значение в скрытом поле `ГГГГ-ММ-ДД`, выбор ловит `PAGE.onDD`. Нативный `<input type="date">` не используем |
-| Чекбокс, переключатель | `label.check > input + span + .c`, `input.switch` |
+| Чекбокс, переключатель | `checkPick({...})`, `.checks-row`, `label.check > input + span + .c`, `input.switch` |
 | Шапка страницы | `section.head > .wrap.head-in`: `.head-row` (`.tabs` segmented control из `a.tab[role=tab][aria-selected]` + действие), `h1`, `.lead`, `form.search` |
 | Каталог | `.catalog` = `aside.filters` + `#results`: `.toolbar`, `.chips`, `.note`, `.list` из `.card`, `.empty` |
 | Карточка | `.card`: без логотипа, акцент на заголовке: `.c-main` (`.c-title`, `.c-org`, `.meta`, `.c-desc`), `.c-side` (`.money`, `.c-actions`). Карточка человека `.card.person` с аватаркой `.tile.round` первой колонкой |

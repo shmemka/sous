@@ -185,7 +185,8 @@ ul{margin:0;padding:0;list-style:none}
 .filters-head h2{font-size:16px;font-weight:600}
 .fgroup{display:grid;gap:8px}
 .fgroup>b{font-size:13px;font-weight:600;color:var(--text-2)}
-.check{display:flex;align-items:center;gap:12px;min-height:32px;font-size:14px;color:var(--text-2);cursor:pointer}
+.check{display:flex;align-items:center;gap:8px;min-height:32px;font-size:14px;color:var(--text-2);cursor:pointer}
+.checks-row{display:flex;flex-wrap:wrap;gap:6px 14px}
 .check:hover{color:var(--text)}
 .check input{appearance:none;width:18px;height:18px;flex:none;margin:0;border:0;border-radius:5px;background:var(--fill-2);display:grid;place-items:center;transition:background-color .16s var(--ease),border-color .16s var(--ease);cursor:pointer}
 .check input:checked{background:var(--primary)}

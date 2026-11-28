@@ -8,12 +8,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css?v=202611280406">
+<link rel="stylesheet" href="../shared/sous.css?v=202611280544">
 <style>
 .when-line{display:flex;align-items:center;gap:12px;color:var(--text-2);font-size:15px;margin-top:12px}
 .when-line .icon{color:var(--text-3)}
 .ready-on{color:var(--ok)}
-.c-checks{display:flex;flex-wrap:wrap;gap:8px 20px}
 </style>
 </head>
 <body>
@@ -25,8 +24,8 @@
 <div id="toast-root" class="toasts" aria-live="polite"></div>
 <div id="proto-root"></div>
 
-<script src="../shared/pages.js?v=202611280406"></script>
-<script src="../shared/sous.js?v=202611280406"></script>
+<script src="../shared/pages.js?v=202611280544"></script>
+<script src="../shared/sous.js?v=202611280544"></script>
 <script>
 /* =========================================================
    Подработки и подмены: данные
@@ -467,7 +466,7 @@ function readyModal() {
   const me = WORKERS.find((w) => w.me);
   openModal(`${mHead("Готов к подработке")}
     <form class="m-body" id="mform">
-      <fieldset class="field" style="border:0;margin:0;padding:0"><span>Когда свободны</span><div class="c-checks">${WHEN.map(([k, l]) => `<label class="check"><input type="checkbox" name="free" value="${k}" ${me.free.includes(k) ? "checked" : ""}><span>${l}</span></label>`).join("")}</div></fieldset>
+      <fieldset class="field" style="border:0;margin:0;padding:0"><span>Когда свободны</span><div class="checks-row">${WHEN.map(([k, l]) => checkPick({ name: "free", value: k, label: l, checked: me.free.includes(k) })).join("")}</div></fieldset>
       <label class="field"><span>Желаемая ставка за смену от, ₽</span><input class="input num" name="rate" inputmode="numeric" value="${fmt(me.rate)}"></label>
     </form>
     <div class="m-foot">${state.ready ? `<button class="btn" data-act="ready-off">Скрыть из списка</button>` : `<button class="btn" data-act="close">Отмена</button>`}<button class="btn primary" data-act="ready-send">${state.ready ? "Сохранить" : "Показать студиям"}</button></div>`);

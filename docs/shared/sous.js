@@ -260,6 +260,10 @@ function dateLabel(v) {
   if (d.getFullYear() !== new Date().getFullYear()) opts.year = "numeric";
   return `${wd[0].toUpperCase()}${wd.slice(1)}, ${d.toLocaleDateString("ru-RU", opts).replace(" г.", "")}`;
 }
+function checkPick({ name = "", value = "", label, checked = false, attrs = "", count = "" } = {}) {
+  return `<label class="check"><input type="checkbox"${name ? ` name="${esc(name)}"` : ""}${value !== "" ? ` value="${esc(value)}"` : ""}${checked ? " checked" : ""}${attrs ? ` ${attrs}` : ""}><span>${label}</span>${count !== "" ? `<span class="c num">${count}</span>` : ""}</label>`;
+}
+
 function filePick({ name = "file", accept = "", multiple = false, label = "Выбрать файл" } = {}) {
   return `<div class="file-pick" data-file-pick>
     <label class="file-pick-btn">
