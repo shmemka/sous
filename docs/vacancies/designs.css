@@ -826,6 +826,177 @@
 }
 
 /* =========================================================
+   9. Оригинальный HTML (точное воспроизведение «Прототип после правок.html»)
+   ========================================================= */
+[data-vacancy-design="proto-ref"] {
+  --bg: #0b0705;
+  --top-bg: rgba(11, 7, 5, 0.97);
+  --surface: #15100d;
+  --surface-2: #1c1410;
+  --surface-hover: #21140f;
+  --sunken: #120d0a;
+  --line: #3a2a22;
+  --line-2: #4b3328;
+  --text: #f7f2ee;
+  --text-2: #d8ccc5;
+  --text-3: #aaa09a;
+  --primary: #ff6a2b;
+  --primary-hover: #ff3b1f;
+  --btn-primary: #ff6a2b;
+  --font-sans: Arial, Helvetica, sans-serif;
+  --font-display: Arial, Helvetica, sans-serif;
+  --r-control: 10px;
+  --r-card: 16px;
+}
+
+[data-vacancy-design="proto-ref"] body {
+  font: 15px/1.45 Arial, Helvetica, sans-serif;
+}
+
+[data-vacancy-design="proto-ref"] .top {
+  border-bottom: 1px solid #3a2a22;
+}
+
+[data-vacancy-design="proto-ref"] .logo img {
+  display: none;
+}
+
+[data-vacancy-design="proto-ref"] .logo span {
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  background: linear-gradient(90deg, #ff6a2b, #ff3b1f);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+[data-vacancy-design="proto-ref"] .head {
+  background: none;
+}
+
+[data-vacancy-design="proto-ref"] .head::after {
+  display: none;
+}
+
+[data-vacancy-design="proto-ref"] .head-in {
+  padding: 38px 0 18px;
+  gap: 12px;
+}
+
+.proto-eyebrow {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #ff6a2b;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+[data-vacancy-design="proto-ref"] .head h1 {
+  font-size: 42px;
+  font-weight: 700;
+  line-height: 1.05;
+}
+
+[data-vacancy-design="proto-ref"] .lead {
+  color: #aaa09a;
+  font-size: 17px;
+  max-width: 780px;
+}
+
+[data-vacancy-design="proto-ref"] .work-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 4px 0 6px;
+}
+
+[data-vacancy-design="proto-ref"] .btn {
+  border: 1px solid #3a2a22;
+  background: #15100d;
+  color: #eee;
+  border-radius: 10px;
+}
+
+[data-vacancy-design="proto-ref"] .btn:hover {
+  background: #241711;
+}
+
+[data-vacancy-design="proto-ref"] .btn.primary {
+  border: 0;
+  background: linear-gradient(90deg, #ff6a2b, #ff3b1f);
+  color: #fff;
+  font-weight: 700;
+}
+
+[data-vacancy-design="proto-ref"] .btn.primary:hover {
+  filter: brightness(1.06);
+}
+
+[data-vacancy-design="proto-ref"] .search {
+  border: 1px solid #3a2a22;
+  background: #15100d;
+  border-radius: 10px;
+  box-shadow: none;
+}
+
+[data-vacancy-design="proto-ref"] .catalog {
+  grid-template-columns: minmax(0, 1fr);
+  padding-top: 16px;
+}
+
+[data-vacancy-design="proto-ref"] .toolbar .filters-btn {
+  display: none;
+}
+
+[data-vacancy-design="proto-ref"] .list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+[data-vacancy-design="proto-ref"] .card {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: 1fr auto;
+  background: #15100d;
+  border: 1px solid #3a2a22;
+  border-radius: 16px;
+  padding: 18px;
+  gap: 14px;
+}
+
+[data-vacancy-design="proto-ref"] .card:hover {
+  background: #1c1410;
+}
+
+[data-vacancy-design="proto-ref"] .c-title {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+[data-vacancy-design="proto-ref"] .meta span {
+  border: 1px solid #4b3328;
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 11px;
+  color: #d8ccc5;
+}
+
+[data-vacancy-design="proto-ref"] .c-side {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+  padding-top: 10px;
+  border-top: 1px solid #2b1e18;
+}
+
+[data-vacancy-design="proto-ref"] .money {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+/* =========================================================
    Светлая тема (только для концепций в «Дизайн»)
    ========================================================= */
 html[data-theme="light"][data-vacancy-design] {
@@ -1007,7 +1178,45 @@ html[data-theme="light"][data-vacancy-design="crimson"] .head {
   background: #efefef;
 }
 
+/* 9. Оригинальный HTML — светлая */
+html[data-theme="light"][data-vacancy-design="proto-ref"] {
+  --bg: #f7f2ee;
+  --top-bg: rgba(247, 242, 238, 0.97);
+  --surface: #ffffff;
+  --surface-2: #efe6df;
+  --surface-hover: #faf6f3;
+  --line: #e2d4ca;
+  --line-2: #cfb9aa;
+  --text: #1c130e;
+  --text-2: #4a3a31;
+  --text-3: #6e5c52;
+}
+
+html[data-theme="light"][data-vacancy-design="proto-ref"] .top {
+  border-bottom-color: #e2d4ca;
+}
+
+html[data-theme="light"][data-vacancy-design="proto-ref"] .btn:not(.primary),
+html[data-theme="light"][data-vacancy-design="proto-ref"] .search,
+html[data-theme="light"][data-vacancy-design="proto-ref"] .card {
+  background: #ffffff;
+  border-color: #e2d4ca;
+  color: #1c130e;
+}
+
+html[data-theme="light"][data-vacancy-design="proto-ref"] .meta span {
+  border-color: #e2d4ca;
+  color: #4a3a31;
+}
+
+html[data-theme="light"][data-vacancy-design="proto-ref"] .c-side {
+  border-top-color: #efe6df;
+}
+
 @media (max-width: 1020px) {
+  [data-vacancy-design="proto-ref"] .list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
   [data-vacancy-design="bento"] .card {
     grid-column: span 6;
   }
@@ -1017,6 +1226,7 @@ html[data-theme="light"][data-vacancy-design="crimson"] .head {
 }
 
 @media (max-width: 720px) {
+  [data-vacancy-design="proto-ref"] .list,
   [data-vacancy-design="pillbox"] .list,
   [data-vacancy-design="bento"] .list {
     grid-template-columns: minmax(0, 1fr);
@@ -1025,6 +1235,7 @@ html[data-theme="light"][data-vacancy-design="crimson"] .head {
   [data-vacancy-design="bento"] .card:first-child {
     grid-column: span 1;
   }
+  [data-vacancy-design="proto-ref"] .toolbar .filters-btn,
   [data-vacancy-design="editorial"] .toolbar .filters-btn,
   [data-vacancy-design="pillbox"] .toolbar .filters-btn,
   [data-vacancy-design="bento"] .toolbar .filters-btn {

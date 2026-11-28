@@ -507,6 +507,7 @@ const VACANCY_DESIGNS = [
   { id: "pillbox", title: "Нео-капсула", description: "Большие скругления, кнопки-капсулы и кораллово-мандариновый тон" },
   { id: "bento", title: "Бенто-сетка", description: "Асимметричная модульная сетка с акцентной карточкой и Space Grotesk" },
   { id: "crimson", title: "Киноварь", description: "Швейцарский строгий минимализм, IBM Plex Sans и плотные строки" },
+  { id: "proto-ref", title: "Оригинальный HTML", description: "Точная копия визуала, шрифтов, кнопок и карточек из HTML-прототипа" },
 ];
 const currentProtoPage = () => window.SOUS_PAGES.flatMap((group) => group.pages)
   .find((page) => page.path === (PAGE.currentPath?.() || PAGE.section));
