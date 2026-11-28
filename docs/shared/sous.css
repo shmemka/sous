@@ -444,6 +444,9 @@ a.pp-row:hover{background:var(--fill-2)}
 .pp-swatch-sprint{background:linear-gradient(140deg,#1b1b1e 58%,#e65827 59%)}
 .pp-swatch-redline{background:linear-gradient(140deg,#18161b 58%,#d92b4b 59%)}
 .pp-swatch-ember{background:linear-gradient(140deg,#181310 58%,#ee5a20 59%)}
+.pp-swatch-solar{background:linear-gradient(140deg,#1b110f 55%,#ff3d1f 56%,#ff7a1f 100%)}
+.pp-swatch-cobalt{background:linear-gradient(140deg,#111827 58%,#2563eb 59%)}
+.pp-swatch-sage{background:linear-gradient(140deg,#151a17 58%,#1f7a53 59%)}
 .pp-original{margin:8px 0 0 8px}
 .pp-original[aria-current="true"]{font-weight:600}
 .st{width:8px;height:8px;flex:none;border-radius:50%;background:var(--fill-2);box-shadow:inset 0 0 0 1.5px var(--text-3);opacity:.7}

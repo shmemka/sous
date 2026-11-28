@@ -519,7 +519,212 @@
 }
 
 /* =========================================================
-   Светлая тема (только для 4 концепций в «Дизайн»)
+   5. Солнечный импульс
+   Яркая красно-оранжевая палитра, живой градиент и акцент при наведении
+   ========================================================= */
+[data-vacancy-design="solar"] {
+  --bg: #110b0a;
+  --top-bg: rgba(17, 11, 10, 0.94);
+  --surface: #1b1210;
+  --surface-2: #251815;
+  --surface-hover: #291a16;
+  --sunken: #150d0c;
+  --line: #33201c;
+  --line-2: #4a2d27;
+  --primary: #ff451e;
+  --primary-hover: #ff5b36;
+  --btn-primary: #c92b0c;
+  --btn-primary-hover: #b22408;
+  --r-card: 18px;
+}
+
+@keyframes solarGlow {
+  0%, 100% { opacity: 0.85; transform: translate3d(0, 0, 0) scale(1); }
+  50% { opacity: 1; transform: translate3d(-16px, 8px, 0) scale(1.04); }
+}
+
+[data-vacancy-design="solar"] .head {
+  background: #170e0c;
+}
+
+[data-vacancy-design="solar"] .head::before {
+  content: "";
+  position: absolute;
+  inset: -40% -10% auto auto;
+  width: 620px;
+  height: 360px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 69, 30, 0.28), rgba(255, 115, 29, 0.08) 55%, transparent 72%);
+  pointer-events: none;
+  animation: solarGlow 9s ease-in-out infinite;
+}
+
+[data-vacancy-design="solar"] .btn.primary,
+[data-vacancy-design="solar"] .spec-pill[aria-pressed="true"] {
+  background: linear-gradient(125deg, #d12516, #d94a0f);
+}
+
+[data-vacancy-design="solar"] .btn.primary:hover {
+  background: linear-gradient(125deg, #b81f12, #c4410b);
+}
+
+[data-vacancy-design="solar"] .catalog {
+  grid-template-columns: minmax(0, 1fr);
+  padding-top: 20px;
+}
+
+[data-vacancy-design="solar"] .toolbar .filters-btn {
+  display: none;
+}
+
+[data-vacancy-design="solar"] .list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+[data-vacancy-design="solar"] .card {
+  position: relative;
+  overflow: hidden;
+  padding: 22px 24px;
+  transition: background-color 180ms var(--ease), transform 180ms var(--ease);
+}
+
+[data-vacancy-design="solar"] .card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 16px;
+  bottom: 16px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: linear-gradient(180deg, #ff3d1f, #ff7a1f);
+  opacity: 0;
+  transform: scaleY(0.5);
+  transition: opacity 180ms var(--ease), transform 180ms var(--ease);
+}
+
+[data-vacancy-design="solar"] .card:hover::before {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+/* =========================================================
+   6. Кобальт и сланец
+   Холодная технологичная палитра, чёткие линии и плавное появление
+   ========================================================= */
+[data-vacancy-design="cobalt"] {
+  --bg: #0b0f17;
+  --top-bg: rgba(11, 15, 23, 0.94);
+  --surface: #121824;
+  --surface-2: #192233;
+  --surface-hover: #1d273a;
+  --sunken: #0e131d;
+  --line: rgba(148, 163, 184, 0.14);
+  --line-2: rgba(148, 163, 184, 0.24);
+  --fill: rgba(148, 163, 184, 0.08);
+  --fill-2: rgba(148, 163, 184, 0.14);
+  --text: #f1f5f9;
+  --text-2: #cbd5e1;
+  --text-3: #8a99ad;
+  --primary: #3b82f6;
+  --primary-hover: #60a5fa;
+  --btn-primary: #1d4ed8;
+  --btn-primary-hover: #1e40af;
+  --glow-a: rgba(59, 130, 246, 0.16);
+  --glow-b: rgba(14, 165, 233, 0.08);
+  --font-display: "Montserrat", system-ui, sans-serif;
+  --r-card: 14px;
+}
+
+@keyframes cobaltIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+[data-vacancy-design="cobalt"] .head {
+  background: radial-gradient(ellipse 70% 80% at 85% 0%, rgba(59, 130, 246, 0.14), transparent 65%), #0e131d;
+}
+
+[data-vacancy-design="cobalt"] .head h1 {
+  font-size: clamp(28px, 3.6vw, 40px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+[data-vacancy-design="cobalt"] .filters {
+  background: var(--surface);
+  padding: 18px 16px;
+  border-radius: var(--r-card);
+  border: 1px solid var(--line);
+}
+
+[data-vacancy-design="cobalt"] .card {
+  border: 1px solid var(--line);
+  animation: cobaltIn 240ms var(--ease) both;
+}
+
+[data-vacancy-design="cobalt"] .card:hover {
+  border-color: rgba(59, 130, 246, 0.35);
+}
+
+[data-vacancy-design="cobalt"] .money {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   7. Шалфей и мокко
+   Спокойная природная палитра, крупные карточки и плашка дохода
+   ========================================================= */
+[data-vacancy-design="sage"] {
+  --bg: #101311;
+  --top-bg: rgba(16, 19, 17, 0.94);
+  --surface: #171c19;
+  --surface-2: #202622;
+  --surface-hover: #232a25;
+  --sunken: #131714;
+  --line: rgba(214, 224, 216, 0.10);
+  --line-2: rgba(214, 224, 216, 0.18);
+  --fill: rgba(214, 224, 216, 0.06);
+  --fill-2: rgba(214, 224, 216, 0.11);
+  --text: #f3f5f2;
+  --text-2: #c9d1cb;
+  --text-3: #8c9990;
+  --primary: #34a873;
+  --primary-hover: #42bd85;
+  --btn-primary: #1c6b47;
+  --btn-primary-hover: #17593b;
+  --glow-a: rgba(52, 168, 115, 0.14);
+  --glow-b: transparent;
+  --r-card: 20px;
+}
+
+[data-vacancy-design="sage"] .head {
+  background: radial-gradient(ellipse 65% 85% at 18% 0%, rgba(52, 168, 115, 0.13), transparent 65%), #131714;
+}
+
+[data-vacancy-design="sage"] .filters {
+  background: var(--surface);
+  padding: 18px 16px;
+  border-radius: var(--r-card);
+}
+
+[data-vacancy-design="sage"] .card {
+  padding: 26px 28px;
+}
+
+[data-vacancy-design="sage"] .money {
+  display: inline-grid;
+  justify-items: end;
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: var(--fill);
+  font-size: 24px;
+}
+
+/* =========================================================
+   Светлая тема (только для концепций в «Дизайн»)
    ========================================================= */
 html[data-theme="light"][data-vacancy-design] {
   color-scheme: light;
@@ -615,4 +820,80 @@ html[data-theme="light"][data-vacancy-design="ember"] {
 
 html[data-theme="light"][data-vacancy-design="ember"] .head {
   background: radial-gradient(ellipse 70% 85% at 15% 0%, rgba(224, 77, 22, 0.10), transparent 64%), #f5eee8;
+}
+
+/* 5. Солнечный импульс — светлая */
+html[data-theme="light"][data-vacancy-design="solar"] {
+  --bg: #fff8f5;
+  --top-bg: rgba(255, 248, 245, 0.94);
+  --surface: #ffffff;
+  --surface-2: #fceee8;
+  --surface-hover: #fff2ec;
+  --line: #f2ddd4;
+  --line-2: #e3c4b7;
+  --primary: #e03715;
+  --primary-hover: #c92b0c;
+  --btn-primary: #c92b0c;
+  --btn-primary-hover: #b22408;
+}
+
+html[data-theme="light"][data-vacancy-design="solar"] .head {
+  background: #fdf1ec;
+}
+
+html[data-theme="light"][data-vacancy-design="solar"] .head::before {
+  background: radial-gradient(circle, rgba(255, 69, 30, 0.16), rgba(255, 115, 29, 0.05) 55%, transparent 72%);
+}
+
+/* 6. Кобальт и сланец — светлая */
+html[data-theme="light"][data-vacancy-design="cobalt"] {
+  --bg: #f4f7fb;
+  --top-bg: rgba(244, 247, 251, 0.94);
+  --surface: #ffffff;
+  --surface-2: #e9eff7;
+  --surface-hover: #f8fafd;
+  --line: #e1e8f0;
+  --line-2: #cbd5e1;
+  --text: #0f172a;
+  --text-2: #334155;
+  --text-3: #5b697c;
+  --primary: #1d4ed8;
+  --primary-hover: #1e40af;
+  --btn-primary: #1d4ed8;
+  --btn-primary-hover: #1e40af;
+}
+
+html[data-theme="light"][data-vacancy-design="cobalt"] .head {
+  background: radial-gradient(ellipse 70% 80% at 85% 0%, rgba(37, 99, 235, 0.10), transparent 65%), #ebf1f8;
+}
+
+/* 7. Шалфей и мокко — светлая */
+html[data-theme="light"][data-vacancy-design="sage"] {
+  --bg: #f6f7f4;
+  --top-bg: rgba(246, 247, 244, 0.94);
+  --surface: #ffffff;
+  --surface-2: #ebefe9;
+  --surface-hover: #f8faf6;
+  --line: #e2e7df;
+  --line-2: #cdd5c9;
+  --text: #151916;
+  --text-2: #3f4a43;
+  --text-3: #5d6961;
+  --primary: #1c6b47;
+  --primary-hover: #17593b;
+  --btn-primary: #1c6b47;
+  --btn-primary-hover: #17593b;
+}
+
+html[data-theme="light"][data-vacancy-design="sage"] .head {
+  background: radial-gradient(ellipse 65% 85% at 18% 0%, rgba(28, 107, 71, 0.10), transparent 65%), #eef2ec;
+}
+
+@media (max-width: 720px) {
+  [data-vacancy-design="solar"] .list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  [data-vacancy-design="solar"] .toolbar .filters-btn {
+    display: inline-flex;
+  }
 }
