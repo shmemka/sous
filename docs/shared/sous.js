@@ -60,8 +60,14 @@ const NAV = [
 const CITIES = ["Все города", "Москва", "Санкт-Петербург", "Казань", "Екатеринбург"];
 
 /* ---------- Состояние (страница дополняет его через Object.assign) ---------- */
-function read(k, d) { try { return localStorage.getItem(k) || d; } catch { return d; } }
-function write(k, v) { try { localStorage.setItem(k, v); } catch {} }
+function read(k, d) {
+  try { return localStorage.getItem(k) || d; } catch {}
+  try { return (window.parent.__SOUS_STORE__ && window.parent.__SOUS_STORE__[k]) || d; } catch { return d; }
+}
+function write(k, v) {
+  try { localStorage.setItem(k, v); return; } catch {}
+  try { window.parent.__SOUS_STORE__ = window.parent.__SOUS_STORE__ || {}; window.parent.__SOUS_STORE__[k] = v; } catch {}
+}
 const state = {
   role: read("sous-role", "guest"),
   protoOpen: false,
@@ -81,7 +87,7 @@ function plural(n, one, few, many) {
   const m10 = n % 10, m100 = n % 100;
   return `${n} ${m10 === 1 && m100 !== 11 ? one : m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20) ? few : many}`;
 }
-function route() { return location.hash.replace(/^#!?/, "") || "/"; }
+function route() { return (location.hash || window.__SOUS_HASH__ || "").replace(/^#!?/, "") || "/"; }
 
 /* ---------- Иконки: Tabler Icons (tabler.io/icons, MIT), outline, сетка 24, обводка 2.6 (1.75 px при 16 px) ---------- */
 const ICONS = {
@@ -178,7 +184,9 @@ function verifiedMark(kind = "company") {
 /* ссылка на экран в этой же папке превращается в якорь, чтобы не перезагружать страницу */
 function localHref(href) {
   const m = href.match(/^\.\.\/([^/]+)\/(#.*)$/);
-  const folder = location.pathname.split("/").slice(-2, -1)[0];
+  const folder = window.parent !== window && typeof PAGE !== "undefined"
+    ? (PAGE.section || "").replace(/^\//, "")
+    : location.pathname.split("/").slice(-2, -1)[0];
   return m && m[1] === folder ? m[2] : href;
 }
 /* адрес пункта меню: готовый экран из pages.js или подсказка «ещё в работе» */

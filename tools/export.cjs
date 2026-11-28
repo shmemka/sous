@@ -115,11 +115,9 @@ const frame = document.getElementById("frame");
 
 function openPage(name, hash) {
   const key = PAGES[name] ? name : "vacancies";
-  const html = PAGES[key].replace(
-    "<head>",
-    '<head><script>try{if(location.hash!== ' + JSON.stringify(hash || "#/") + ')history.replaceState(null,"",' + JSON.stringify(hash || "#/") + ');}catch(e){}<\\/script>'
-  );
-  frame.srcdoc = html;
+  const targetHash = hash || "#/";
+  const inject = '<script>window.__SOUS_HASH__=' + JSON.stringify(targetHash) + ';try{location.hash=' + JSON.stringify(targetHash) + ';}catch(e){}<\\/script>';
+  frame.srcdoc = PAGES[key].replace("<head>", "<head>" + inject);
 }
 
 window.addEventListener("message", (e) => {
