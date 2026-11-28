@@ -687,7 +687,7 @@ function dlPanel() {
   return `<section class="dl-panel" role="dialog" aria-label="Скачать HTML">
     <div class="dl-head"><h3>Скачать HTML</h3><button class="btn sm icon-only" data-act="dl-menu" aria-label="Закрыть">${icon("x")}</button></div>
     ${isBundled ? `<button type="button" class="dl-item dl-main" data-act="dl-self"><span><b>Весь проект одним файлом</b><small>sous-all.html</small></span>${icon("download")}</button>`
-      : `<a class="dl-item dl-main" href="../export/sous-all.html" download="sous-all.html"><span><b>Весь проект одним файлом</b><small>sous-all.html</small></span>${icon("download")}</a>`}
+      : `<button type="button" class="dl-item dl-main" data-act="dl-live"><span><b>Весь проект одним файлом</b><small>Соберётся из текущей версии сайта</small></span>${icon("download")}</button>`}
   </section>`;
 }
 function renderProto() {
@@ -798,6 +798,60 @@ const SHARED_ACTIONS = {
     a.download = "sous-all.html";
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  },
+  "dl-live": async (el) => {
+    if (location.protocol === "file:") {
+      const a = document.createElement("a");
+      a.href = "../export/sous-all.html";
+      a.download = "sous-all.html";
+      a.click();
+      return;
+    }
+    el.disabled = true;
+    const sub = el.querySelector("small");
+    if (sub) sub.textContent = "Собираю актуальные страницы...";
+    try {
+      const dirs = ["companies", "gigs", "orders", "promos", "resume", "sous-map", "specialists", "vacancies"];
+      const getText = (u) => fetch(u, { cache: "no-store" }).then((r) => { if (!r.ok) throw new Error(u); return r.text(); });
+      const [sharedCss, pagesJs, sousJs, designsCss, logoBlob, ...rawPages] = await Promise.all([
+        getText("../shared/sous.css"),
+        getText("../shared/pages.js"),
+        getText("../shared/sous.js"),
+        getText("../vacancies/designs.css"),
+        fetch("../assets/logo.png", { cache: "no-store" }).then((r) => r.blob()),
+        ...dirs.map((d) => getText(`../${d}/index.html`)),
+      ]);
+      const logoUri = await new Promise((res) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.readAsDataURL(logoBlob); });
+      const safeScript = (code) => "<" + "script>\n" + code.replace(/<\/script>/gi, "<\\/script>") + "\n</" + "script>";
+      const bridge = "<" + "script>\n(function(){if(window.parent===window)return;document.addEventListener('click',function(e){var a=e.target.closest('a[href]');if(!a)return;var h=a.getAttribute('href')||'';if(h.startsWith('#/')){e.preventDefault();e.stopPropagation();window.__SOUS_HASH__=h;try{location.hash=h;}catch{}if(typeof PAGE!=='undefined'){PAGE.onRoute&&PAGE.onRoute();if(typeof closeModal==='function')closeModal();if(typeof render==='function')render();window.scrollTo(0,0);}return;}var m=h.match(/^\\.\\.\\/([a-z0-9-]+)\\/(?:#(.*))?$/i);if(m){e.preventDefault();e.stopPropagation();window.parent.postMessage({type:'sous-nav',page:m[1],hash:m[2]?'#'+m[2]:'#/'},'*');}},true);})();\n</" + "script>";
+      const bundled = {};
+      dirs.forEach((d, i) => {
+        let h = rawPages[i]
+          .replace(/<link\s+rel="stylesheet"\s+href="\.\.\/shared\/sous\.css(?:\?v=[^"]*)?"\s*>/, () => `<style>\n${sharedCss}\n</style>`)
+          .replace(/<link\s+rel="stylesheet"\s+href="designs\.css(?:\?v=[^"]*)?"\s*>/, () => `<style>\n${designsCss}\n</style>`)
+          .replace(/<script\s+src="\.\.\/shared\/pages\.js(?:\?v=[^"]*)?"\s*><\/script>/, () => safeScript(pagesJs))
+          .replace(/<script\s+src="\.\.\/shared\/sous\.js(?:\?v=[^"]*)?"\s*><\/script>/, () => safeScript(sousJs))
+          .replaceAll("../assets/logo.png", logoUri);
+        bundled[d] = h.replace("</body>", bridge + "\n</body>");
+      });
+      const allHtml = `<!doctype html>\n<html lang="ru" data-theme="dark">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n<title>СОУС · Единый прототип</title>\n<style>html,body{margin:0;padding:0;height:100%;background:#080402;overflow:hidden}#frame{display:block;width:100%;height:100%;border:0}</style>\n</head>\n<body>\n<iframe id="frame" title="Прототип СОУС"></iframe>\n${safeScript(`const PAGES=${JSON.stringify(bundled)};const frame=document.getElementById("frame");function openPage(n,h){const k=PAGES[n]?n:"vacancies";const t=h||"#/";const inj="<"+"script>window.__SOUS_HASH__="+JSON.stringify(t)+";try{location.hash="+JSON.stringify(t)+";}catch(e){}<\\/"+"script>";frame.srcdoc=PAGES[k].replace("<head>","<head>"+inj);}window.addEventListener("message",(e)=>{if(e.data&&e.data.type==="sous-nav")openPage(e.data.page,e.data.hash||"#/");});openPage("vacancies","#/");`)}\n</body>\n</html>\n`;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([allHtml], { type: "text/html;charset=utf-8" }));
+      a.download = "sous-all.html";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      state.dlOpen = false;
+      renderProto();
+      toast("Файл скачан", "Собран из самой актуальной версии сайта");
+    } catch {
+      const a = document.createElement("a");
+      a.href = "../export/sous-all.html";
+      a.download = "sous-all.html";
+      a.click();
+    } finally {
+      el.disabled = false;
+      if (sub) sub.textContent = "Соберётся из текущей версии сайта";
+    }
   },
   pages: togglePages,
   "pp-tab": (el) => {
