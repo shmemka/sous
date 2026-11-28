@@ -84,6 +84,19 @@ for (const dir of pageDirs) {
     var a = e.target.closest("a[href]");
     if (!a) return;
     var href = a.getAttribute("href") || "";
+    if (href.startsWith("#/")) {
+      e.preventDefault();
+      e.stopPropagation();
+      window.__SOUS_HASH__ = href;
+      try { location.hash = href; } catch {}
+      if (typeof PAGE !== "undefined") {
+        PAGE.onRoute && PAGE.onRoute();
+        if (typeof closeModal === "function") closeModal();
+        if (typeof render === "function") render();
+        window.scrollTo(0, 0);
+      }
+      return;
+    }
     var m = href.match(/^\\.\\.\\/([a-z0-9-]+)\\/(?:#(.*))?$/i);
     if (m) {
       e.preventDefault();

@@ -87,7 +87,10 @@ function plural(n, one, few, many) {
   const m10 = n % 10, m100 = n % 100;
   return `${n} ${m10 === 1 && m100 !== 11 ? one : m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20) ? few : many}`;
 }
-function route() { return (location.hash || window.__SOUS_HASH__ || "").replace(/^#!?/, "") || "/"; }
+function route() {
+  const h = (window.parent !== window && window.__SOUS_HASH__) ? window.__SOUS_HASH__ : (location.hash || window.__SOUS_HASH__ || "");
+  return h.replace(/^#!?/, "") || "/";
+}
 
 /* ---------- Иконки: Tabler Icons (tabler.io/icons, MIT), outline, сетка 24, обводка 2.6 (1.75 px при 16 px) ---------- */
 const ICONS = {
