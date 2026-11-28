@@ -429,11 +429,17 @@ function renderFooter() {
 
 /* ---------- Окна, вход, уведомления ---------- */
 function openModal(html) {
+  ["#top", "#app", "#footer", "#proto-root"].forEach((s) => $(s)?.setAttribute("inert", ""));
   $("#modal-root").innerHTML = `<div class="backdrop" data-act="close-bg"><div class="modal" role="dialog" aria-modal="true">${html}</div></div>`;
   document.body.classList.add("lock");
   setTimeout(() => ($("#modal-root [autofocus]") || $("#modal-root .modal button, #modal-root .modal input"))?.focus(), 30);
 }
-function closeModal() { closeDD(); $("#modal-root").innerHTML = ""; document.body.classList.remove("lock"); }
+function closeModal() {
+  ["#top", "#app", "#footer", "#proto-root"].forEach((s) => $(s)?.removeAttribute("inert"));
+  closeDD();
+  $("#modal-root").innerHTML = "";
+  document.body.classList.remove("lock");
+}
 const mHead = (title, sub = "") => `<div class="m-head"><div><h2>${title}</h2>${sub ? `<p>${sub}</p>` : ""}</div><button class="btn sm ghost icon-only" data-act="close" aria-label="Закрыть">${icon("x", "lg")}</button></div>`;
 
 /* Вход в момент действия: смотреть можно без регистрации, вход нужен для действия */
@@ -504,10 +510,16 @@ const pageAvailable = (page) => page.href && ["review", "done"].includes(pageSta
 const pageSearchText = (value) => value.toLowerCase().replaceAll("ё", "е");
 
 function vacancyDesign() {
+  if (PAGE.section !== "/vacancies") return "";
   const [path, query] = route().split("?");
-  if (PAGE.section !== "/vacancies" || path !== "/") return "";
-  const id = new URLSearchParams(query).get("design");
-  return VACANCY_DESIGNS.some((design) => design.id === id) ? id : "";
+  const param = new URLSearchParams(query).get("design");
+  if (param && VACANCY_DESIGNS.some((d) => d.id === param)) {
+    state.lastVacancyDesign = param;
+    return param;
+  }
+  if (path.startsWith("/v/") && state.lastVacancyDesign) return state.lastVacancyDesign;
+  if (path === "/") state.lastVacancyDesign = "";
+  return "";
 }
 
 function vacancyDesignsMarkup() {

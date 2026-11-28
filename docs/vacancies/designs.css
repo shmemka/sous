@@ -524,12 +524,14 @@
 html[data-theme="light"][data-vacancy-design] {
   color-scheme: light;
   --text: #181412;
-  --text-2: #524741;
-  --text-3: #867870;
+  --text-2: #443b35;
+  --text-3: #675c55;
   --fill: rgba(20, 14, 10, 0.05);
   --fill-2: rgba(20, 14, 10, 0.09);
   --seg: rgba(20, 14, 10, 0.06);
   --seg-on: #ffffff;
+  --btn-primary: #c83f0b;
+  --btn-primary-hover: #b33608;
   --shadow: 0 8px 24px rgba(18, 12, 8, 0.06);
 }
 
@@ -586,10 +588,12 @@ html[data-theme="light"][data-vacancy-design="redline"] {
   --line: #e4e1ea;
   --line-2: #d0cbd9;
   --text: #16131a;
-  --text-2: #4e4857;
-  --text-3: #817a8d;
-  --primary: #c91e3e;
-  --primary-hover: #b21734;
+  --text-2: #46404f;
+  --text-3: #635c6e;
+  --primary: #c41c3c;
+  --primary-hover: #ab1632;
+  --btn-primary: #c41c3c;
+  --btn-primary-hover: #ab1632;
 }
 
 html[data-theme="light"][data-vacancy-design="redline"] .head {

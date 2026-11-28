@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css?v=202611280330">
+<link rel="stylesheet" href="../shared/sous.css?v=202611280334">
 <style>
 .head-row h1{margin:0}
 .d-person .tile.sq{border-radius:20px}
@@ -62,8 +62,8 @@
 <div id="toast-root" class="toasts" aria-live="polite"></div>
 <div id="proto-root"></div>
 
-<script src="../shared/pages.js?v=202611280330"></script>
-<script src="../shared/sous.js?v=202611280330"></script>
+<script src="../shared/pages.js?v=202611280334"></script>
+<script src="../shared/sous.js?v=202611280334"></script>
 <script>
 /* =========================================================
    Компании: каталог (#/), профиль (#/v/id), карточка открытого каталога (#/d/id)
@@ -217,7 +217,6 @@ function resultsMarkup() {
   return `<div class="toolbar">
       <p class="count"><b class="num">${word.split(" ")[0]}</b> ${word.split(" ").slice(1).join(" ")}</p>
       <button class="btn sm filters-btn" data-act="sheet">${icon("sliders")}Фильтры${chips.length ? `<span class="badge-n num">${chips.length}</span>` : ""}</button>
-      <div class="sort-wrap">${dd({ key: "sort", value: state.sort, options: SORTS, variant: "compact", label: "Сортировка" })}</div>
     </div>
     ${chips.length ? `<div class="chips">${chips.map(([k, v, l]) => `<button class="chip" data-act="unchip" data-k="${k}" data-v="${esc(v)}">${esc(l)}${icon("x")}</button>`).join("")}<button class="link" data-act="reset" style="font-size:13px">Сбросить всё</button></div>` : ""}
     ${note}
@@ -246,6 +245,7 @@ function catalogView() {
     <div class="wrap catalog">
       <aside class="filters" aria-label="Фильтры">
         <div class="filters-head"><h2>Фильтры</h2>${activeChips().length ? `<button class="link" data-act="reset" style="font-size:13px">Сбросить</button>` : ""}</div>
+        <div class="field"><span>Сортировка</span>${dd({ key: "sort", value: state.sort, options: SORTS, label: "Сортировка" })}</div>
         ${filtersMarkup()}
       </aside>
       <section id="results" aria-live="polite">${resultsMarkup()}</section>
