@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css?v=202611280308">
+<link rel="stylesheet" href="../shared/sous.css?v=202611280324">
 <style>
 .c-car{font-size:13px;font-weight:500;color:var(--text-2);margin-top:2px}
 .offer-list{display:grid;gap:10px;margin-top:14px}
@@ -33,8 +33,8 @@
 <div id="toast-root" class="toasts" aria-live="polite"></div>
 <div id="proto-root"></div>
 
-<script src="../shared/pages.js?v=202611280308"></script>
-<script src="../shared/sous.js?v=202611280308"></script>
+<script src="../shared/pages.js?v=202611280324"></script>
+<script src="../shared/sous.js?v=202611280324"></script>
 <script>
 /* =========================================================
    Заявки автовладельцев: данные и состояние
@@ -64,7 +64,7 @@ let ORDERS = [
     details: ["Светлый текстиль и багажник", "Нужна сушка до сухого состояния", "Фотоотчёт до и после приветствуется"],
     place: "Москва, Центральный район",
     offers: [
-      { id: "off-1", name: "CleanLab", kind: "Студия", rating: "9,8", price: 16000, term: "За 1 день, 29 ноября", msg: "Полная химчистка салона, антибактериальная обработка и озонирование. Покажем фото до и после", chosen: false }
+      { id: "off-1", name: "CleanLab", kind: "Студия", rating: "10", price: 16000, term: "За 1 день, 29 ноября", msg: "Полная химчистка салона, антибактериальная обработка и озонирование. Покажем фото до и после", chosen: false }
     ]
   },
   {
@@ -86,9 +86,9 @@ let ORDERS = [
     details: ["Чёрный металлик, пробег 28 000 км", "Интересует состав с гарантией от 1 года", "Готова оставить авто на 2 дня"],
     place: "Казань, Вахитовский район",
     offers: [
-      { id: "off-2", name: "Shine&Go", kind: "Студия", rating: "9,8", price: 42000, term: "За 2 дня, 2–3 декабря", msg: "Одношаговая полировка и керамика в 2 слоя, дадим рекомендации по уходу", chosen: false },
-      { id: "off-3", name: "Михаил Соколов", kind: "Мастер", rating: "9,6", price: 38000, term: "За 2 дня", msg: "Работаю с премиальной керамикой, есть портфолио по чёрным кузовам", chosen: false },
-      { id: "off-4", name: "АвтоПрофи", kind: "Студия", rating: "9,5", price: 45000, term: "За 2 дня", msg: "Комплекс под ключ с антидождём на переднюю полусферу в подарок", chosen: false }
+      { id: "off-2", name: "Shine&Go", kind: "Студия", rating: "10", price: 42000, term: "За 2 дня, 2–3 декабря", msg: "Одношаговая полировка и керамика в 2 слоя, дадим рекомендации по уходу", chosen: false },
+      { id: "off-3", name: "Михаил Соколов", kind: "Мастер", rating: "10", price: 38000, term: "За 2 дня", msg: "Работаю с премиальной керамикой, есть портфолио по чёрным кузовам", chosen: false },
+      { id: "off-4", name: "АвтоПрофи", kind: "Студия", rating: "9", price: 45000, term: "За 2 дня", msg: "Комплекс под ключ с антидождём на переднюю полусферу в подарок", chosen: false }
     ]
   },
   {
@@ -130,7 +130,7 @@ let ORDERS = [
     details: ["Без пробега по трассе, сколов нет", "Важен аккуратный подворот краёв без стыков"],
     place: "Екатеринбург, Центр",
     offers: [
-      { id: "off-5", name: "Wrap Lab", kind: "Студия", rating: "9,7", price: 54000, term: "За 1 день", msg: "Оклеим полиуретаном толщиной 200 мкм, гарантия на работу 2 года", chosen: false }
+      { id: "off-5", name: "Wrap Lab", kind: "Студия", rating: "10", price: 54000, term: "За 1 день", msg: "Оклеим полиуретаном толщиной 200 мкм, гарантия на работу 2 года", chosen: false }
     ]
   },
   {
@@ -152,7 +152,7 @@ let ORDERS = [
     details: ["Цвет красный перламутр", "Желательно с полировкой фар"],
     place: "Москва, ЮЗАО",
     offers: [
-      { id: "off-6", name: "Гараж 77", kind: "Студия", rating: "9,4", price: 22000, term: "За 1 день", msg: "Двухэтапная полировка кузова, восстановление фар и защитный силант", chosen: false }
+      { id: "off-6", name: "Гараж 77", kind: "Студия", rating: "9", price: 22000, term: "За 1 день", msg: "Двухэтапная полировка кузова, восстановление фар и защитный силант", chosen: false }
     ]
   },
   {
@@ -534,7 +534,7 @@ const PAGE = {
       const d = Object.fromEntries(new FormData(f));
       const o = ORDERS.find((x) => x.id === id);
       const price = Number(String(d.price).replace(/\D/g, "")) || 0;
-      o.offers.unshift({ id: "off-" + Date.now(), name: ROLES[state.role].name, kind: state.role === "employer" ? "Студия" : "Мастер", rating: "9,7", price, term: d.term, msg: d.msg, chosen: false });
+      o.offers.unshift({ id: "off-" + Date.now(), name: ROLES[state.role].name, kind: state.role === "employer" ? "Студия" : "Мастер", rating: "10", price, term: d.term, msg: d.msg, chosen: false });
       state.responded.add(id);
       closeModal();
       render();

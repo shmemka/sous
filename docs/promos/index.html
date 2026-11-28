@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css?v=202611280308">
+<link rel="stylesheet" href="../shared/sous.css?v=202611280324">
 <style>
 .qr-box{width:176px;height:176px;margin:4px auto 14px;padding:14px;border-radius:14px;background:#fff;display:grid;place-items:center}
 .qr-code{text-align:center;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:16px;font-weight:700;letter-spacing:.08em;color:var(--text)}
@@ -37,8 +37,8 @@
 <div id="toast-root" class="toasts" aria-live="polite"></div>
 <div id="proto-root"></div>
 
-<script src="../shared/pages.js?v=202611280308"></script>
-<script src="../shared/sous.js?v=202611280308"></script>
+<script src="../shared/pages.js?v=202611280324"></script>
+<script src="../shared/sous.js?v=202611280324"></script>
 <script>
 /* =========================================================
    Кешбэк и акции: данные и состояние
@@ -376,7 +376,7 @@ function detailView(id) {
         ${card}
         <section class="panel org-card">
           <div class="d-org"><span class="tile">${initials(p.org)}</span><div><b>${esc(p.org)}</b><span>${p.city}</span></div></div>
-          <div class="org-line"><span>Рейтинг</span><b class="num">${p.verified ? "9,8/10" : "Пока нет отзывов"}</b></div>
+          <div class="org-line"><span>Рейтинг</span><b class="num">${p.verified ? "10/10" : "Пока нет отзывов"}</b></div>
           <div class="org-line"><span>Активных акций</span><b class="num">${PROMOS.filter((x) => x.org === p.org).length}</b></div>
           <a class="btn block" href="${pageHref("/companies/company-001")}">Профиль партнёра</a>
         </section>

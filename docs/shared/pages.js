@@ -46,8 +46,9 @@ window.SOUS_PAGES = [
     { path: "/calculator", title: "Калькулятор расхода" },
     { path: "/training", title: "Учебный центр" },
     { path: "/training/certificate/:id", title: "Проверка сертификата" },
-    { path: "/analytics", title: "ГеоАналитика" },
+    { path: "/analytics", title: "Аналитика" },
     { path: "/analytics/guide", title: "Инструкция по аналитике" },
+    { path: "/blacklist", title: "Чёрные списки" },
     { path: "/sous-map", title: "СОУС Карты" },
   ]},
   { title: "Личный кабинет", pages: [

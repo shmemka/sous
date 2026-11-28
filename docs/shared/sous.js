@@ -30,31 +30,30 @@ const ROLES = {
   partner:  { label: "Партнёр",      name: "Детейлинг Партнёр", initials: "ДП" },
 };
 
-/* Шапка: 5 групп по задачам. Пункт ведёт на готовый экран, если он отмечен в pages.js */
+/* Шапка: 4 группы по ролям и задачам + отдельная кнопка «Карта СОУС» */
 const NAV = [
   ["Работа", [
     ["/vacancies", "Вакансии", "Постоянная работа в студиях"],
-    ["/specialists", "Специалисты", "Резюме и мастера на подработку"],
     ["/gigs", "Подработки", "Разовые смены и срочные подмены"],
+  ]],
+  ["Бизнес и база", [
     ["/companies", "Компании", "Мойки, студии и автосервисы"],
-  ]],
-  ["Автоуслуги", [
-    ["/orders", "Заявки автовладельцев", "Клиенты ищут исполнителя"],
-    ["/promos", "Кешбэк и акции", "Скидки у партнёров"],
-    ["/sous-map", "Карта СОУС", "Компании и услуги на карте"],
-  ]],
-  ["Закупки", [
+    ["/specialists", "Специалисты", "Резюме и мастера на подработку"],
     ["/suppliers", "Поставщики", "Автохимия, оборудование, расходники"],
     ["/supply-requests", "Заявки на закупку", "Поставщики предлагают цену"],
-    ["/calculator", "Калькулятор расхода", "Сколько химии нужно"],
+    ["/analytics", "Аналитика", "Спрос, средний чек и конкуренты"],
+    ["/blacklist", "Чёрные списки", "Проверка недобросовестных контрагентов"],
   ]],
-  ["Обучение", [
-    ["/training", "Учебный центр", "Курсы и сертификаты"],
-    ["/events", "Мероприятия", "Форумы и встречи индустрии"],
+  ["Автовладельцам", [
+    ["/orders", "Заявки автовладельцев", "Поиск мастера и сравнение цен"],
+    ["/promos", "Кешбэк и акции", "Скидки по QR и возврат по чекам"],
   ]],
   ["Сообщество", [
     ["/feed", "Лента и автоновости", "Новости и опыт коллег"],
     ["/chats", "Чаты", "Обсуждения по специализациям"],
+    ["/events", "Мероприятия", "Нетворкинги и встречи индустрии"],
+    ["/training", "Учебный центр", "Курсы и сертификаты"],
+    ["/calculator", "Калькулятор расхода", "Расчёт материалов под автомобиль"],
   ]],
 ];
 
@@ -383,6 +382,7 @@ document.addEventListener("scroll", (e) => { if (ddOpen && !ddOpen.pop.contains(
 function navCurrent() { return NAV.findIndex(([, items]) => items.some(([path]) => path === PAGE.section)); }
 function renderHeader() {
   const r = state.role, user = ROLES[r], cur = navCurrent();
+  const isDesignLight = Boolean(document.documentElement.dataset.vacancyDesign) && document.documentElement.dataset.theme === "light";
   const right = r === "guest"
     ? `<a class="link hide-m" href="#" data-act="login">Войти</a><button class="btn sm hide-m" data-act="register">Регистрация</button>`
     : `<a class="btn ghost icon-only hide-m" href="${pageHref("/messages")}" aria-label="Сообщения">${icon("message", "lg")}</a>
@@ -395,9 +395,10 @@ function renderHeader() {
         <button class="nav-btn ${i === cur ? "current" : ""}" aria-expanded="false" data-act="nav" data-i="${i}">${title}${icon("down")}</button>
         <div class="menu" role="menu">${items.map(([path, label, sub]) => `<a role="menuitem" class="${path === PAGE.section ? "here" : ""}" href="${pageHref(path)}"><b>${label}</b><span>${sub}</span></a>`).join("")}</div>
       </div>`).join("")}
+      <a class="nav-map ${PAGE.section === "/sous-map" ? "current" : ""}" href="${pageHref("/sous-map")}">${icon("pin")}Карта СОУС</a>
     </nav>
     <div class="top-actions">
-      <button class="btn ghost icon-only" data-act="theme" aria-label="Светлая тема">${icon("sun", "lg")}</button>
+      <button class="btn ghost icon-only" data-act="theme" aria-label="${isDesignLight ? "Тёмная тема" : "Светлая тема"}">${icon(isDesignLight ? "moon" : "sun", "lg")}</button>
       ${right}
       <button class="btn icon-only burger" data-act="burger" aria-label="Меню">${icon("menu", "lg")}</button>
     </div>
@@ -415,6 +416,7 @@ function mobileMenu() {
       ${r === "guest" ? `<div class="grid2"><button class="btn" data-act="login">Войти</button><button class="btn primary" data-act="register">Регистрация</button></div>`
         : `<div class="grid2"><a class="btn" href="${pageHref("/messages")}">${icon("message")}Сообщения</a><a class="btn" href="${pageHref("/dashboard")}">Кабинет</a></div>`}
       ${NAV.map(([t, items]) => `<div class="m-group"><b>${t}</b>${items.map(([path, l]) => `<a href="${pageHref(path)}" class="${path === PAGE.section ? "here" : ""}">${l}${icon("right")}</a>`).join("")}</div>`).join("")}
+      <div class="m-group"><b>Навигация</b><a href="${pageHref("/sous-map")}" class="${PAGE.section === "/sous-map" ? "here" : ""}">Карта СОУС${icon("right")}</a></div>
     </div></aside>`;
   document.body.appendChild(wrap);
   document.body.classList.add("lock");
@@ -697,8 +699,18 @@ const SHARED_ACTIONS = {
   "dp-day": (el) => pickDP(el.dataset.v),
   "dp-month": (el) => { const d = parseDate(ddOpen.focus); d.setDate(1); d.setMonth(d.getMonth() + Number(el.dataset.v)); const v = isoDate(d); ddOpen.focus = dpAllowed(ddOpen.el, v) ? v : ddOpen.el.dataset.min; renderDP(); },
   nav: (el) => { const item = el.closest(".nav-item"); const open = !item.classList.contains("open"); closeNav(); if (open) { item.classList.add("open"); el.setAttribute("aria-expanded", "true"); } },
-  /* Светлая тема пока не прорабатывается: кнопка есть, но только сообщает об этом */
-  theme: () => toast("Светлая тема ещё в работе", "Пока прототип показываем только в тёмной теме", "info"),
+  /* Светлая тема работает только на 4 концепциях в разделе «Дизайн» */
+  theme: () => {
+    const root = document.documentElement;
+    if (!root.dataset.vacancyDesign) {
+      toast("Светлая тема ещё в работе", "Её можно посмотреть на 4 концепциях в разделе «Страницы → Дизайн» на Вакансиях", "info");
+      return;
+    }
+    const next = root.dataset.theme === "light" ? "dark" : "light";
+    root.dataset.theme = next;
+    write("sous-design-theme", next);
+    renderHeader();
+  },
   burger: mobileMenu,
   "close-drawer": closeDrawer,
   login: (el, e) => { e.preventDefault(); closeDrawer(); authModal("login"); },

@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css?v=202611280308">
+<link rel="stylesheet" href="../shared/sous.css?v=202611280324">
 <style>
 .when-line{display:flex;align-items:center;gap:12px;color:var(--text-2);font-size:15px;margin-top:12px}
 .when-line .icon{color:var(--text-3)}
@@ -25,8 +25,8 @@
 <div id="toast-root" class="toasts" aria-live="polite"></div>
 <div id="proto-root"></div>
 
-<script src="../shared/pages.js?v=202611280308"></script>
-<script src="../shared/sous.js?v=202611280308"></script>
+<script src="../shared/pages.js?v=202611280324"></script>
+<script src="../shared/sous.js?v=202611280324"></script>
 <script>
 /* =========================================================
    Подработки и подмены: данные
@@ -85,12 +85,12 @@ let GIGS = [
 /* Отклики на подработки работодателя Shine&Go */
 const RESP = {
   "gig-016": [
-    { id: "worker-006", name: "Артём Белов", role: "Универсал: мойка и салон", rating: "9,2", shifts: 9, rate: 9500, fresh: true, msg: "Могу оба дня. Есть опыт уборки салона и подготовки к полировке" },
-    { id: "worker-002", name: "Александр Волков", role: "Мастер химчистки", rating: "9,6", shifts: 31, rate: 10000, fresh: true, msg: "Выйду на оба дня, если ставка 10 000 ₽. Химчистку салона могу взять полностью" },
-    { id: "worker-003", name: "Дмитрий Ким", role: "Мойщик", rating: "9,4", shifts: 14, rate: 9500, fresh: false, msg: "Готов выйти, живу рядом с филиалом" },
+    { id: "worker-006", name: "Артём Белов", role: "Универсал: мойка и салон", rating: "9", shifts: 9, rate: 9500, fresh: true, msg: "Могу оба дня. Есть опыт уборки салона и подготовки к полировке" },
+    { id: "worker-002", name: "Александр Волков", role: "Мастер химчистки", rating: "10", shifts: 31, rate: 10000, fresh: true, msg: "Выйду на оба дня, если ставка 10 000 ₽. Химчистку салона могу взять полностью" },
+    { id: "worker-003", name: "Дмитрий Ким", role: "Мойщик", rating: "9", shifts: 14, rate: 9500, fresh: false, msg: "Готов выйти, живу рядом с филиалом" },
   ],
   "gig-009": [
-    { id: "worker-005", name: "Елена Орлова", role: "Администратор студии", rating: "9,0", shifts: 4, rate: 3000, fresh: false, msg: "Работала в CRM студии, знаю приёмку с фотофиксацией" },
+    { id: "worker-005", name: "Елена Орлова", role: "Администратор студии", rating: "9", shifts: 4, rate: 3000, fresh: false, msg: "Работала в CRM студии, знаю приёмку с фотофиксацией" },
   ],
 };
 const responses = (g) => RESP[g.id] || [];
@@ -98,12 +98,12 @@ GIGS.forEach((g) => { g.responses = g.org === MY_ORG ? responses(g).length : g.r
 
 /* Исполнители со статусом «готов к подработке» */
 const WORKERS = [
-  { id: "worker-001", name: "Михаил Соколов", role: "Полировка и PPF", city: "Москва", spec: "Полировка", rate: 6000, rating: "9,8", shifts: 23, free: ["weekend", "later"], freeText: "Свободен на выходных", verified: true, me: true },
-  { id: "worker-003", name: "Дмитрий Ким", role: "Мойщик", city: "Москва", spec: "Мойка", rate: 2500, rating: "9,4", shifts: 14, free: ["today", "tomorrow"], freeText: "Свободен сегодня и завтра", verified: false },
-  { id: "worker-002", name: "Александр Волков", role: "Мастер химчистки", city: "Казань", spec: "Химчистка", rate: 4000, rating: "9,6", shifts: 31, free: ["tomorrow", "weekend"], freeText: "Свободен завтра и на выходных", verified: true },
-  { id: "worker-006", name: "Артём Белов", role: "Универсал: мойка и салон", city: "Казань", spec: "Мойка", rate: 3000, rating: "9,2", shifts: 9, free: ["today", "weekend"], freeText: "Свободен сегодня и на выходных", verified: true },
+  { id: "worker-001", name: "Михаил Соколов", role: "Полировка и PPF", city: "Москва", spec: "Полировка", rate: 6000, rating: "10", shifts: 23, free: ["weekend", "later"], freeText: "Свободен на выходных", verified: true, me: true },
+  { id: "worker-003", name: "Дмитрий Ким", role: "Мойщик", city: "Москва", spec: "Мойка", rate: 2500, rating: "9", shifts: 14, free: ["today", "tomorrow"], freeText: "Свободен сегодня и завтра", verified: false },
+  { id: "worker-002", name: "Александр Волков", role: "Мастер химчистки", city: "Казань", spec: "Химчистка", rate: 4000, rating: "10", shifts: 31, free: ["tomorrow", "weekend"], freeText: "Свободен завтра и на выходных", verified: true },
+  { id: "worker-006", name: "Артём Белов", role: "Универсал: мойка и салон", city: "Казань", spec: "Мойка", rate: 3000, rating: "9", shifts: 9, free: ["today", "weekend"], freeText: "Свободен сегодня и на выходных", verified: true },
   { id: "worker-007", name: "Ильдар Сафин", role: "Оклейщик PPF", city: "Санкт-Петербург", spec: "Оклейка и PPF", rate: 5500, rating: "10", shifts: 12, free: ["later"], freeText: "Свободен со следующей недели", verified: true },
-  { id: "worker-004", name: "Руслан Галиев", role: "Специалист по керамике", city: "Казань", spec: "Керамика", rate: 7000, rating: "9,8", shifts: 18, free: ["weekend"], freeText: "Свободен на выходных", verified: true },
+  { id: "worker-004", name: "Руслан Галиев", role: "Специалист по керамике", city: "Казань", spec: "Керамика", rate: 7000, rating: "10", shifts: 18, free: ["weekend"], freeText: "Свободен на выходных", verified: true },
 ];
 
 /* ---------- Состояние страницы ---------- */
@@ -406,7 +406,7 @@ function detailView(id) {
         ${card}
         <section class="panel org-card">
           <div class="d-org"><span class="tile">${initials(g.org)}</span><div><b>${esc(g.org)}</b><span>${g.city}</span></div></div>
-          <div class="org-line"><span>Рейтинг заказчика</span><b class="num">${g.verified ? "9,8/10" : "Пока нет отзывов"}</b></div>
+          <div class="org-line"><span>Рейтинг заказчика</span><b class="num">${g.verified ? "10/10" : "Пока нет отзывов"}</b></div>
           <div class="org-line"><span>Открытых подработок</span><b class="num">${GIGS.filter((x) => x.org === g.org).length}</b></div>
           <a class="btn block" href="${companyHref(g.org)}">Профиль компании</a>
         </section>
@@ -427,7 +427,7 @@ function applyModal(id) {
   const g = GIGS.find((x) => x.id === id);
   openModal(`${mHead("Отклик на смену", `${esc(g.title)}, ${esc(g.org)}. ${g.when}, ${g.time}`)}
     <form class="m-body" id="mform">
-      <div class="resume-mini"><span class="tile round">МС</span><div><b>Михаил Соколов</b><span>Полировка и PPF, ${plural(23, "смена", "смены", "смен")} на СОУС, рейтинг 9,8/10</span></div><a class="link" href="${pageHref("/resume/resume-001/edit")}">Профиль</a></div>
+      <div class="resume-mini"><span class="tile round">МС</span><div><b>Михаил Соколов</b><span>Полировка и PPF, ${plural(23, "смена", "смены", "смен")} на СОУС, рейтинг 10/10</span></div><a class="link" href="${pageHref("/resume/resume-001/edit")}">Профиль</a></div>
       <label class="field"><span>Ваша ставка за смену, ₽</span><input class="input num" name="rate" inputmode="numeric" value="${fmt(g.pay)}"></label>
       <label class="field"><span>Сообщение заказчику</span><textarea class="textarea" name="msg" placeholder="Расскажите о себе и почему вы подходите" autofocus></textarea></label>
     </form>

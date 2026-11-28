@@ -1,8 +1,6 @@
 /* Четыре визуальные концепции страницы «Вакансии».
    Общие токены и базовые компоненты подключаются из ../shared/sous.css. */
 
-[data-vacancy-design] .top [data-act="theme"] { display: none; }
-
 .reference-tools {
   display: flex;
   align-items: center;
@@ -518,4 +516,99 @@
   .reference-tools > .btn[data-act="sheet"] {
     display: none;
   }
+}
+
+/* =========================================================
+   Светлая тема (только для 4 концепций в «Дизайн»)
+   ========================================================= */
+html[data-theme="light"][data-vacancy-design] {
+  color-scheme: light;
+  --text: #181412;
+  --text-2: #524741;
+  --text-3: #867870;
+  --fill: rgba(20, 14, 10, 0.05);
+  --fill-2: rgba(20, 14, 10, 0.09);
+  --seg: rgba(20, 14, 10, 0.06);
+  --seg-on: #ffffff;
+  --shadow: 0 8px 24px rgba(18, 12, 8, 0.06);
+}
+
+html[data-theme="light"][data-vacancy-design] .check input:checked::after {
+  border-color: #fff;
+}
+
+/* 1. Классика СОУС — светлая */
+html[data-theme="light"][data-vacancy-design="original-html"] {
+  --bg: #faf6f2;
+  --top-bg: rgba(250, 246, 242, 0.94);
+  --surface: #ffffff;
+  --surface-2: #f2ebe3;
+  --surface-hover: #f7f1eb;
+  --line: #e7ddd4;
+  --line-2: #d6c8bc;
+  --primary: #e04d16;
+  --primary-hover: #c9410e;
+}
+
+html[data-theme="light"][data-vacancy-design="original-html"] .head {
+  background: radial-gradient(ellipse 75% 90% at 86% -10%, rgba(224, 77, 22, 0.12), transparent 65%), #f4ede6;
+}
+
+/* 2. Графит и медь — светлая */
+html[data-theme="light"][data-vacancy-design="sprint"] {
+  --bg: #f3f4f6;
+  --top-bg: rgba(243, 244, 246, 0.94);
+  --surface: #ffffff;
+  --surface-2: #e9ebef;
+  --surface-hover: #f7f8fa;
+  --sunken: #eceef2;
+  --line: #e2e4e9;
+  --line-2: #cfd3db;
+  --text: #141416;
+  --text-2: #4b4d55;
+  --text-3: #7d808b;
+  --primary: #d94c1c;
+  --primary-hover: #c24014;
+}
+
+html[data-theme="light"][data-vacancy-design="sprint"] .head {
+  background: radial-gradient(ellipse 65% 80% at 85% 0%, rgba(217, 76, 28, 0.08), transparent 65%), #ebedf1;
+}
+
+/* 3. Список и превью — светлая */
+html[data-theme="light"][data-vacancy-design="redline"] {
+  --bg: #f5f4f7;
+  --top-bg: rgba(245, 244, 247, 0.94);
+  --surface: #ffffff;
+  --surface-2: #eeecf3;
+  --surface-hover: #f7f5fa;
+  --sunken: #eceaf0;
+  --line: #e4e1ea;
+  --line-2: #d0cbd9;
+  --text: #16131a;
+  --text-2: #4e4857;
+  --text-3: #817a8d;
+  --primary: #c91e3e;
+  --primary-hover: #b21734;
+}
+
+html[data-theme="light"][data-vacancy-design="redline"] .head {
+  background: radial-gradient(ellipse 60% 80% at 88% 0%, rgba(201, 30, 62, 0.08), transparent 65%), #edeaf1;
+}
+
+/* 4. Витрина направлений — светлая */
+html[data-theme="light"][data-vacancy-design="ember"] {
+  --bg: #fbf8f5;
+  --top-bg: rgba(251, 248, 245, 0.94);
+  --surface: #ffffff;
+  --surface-2: #f4ede7;
+  --surface-hover: #f9f4ef;
+  --line: #eadfd6;
+  --line-2: #d8c9bd;
+  --primary: #e04d16;
+  --primary-hover: #c9410e;
+}
+
+html[data-theme="light"][data-vacancy-design="ember"] .head {
+  background: radial-gradient(ellipse 70% 85% at 15% 0%, rgba(224, 77, 22, 0.10), transparent 64%), #f5eee8;
 }
