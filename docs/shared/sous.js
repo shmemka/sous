@@ -503,9 +503,10 @@ const VACANCY_DESIGNS = [
   { id: "sprint", title: "Графит и медь", description: "Матовый графит, боковые фильтры и быстрые теги специализаций" },
   { id: "redline", title: "Список и превью", description: "Компактный список слева и карточка выбранной вакансии справа" },
   { id: "ember", title: "Витрина направлений", description: "Крупная типографика, плитки специализаций и двухколоночная сетка" },
-  { id: "solar", title: "Солнечный импульс", description: "Яркий красно-оранжевый градиент, мягкое свечение и быстрые фильтры" },
-  { id: "cobalt", title: "Кобальт и сланец", description: "Холодная технологичная палитра, чёткие линии и плавное появление" },
-  { id: "sage", title: "Шалфей и мокко", description: "Спокойная природная палитра, крупные карточки и акцент на доходе" },
+  { id: "editorial", title: "Афиша", description: "Журнальный стиль, острые углы, шрифт Unbounded и список-линейка" },
+  { id: "pillbox", title: "Нео-капсула", description: "Большие скругления, кнопки-капсулы и кораллово-мандариновый тон" },
+  { id: "bento", title: "Бенто-сетка", description: "Асимметричная модульная сетка с акцентной карточкой и Space Grotesk" },
+  { id: "crimson", title: "Киноварь", description: "Швейцарский строгий минимализм, IBM Plex Sans и плотные строки" },
 ];
 const currentProtoPage = () => window.SOUS_PAGES.flatMap((group) => group.pages)
   .find((page) => page.path === (PAGE.currentPath?.() || PAGE.section));

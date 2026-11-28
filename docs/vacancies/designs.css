@@ -519,208 +519,310 @@
 }
 
 /* =========================================================
-   5. Солнечный импульс
-   Яркая красно-оранжевая палитра, живой градиент и акцент при наведении
+   5. Афиша (Editorial)
+   Журнальный стиль, острые углы (4px), Unbounded и список-линейка без карточек
    ========================================================= */
-[data-vacancy-design="solar"] {
-  --bg: #110b0a;
-  --top-bg: rgba(17, 11, 10, 0.94);
-  --surface: #1b1210;
-  --surface-2: #251815;
-  --surface-hover: #291a16;
-  --sunken: #150d0c;
-  --line: #33201c;
-  --line-2: #4a2d27;
-  --primary: #ff451e;
-  --primary-hover: #ff5b36;
-  --btn-primary: #c92b0c;
-  --btn-primary-hover: #b22408;
-  --r-card: 18px;
+[data-vacancy-design="editorial"] {
+  --bg: #090605;
+  --top-bg: rgba(9, 6, 5, 0.96);
+  --surface: #130e0c;
+  --surface-2: #1c1411;
+  --surface-hover: #18110e;
+  --line: #2d201b;
+  --line-2: #49322a;
+  --primary: #e53914;
+  --primary-hover: #ff4a24;
+  --btn-primary: #c92c0c;
+  --btn-primary-hover: #ad2408;
+  --font-display: "Unbounded", system-ui, sans-serif;
+  --r-control: 4px;
+  --r-card: 4px;
+  --r-panel: 6px;
 }
 
-@keyframes solarGlow {
-  0%, 100% { opacity: 0.85; transform: translate3d(0, 0, 0) scale(1); }
-  50% { opacity: 1; transform: translate3d(-16px, 8px, 0) scale(1.04); }
+[data-vacancy-design="editorial"] .head {
+  background: #0d0807;
+  border-bottom: 1px solid var(--line);
 }
 
-[data-vacancy-design="solar"] .head {
-  background: #170e0c;
+[data-vacancy-design="editorial"] .head h1 {
+  font-size: clamp(30px, 4.2vw, 52px);
+  letter-spacing: -0.03em;
 }
 
-[data-vacancy-design="solar"] .head::before {
-  content: "";
-  position: absolute;
-  inset: -40% -10% auto auto;
-  width: 620px;
-  height: 360px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 69, 30, 0.28), rgba(255, 115, 29, 0.08) 55%, transparent 72%);
-  pointer-events: none;
-  animation: solarGlow 9s ease-in-out infinite;
-}
-
-[data-vacancy-design="solar"] .btn.primary,
-[data-vacancy-design="solar"] .spec-pill[aria-pressed="true"] {
-  background: linear-gradient(125deg, #d12516, #d94a0f);
-}
-
-[data-vacancy-design="solar"] .btn.primary:hover {
-  background: linear-gradient(125deg, #b81f12, #c4410b);
-}
-
-[data-vacancy-design="solar"] .catalog {
+[data-vacancy-design="editorial"] .catalog {
   grid-template-columns: minmax(0, 1fr);
-  padding-top: 20px;
+  padding-top: 24px;
 }
 
-[data-vacancy-design="solar"] .toolbar .filters-btn {
+[data-vacancy-design="editorial"] .toolbar .filters-btn {
   display: none;
 }
 
-[data-vacancy-design="solar"] .list {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+[data-vacancy-design="editorial"] .list {
+  gap: 0;
+  border-top: 1px solid var(--line-2);
 }
 
-[data-vacancy-design="solar"] .card {
-  position: relative;
-  overflow: hidden;
-  padding: 22px 24px;
-  transition: background-color 180ms var(--ease), transform 180ms var(--ease);
+[data-vacancy-design="editorial"] .card {
+  background: transparent;
+  border-radius: 0;
+  border-bottom: 1px solid var(--line);
+  padding: 24px 8px;
+  transition: background-color 160ms var(--ease), padding-left 180ms var(--ease);
 }
 
-[data-vacancy-design="solar"] .card::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 16px;
-  bottom: 16px;
-  width: 3px;
-  border-radius: 0 3px 3px 0;
-  background: linear-gradient(180deg, #ff3d1f, #ff7a1f);
-  opacity: 0;
-  transform: scaleY(0.5);
-  transition: opacity 180ms var(--ease), transform 180ms var(--ease);
-}
-
-[data-vacancy-design="solar"] .card:hover::before {
-  opacity: 1;
-  transform: scaleY(1);
-}
-
-/* =========================================================
-   6. Кобальт и сланец
-   Холодная технологичная палитра, чёткие линии и плавное появление
-   ========================================================= */
-[data-vacancy-design="cobalt"] {
-  --bg: #0b0f17;
-  --top-bg: rgba(11, 15, 23, 0.94);
-  --surface: #121824;
-  --surface-2: #192233;
-  --surface-hover: #1d273a;
-  --sunken: #0e131d;
-  --line: rgba(148, 163, 184, 0.14);
-  --line-2: rgba(148, 163, 184, 0.24);
-  --fill: rgba(148, 163, 184, 0.08);
-  --fill-2: rgba(148, 163, 184, 0.14);
-  --text: #f1f5f9;
-  --text-2: #cbd5e1;
-  --text-3: #8a99ad;
-  --primary: #3b82f6;
-  --primary-hover: #60a5fa;
-  --btn-primary: #1d4ed8;
-  --btn-primary-hover: #1e40af;
-  --glow-a: rgba(59, 130, 246, 0.16);
-  --glow-b: rgba(14, 165, 233, 0.08);
-  --font-display: "Montserrat", system-ui, sans-serif;
-  --r-card: 14px;
-}
-
-@keyframes cobaltIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: none; }
-}
-
-[data-vacancy-design="cobalt"] .head {
-  background: radial-gradient(ellipse 70% 80% at 85% 0%, rgba(59, 130, 246, 0.14), transparent 65%), #0e131d;
-}
-
-[data-vacancy-design="cobalt"] .head h1 {
-  font-size: clamp(28px, 3.6vw, 40px);
-  font-weight: 700;
-  letter-spacing: -0.025em;
-}
-
-[data-vacancy-design="cobalt"] .filters {
+[data-vacancy-design="editorial"] .card:hover {
   background: var(--surface);
-  padding: 18px 16px;
-  border-radius: var(--r-card);
-  border: 1px solid var(--line);
+  padding-left: 16px;
 }
 
-[data-vacancy-design="cobalt"] .card {
-  border: 1px solid var(--line);
-  animation: cobaltIn 240ms var(--ease) both;
+[data-vacancy-design="editorial"] .btn {
+  border-radius: 4px;
+  border: 1px solid var(--line-2);
 }
 
-[data-vacancy-design="cobalt"] .card:hover {
-  border-color: rgba(59, 130, 246, 0.35);
+[data-vacancy-design="editorial"] .btn.primary {
+  border-color: transparent;
 }
 
-[data-vacancy-design="cobalt"] .money {
+[data-vacancy-design="editorial"] .money {
   font-size: 22px;
   font-weight: 700;
 }
 
 /* =========================================================
-   7. Шалфей и мокко
-   Спокойная природная палитра, крупные карточки и плашка дохода
+   6. Нео-капсула (Pillbox)
+   Дружелюбный мягкий минимализм, Plus Jakarta Sans, большие скругления и капсулы
    ========================================================= */
-[data-vacancy-design="sage"] {
-  --bg: #101311;
-  --top-bg: rgba(16, 19, 17, 0.94);
-  --surface: #171c19;
-  --surface-2: #202622;
-  --surface-hover: #232a25;
-  --sunken: #131714;
-  --line: rgba(214, 224, 216, 0.10);
-  --line-2: rgba(214, 224, 216, 0.18);
-  --fill: rgba(214, 224, 216, 0.06);
-  --fill-2: rgba(214, 224, 216, 0.11);
-  --text: #f3f5f2;
-  --text-2: #c9d1cb;
-  --text-3: #8c9990;
-  --primary: #34a873;
-  --primary-hover: #42bd85;
-  --btn-primary: #1c6b47;
-  --btn-primary-hover: #17593b;
-  --glow-a: rgba(52, 168, 115, 0.14);
-  --glow-b: transparent;
+[data-vacancy-design="pillbox"] {
+  --bg: #151110;
+  --top-bg: rgba(21, 17, 16, 0.94);
+  --surface: #1e1816;
+  --surface-2: #29201d;
+  --surface-hover: #2c231f;
+  --line: #362a26;
+  --line-2: #4a3933;
+  --primary: #f25c2a;
+  --primary-hover: #ff6e3d;
+  --btn-primary: #c93f12;
+  --btn-primary-hover: #b3360d;
+  --font-sans: "Plus Jakarta Sans", "Montserrat", system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", system-ui, sans-serif;
+  --r-control: 999px;
+  --r-card: 28px;
+  --r-panel: 28px;
+}
+
+[data-vacancy-design="pillbox"] body {
+  font-family: var(--font-sans);
+}
+
+[data-vacancy-design="pillbox"] .head {
+  background: radial-gradient(ellipse 60% 90% at 50% -20%, rgba(242, 92, 42, 0.22), transparent 70%), #181312;
+}
+
+[data-vacancy-design="pillbox"] .head h1 {
+  font-size: clamp(32px, 4vw, 46px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+[data-vacancy-design="pillbox"] .search {
+  border-radius: 999px;
+  padding: 5px 6px 5px 10px;
+}
+
+[data-vacancy-design="pillbox"] .search .btn,
+[data-vacancy-design="pillbox"] .btn {
+  border-radius: 999px;
+}
+
+[data-vacancy-design="pillbox"] .catalog {
+  grid-template-columns: minmax(0, 1fr);
+  padding-top: 22px;
+}
+
+[data-vacancy-design="pillbox"] .toolbar .filters-btn {
+  display: none;
+}
+
+[data-vacancy-design="pillbox"] .list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+[data-vacancy-design="pillbox"] .card {
+  padding: 24px 26px;
+  transition: transform 180ms var(--ease), background-color 180ms var(--ease);
+}
+
+[data-vacancy-design="pillbox"] .card:hover {
+  transform: translateY(-2px);
+}
+
+[data-vacancy-design="pillbox"] .money {
+  font-size: 20px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--fill);
+}
+
+/* =========================================================
+   7. Бенто-сетка (Bento)
+   Асимметричная модульная сетка 8+4, Space Grotesk и тёплый алый градиент
+   ========================================================= */
+[data-vacancy-design="bento"] {
+  --bg: #0d0a09;
+  --top-bg: rgba(13, 10, 9, 0.94);
+  --surface: #171210;
+  --surface-2: #221a17;
+  --surface-hover: #261d19;
+  --line: #30241f;
+  --line-2: #47342d;
+  --primary: #eb5e1b;
+  --primary-hover: #ff702e;
+  --btn-primary: #c73712;
+  --btn-primary-hover: #ad2d0c;
+  --font-display: "Space Grotesk", system-ui, sans-serif;
   --r-card: 20px;
 }
 
-[data-vacancy-design="sage"] .head {
-  background: radial-gradient(ellipse 65% 85% at 18% 0%, rgba(52, 168, 115, 0.13), transparent 65%), #131714;
+[data-vacancy-design="bento"] .head {
+  background: radial-gradient(ellipse 75% 85% at 85% 0%, rgba(217, 56, 20, 0.18), transparent 65%), #120d0b;
 }
 
-[data-vacancy-design="sage"] .filters {
+[data-vacancy-design="bento"] .head h1 {
+  font-size: clamp(32px, 4.2vw, 48px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+[data-vacancy-design="bento"] .catalog {
+  grid-template-columns: minmax(0, 1fr);
+  padding-top: 22px;
+}
+
+[data-vacancy-design="bento"] .toolbar .filters-btn {
+  display: none;
+}
+
+[data-vacancy-design="bento"] .list {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 14px;
+}
+
+[data-vacancy-design="bento"] .card {
+  grid-column: span 4;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: 1fr auto;
+  padding: 22px;
+  gap: 16px;
+}
+
+[data-vacancy-design="bento"] .card:first-child {
+  grid-column: span 8;
+  background: linear-gradient(135deg, rgba(217, 56, 20, 0.18), var(--surface) 62%);
+}
+
+[data-vacancy-design="bento"] .card:first-child .c-title {
+  font-size: 26px;
+}
+
+[data-vacancy-design="bento"] .card:first-child .money {
+  font-size: 28px;
+}
+
+[data-vacancy-design="bento"] .c-side {
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: space-between;
+  text-align: left;
+}
+
+[data-vacancy-design="bento"] .money {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+[data-vacancy-design="bento"] .btn.primary {
+  background: linear-gradient(125deg, #c92f10, #d44d11);
+}
+
+/* =========================================================
+   8. Киноварь (Crimson)
+   Швейцарский ультра-плотный минимализм, IBM Plex Sans, монохром + киноварь
+   ========================================================= */
+[data-vacancy-design="crimson"] {
+  --bg: #0a0909;
+  --top-bg: rgba(10, 9, 9, 0.96);
+  --surface: #131212;
+  --surface-2: #1c1a1a;
+  --surface-hover: #211e1e;
+  --line: #262323;
+  --line-2: #383333;
+  --fill: rgba(255, 255, 255, 0.05);
+  --fill-2: rgba(255, 255, 255, 0.09);
+  --text: #f5f5f5;
+  --text-2: #c4c0c0;
+  --text-3: #858080;
+  --primary: #d9261c;
+  --primary-hover: #f03226;
+  --btn-primary: #c42016;
+  --btn-primary-hover: #a81910;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif;
+  --font-display: "IBM Plex Sans", system-ui, sans-serif;
+  --r-control: 6px;
+  --r-card: 8px;
+}
+
+[data-vacancy-design="crimson"] body {
+  font-family: var(--font-sans);
+}
+
+[data-vacancy-design="crimson"] .head {
+  background: #0e0d0d;
+  border-bottom: 1px solid var(--line);
+}
+
+[data-vacancy-design="crimson"] .head h1 {
+  font-size: clamp(26px, 3vw, 34px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+[data-vacancy-design="crimson"] .filters {
   background: var(--surface);
-  padding: 18px 16px;
+  padding: 16px;
   border-radius: var(--r-card);
+  border: 1px solid var(--line);
 }
 
-[data-vacancy-design="sage"] .card {
-  padding: 26px 28px;
+[data-vacancy-design="crimson"] .list {
+  gap: 6px;
 }
 
-[data-vacancy-design="sage"] .money {
-  display: inline-grid;
-  justify-items: end;
-  padding: 8px 14px;
-  border-radius: 12px;
-  background: var(--fill);
-  font-size: 24px;
+[data-vacancy-design="crimson"] .card {
+  padding: 16px 20px;
+  gap: 16px;
+  border: 1px solid var(--line);
+}
+
+[data-vacancy-design="crimson"] .c-desc {
+  display: none;
+}
+
+[data-vacancy-design="crimson"] .c-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+[data-vacancy-design="crimson"] .money {
+  font-size: 18px;
+  font-weight: 600;
 }
 
 /* =========================================================
@@ -822,78 +924,110 @@ html[data-theme="light"][data-vacancy-design="ember"] .head {
   background: radial-gradient(ellipse 70% 85% at 15% 0%, rgba(224, 77, 22, 0.10), transparent 64%), #f5eee8;
 }
 
-/* 5. Солнечный импульс — светлая */
-html[data-theme="light"][data-vacancy-design="solar"] {
-  --bg: #fff8f5;
-  --top-bg: rgba(255, 248, 245, 0.94);
+/* 5. Афиша — светлая */
+html[data-theme="light"][data-vacancy-design="editorial"] {
+  --bg: #faf7f5;
+  --top-bg: rgba(250, 247, 245, 0.95);
+  --surface: #f2ebe7;
+  --surface-2: #e8ded8;
+  --surface-hover: #ede4df;
+  --line: #e4d8d1;
+  --line-2: #cbbab0;
+  --primary: #c92c0c;
+  --primary-hover: #ad2408;
+  --btn-primary: #c92c0c;
+  --btn-primary-hover: #ad2408;
+}
+
+html[data-theme="light"][data-vacancy-design="editorial"] .head {
+  background: #f5efeb;
+}
+
+/* 6. Нео-капсула — светлая */
+html[data-theme="light"][data-vacancy-design="pillbox"] {
+  --bg: #fcf8f6;
+  --top-bg: rgba(252, 248, 246, 0.94);
   --surface: #ffffff;
-  --surface-2: #fceee8;
-  --surface-hover: #fff2ec;
-  --line: #f2ddd4;
-  --line-2: #e3c4b7;
-  --primary: #e03715;
-  --primary-hover: #c92b0c;
-  --btn-primary: #c92b0c;
-  --btn-primary-hover: #b22408;
+  --surface-2: #f6ebe6;
+  --surface-hover: #faf1ed;
+  --line: #eedfd8;
+  --line-2: #dec8be;
+  --primary: #e04d1e;
+  --primary-hover: #c93f12;
+  --btn-primary: #c93f12;
+  --btn-primary-hover: #b3360d;
 }
 
-html[data-theme="light"][data-vacancy-design="solar"] .head {
-  background: #fdf1ec;
+html[data-theme="light"][data-vacancy-design="pillbox"] .head {
+  background: radial-gradient(ellipse 60% 90% at 50% -20%, rgba(242, 92, 42, 0.14), transparent 70%), #f7efe9;
 }
 
-html[data-theme="light"][data-vacancy-design="solar"] .head::before {
-  background: radial-gradient(circle, rgba(255, 69, 30, 0.16), rgba(255, 115, 29, 0.05) 55%, transparent 72%);
-}
-
-/* 6. Кобальт и сланец — светлая */
-html[data-theme="light"][data-vacancy-design="cobalt"] {
-  --bg: #f4f7fb;
-  --top-bg: rgba(244, 247, 251, 0.94);
+/* 7. Бенто-сетка — светлая */
+html[data-theme="light"][data-vacancy-design="bento"] {
+  --bg: #f7f4f2;
+  --top-bg: rgba(247, 244, 242, 0.94);
   --surface: #ffffff;
-  --surface-2: #e9eff7;
-  --surface-hover: #f8fafd;
-  --line: #e1e8f0;
-  --line-2: #cbd5e1;
-  --text: #0f172a;
-  --text-2: #334155;
-  --text-3: #5b697c;
-  --primary: #1d4ed8;
-  --primary-hover: #1e40af;
-  --btn-primary: #1d4ed8;
-  --btn-primary-hover: #1e40af;
+  --surface-2: #efe7e2;
+  --surface-hover: #f5efeb;
+  --line: #e8ddd6;
+  --line-2: #d6c5ba;
+  --primary: #d93814;
+  --primary-hover: #bd2d0d;
+  --btn-primary: #c73712;
+  --btn-primary-hover: #ad2d0c;
 }
 
-html[data-theme="light"][data-vacancy-design="cobalt"] .head {
-  background: radial-gradient(ellipse 70% 80% at 85% 0%, rgba(37, 99, 235, 0.10), transparent 65%), #ebf1f8;
+html[data-theme="light"][data-vacancy-design="bento"] .head {
+  background: radial-gradient(ellipse 75% 85% at 85% 0%, rgba(217, 56, 20, 0.10), transparent 65%), #f2ebe6;
 }
 
-/* 7. Шалфей и мокко — светлая */
-html[data-theme="light"][data-vacancy-design="sage"] {
-  --bg: #f6f7f4;
-  --top-bg: rgba(246, 247, 244, 0.94);
+html[data-theme="light"][data-vacancy-design="bento"] .card:first-child {
+  background: linear-gradient(135deg, rgba(217, 56, 20, 0.10), #ffffff 62%);
+}
+
+/* 8. Киноварь — светлая */
+html[data-theme="light"][data-vacancy-design="crimson"] {
+  --bg: #f5f4f4;
+  --top-bg: rgba(245, 244, 244, 0.96);
   --surface: #ffffff;
-  --surface-2: #ebefe9;
-  --surface-hover: #f8faf6;
-  --line: #e2e7df;
-  --line-2: #cdd5c9;
-  --text: #151916;
-  --text-2: #3f4a43;
-  --text-3: #5d6961;
-  --primary: #1c6b47;
-  --primary-hover: #17593b;
-  --btn-primary: #1c6b47;
-  --btn-primary-hover: #17593b;
+  --surface-2: #eceaea;
+  --surface-hover: #f8f7f7;
+  --line: #e3e0e0;
+  --line-2: #ccc7c7;
+  --text: #141212;
+  --text-2: #444040;
+  --text-3: #666161;
+  --primary: #c42016;
+  --primary-hover: #a81910;
+  --btn-primary: #c42016;
+  --btn-primary-hover: #a81910;
 }
 
-html[data-theme="light"][data-vacancy-design="sage"] .head {
-  background: radial-gradient(ellipse 65% 85% at 18% 0%, rgba(28, 107, 71, 0.10), transparent 65%), #eef2ec;
+html[data-theme="light"][data-vacancy-design="crimson"] .head {
+  background: #efefef;
+}
+
+@media (max-width: 1020px) {
+  [data-vacancy-design="bento"] .card {
+    grid-column: span 6;
+  }
+  [data-vacancy-design="bento"] .card:first-child {
+    grid-column: span 12;
+  }
 }
 
 @media (max-width: 720px) {
-  [data-vacancy-design="solar"] .list {
+  [data-vacancy-design="pillbox"] .list,
+  [data-vacancy-design="bento"] .list {
     grid-template-columns: minmax(0, 1fr);
   }
-  [data-vacancy-design="solar"] .toolbar .filters-btn {
+  [data-vacancy-design="bento"] .card,
+  [data-vacancy-design="bento"] .card:first-child {
+    grid-column: span 1;
+  }
+  [data-vacancy-design="editorial"] .toolbar .filters-btn,
+  [data-vacancy-design="pillbox"] .toolbar .filters-btn,
+  [data-vacancy-design="bento"] .toolbar .filters-btn {
     display: inline-flex;
   }
 }

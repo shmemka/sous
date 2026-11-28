@@ -8,9 +8,9 @@
 <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css?v=202611280352">
-<link rel="stylesheet" href="designs.css?v=202611280352">
+<link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=Montserrat:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/sous.css?v=202611280359">
+<link rel="stylesheet" href="designs.css?v=202611280359">
 </head>
 <body>
 <a class="sr-only" href="#app">Перейти к содержимому</a>
@@ -21,8 +21,8 @@
 <div id="toast-root" class="toasts" aria-live="polite"></div>
 <div id="proto-root"></div>
 
-<script src="../shared/pages.js?v=202611280352"></script>
-<script src="../shared/sous.js?v=202611280352"></script>
+<script src="../shared/pages.js?v=202611280359"></script>
+<script src="../shared/sous.js?v=202611280359"></script>
 <script>
 /* =========================================================
    Вакансии и резюме: данные
@@ -251,7 +251,7 @@ function resultsMarkup() {
     ? `<div class="list">${design === "redline" ? items.map((v) => redlineRow(v, activeId)).join("") : items.map(vacancyCard).join("")}</div>`
     : `<div class="empty">${icon("search", "lg")}<h3>Ничего не нашлось</h3><p>Попробуйте другой город, уберите требования к опыту или сбросьте фильтры</p><button class="btn" data-act="reset">Сбросить фильтры</button></div>`;
 
-  const hasSidebar = !design || design === "sprint" || design === "cobalt" || design === "sage";
+  const hasSidebar = !design || design === "sprint" || design === "crimson";
   const toolbar = `<div class="toolbar">
       <p class="count"><b class="num">${word.split(" ")[0]}</b> ${word.split(" ").slice(1).join(" ")}</p>
       <button class="btn sm filters-btn" data-act="sheet">${icon("sliders")}Фильтры${chips.length ? `<span class="badge-n num">${chips.length}</span>` : ""}</button>
@@ -260,7 +260,7 @@ function resultsMarkup() {
     ${chips.length ? `<div class="chips">${chips.map(([k, v, l]) => `<button class="chip" data-act="unchip" data-k="${k}" data-v="${esc(v)}" aria-label="Убрать фильтр «${esc(l)}»">${esc(l)}${icon("x")}</button>`).join("")}<button class="link" data-act="reset" style="font-size:13px">Сбросить всё</button></div>` : ""}
     ${roleNote()}`;
 
-  if (design === "sprint" || design === "solar") return `${quickSpecsBar()}${toolbar}${list}`;
+  if (design === "sprint" || design === "pillbox") return `${quickSpecsBar()}${toolbar}${list}`;
   if (design === "ember") return `${specShowcase()}${toolbar}${list}`;
   if (design === "redline") {
     return `${toolbar}<div class="split-view">${list}${spotlightPreview(items)}</div>`;
@@ -302,8 +302,8 @@ function catalogView() {
     : `<p class="lead">Постоянная работа в автомойках, детейлинг-студиях и автосервисах. Разовые смены ищите в разделе <a class="link accent" href="${pageHref("/gigs")}">Подработки</a></p>`;
   const heading = `<div class="head-row"><h1>${design === "original-html" ? "Вакансии и резюме" : "Вакансии"}</h1>${design === "original-html" ? "" : headAction()}</div>`;
   const results = `<section id="results" aria-live="polite">${resultsMarkup()}</section>`;
-  const hasSidebar = !design || design === "sprint" || design === "cobalt" || design === "sage";
-  const hasTopTools = design === "original-html" || design === "redline" || design === "ember" || design === "solar";
+  const hasSidebar = !design || design === "sprint" || design === "crimson";
+  const hasTopTools = design === "original-html" || design === "redline" || design === "ember" || design === "editorial" || design === "pillbox" || design === "bento";
   return `<section class="head"><div class="wrap head-in">
       ${heading}${lead}
       ${design === "original-html" ? workLinks() : ""}
