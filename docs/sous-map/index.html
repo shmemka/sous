@@ -33,6 +33,7 @@
 .map-open.closed{color:var(--text-3)}
 .map-canvas-box{position:relative;min-height:560px;border-radius:var(--r-panel);background:#120e0c;overflow:hidden}
 #leafletMap{position:absolute;inset:0;z-index:1;background:#120e0c}
+#leafletMap .leaflet-tile-pane{filter:invert(100%) hue-rotate(180deg) brightness(92%) contrast(92%) sepia(14%) saturate(85%)}
 .leaflet-control-attribution{background:rgba(12,9,8,.65)!important;color:var(--text-3)!important;font-size:10px!important;padding:2px 6px!important}
 .leaflet-control-attribution a{color:var(--text-2)!important}
 .sous-pin-wrap{background:none;border:0}
@@ -147,9 +148,8 @@ function initLeaflet() {
   if (!box || typeof L === "undefined") return;
   if (lMap) { lMap.remove(); lMap = null; }
   lMap = L.map(box, { zoomControl: false, attributionControl: true }).setView([56.8, 44.0], 5);
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-    attribution: "&copy; OpenStreetMap &copy; CARTO",
-    subdomains: "abcd",
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "&copy; OpenStreetMap",
     maxZoom: 19
   }).addTo(lMap);
   lLayer = L.layerGroup().addTo(lMap);
