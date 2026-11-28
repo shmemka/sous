@@ -684,10 +684,13 @@ function pagesPanel() {
 }
 function dlPanel() {
   const isBundled = window.parent !== window;
+  const cur = currentProtoPage();
+  const pageTitle = cur ? cur.title : PAGE.section.replace(/^\//, "");
   return `<section class="dl-panel" role="dialog" aria-label="Скачать HTML">
     <div class="dl-head"><h3>Скачать HTML</h3><button class="btn sm icon-only" data-act="dl-menu" aria-label="Закрыть">${icon("x")}</button></div>
     ${isBundled ? `<button type="button" class="dl-item dl-main" data-act="dl-self"><span><b>Весь проект одним файлом</b><small>sous-all.html</small></span>${icon("download")}</button>`
       : `<button type="button" class="dl-item dl-main" data-act="dl-live"><span><b>Весь проект одним файлом</b><small>Соберётся из текущей версии сайта</small></span>${icon("download")}</button>`}
+    <button type="button" class="dl-item" data-act="dl-page"><span><b>Активная страница</b><small>${esc(pageTitle)}${isBundled ? "" : " · из текущей версии"}</small></span>${icon("download")}</button>
   </section>`;
 }
 function renderProto() {
@@ -755,6 +758,37 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+function downloadHtmlFile(filename, html) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([html], { type: "text/html;charset=utf-8" }));
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+const safeScriptTag = (code) => "<" + "script>\n" + code.replace(/<\/script>/gi, "<\\/script>") + "\n</" + "script>";
+async function buildLiveBundle(dirs) {
+  const getText = (u) => fetch(u, { cache: "no-store" }).then((r) => { if (!r.ok) throw new Error(u); return r.text(); });
+  const [sharedCss, pagesJs, sousJs, designsCss, logoBlob, ...rawPages] = await Promise.all([
+    getText("../shared/sous.css"),
+    getText("../shared/pages.js"),
+    getText("../shared/sous.js"),
+    dirs.includes("vacancies") ? getText("../vacancies/designs.css") : Promise.resolve(""),
+    fetch("../assets/logo.png", { cache: "no-store" }).then((r) => r.blob()),
+    ...dirs.map((d) => getText(`../${d}/index.html`)),
+  ]);
+  const logoUri = await new Promise((res) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.readAsDataURL(logoBlob); });
+  const bundled = {};
+  dirs.forEach((d, i) => {
+    bundled[d] = rawPages[i]
+      .replace(/<link\s+rel="stylesheet"\s+href="\.\.\/shared\/sous\.css(?:\?v=[^"]*)?"\s*>/, () => `<style>\n${sharedCss}\n</style>`)
+      .replace(/<link\s+rel="stylesheet"\s+href="designs\.css(?:\?v=[^"]*)?"\s*>/, () => `<style>\n${designsCss}\n</style>`)
+      .replace(/<script\s+src="\.\.\/shared\/pages\.js(?:\?v=[^"]*)?"\s*><\/script>/, () => safeScriptTag(pagesJs))
+      .replace(/<script\s+src="\.\.\/shared\/sous\.js(?:\?v=[^"]*)?"\s*><\/script>/, () => safeScriptTag(sousJs))
+      .replaceAll("../assets/logo.png", logoUri);
+  });
+  return bundled;
+}
+
 const SHARED_ACTIONS = {
   dd: (el) => { const box = el.closest(".dd"); ddOpen?.el === box ? closeDD() : openDD(box); },
   "dd-opt": (el) => pickDD(el.dataset.v),
@@ -792,12 +826,42 @@ const SHARED_ACTIONS = {
   proto: () => { state.protoOpen = !state.protoOpen; state.pagesOpen = false; state.dlOpen = false; renderProto(); },
   "dl-menu": () => { state.dlOpen = !state.dlOpen; state.pagesOpen = false; state.protoOpen = false; renderProto(); },
   "dl-self": () => {
-    const html = "<!doctype html>\n" + window.parent.document.documentElement.outerHTML;
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob([html], { type: "text/html;charset=utf-8" }));
-    a.download = "sous-all.html";
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    downloadHtmlFile("sous-all.html", "<!doctype html>\n" + window.parent.document.documentElement.outerHTML);
+  },
+  "dl-page": async (el) => {
+    const dir = PAGE.section.replace(/^\//, "");
+    const currentHash = window.__SOUS_HASH__ || location.hash || "#/";
+    const hashScript = "<" + "script>window.__SOUS_HASH__=" + JSON.stringify(currentHash) + ";try{location.hash=" + JSON.stringify(currentHash) + ";}catch(e){}</" + "script>";
+    if (window.parent !== window) {
+      const raw = "<!doctype html>\n" + document.documentElement.outerHTML;
+      const html = raw.replace("<head>", "<head>" + hashScript);
+      downloadHtmlFile(`sous-${dir}.html`, html);
+      state.dlOpen = false;
+      renderProto();
+      toast("Страница скачана", `sous-${dir}.html`);
+      return;
+    }
+    if (location.protocol === "file:") {
+      toast("Нужен запущенный сайт", "Локально через file:// браузер блокирует чтение файлов", "info");
+      return;
+    }
+    el.disabled = true;
+    const sub = el.querySelector("small");
+    const prevSub = sub ? sub.textContent : "";
+    if (sub) sub.textContent = "Собираю страницу...";
+    try {
+      const bundled = await buildLiveBundle([dir]);
+      const html = bundled[dir].replace("<head>", "<head>" + hashScript);
+      downloadHtmlFile(`sous-${dir}.html`, html);
+      state.dlOpen = false;
+      renderProto();
+      toast("Страница скачана", `sous-${dir}.html из актуальной версии`);
+    } catch {
+      toast("Не удалось собрать страницу", "Попробуйте скачать весь проект", "info");
+    } finally {
+      el.disabled = false;
+      if (sub) sub.textContent = prevSub;
+    }
   },
   "dl-live": async (el) => {
     if (location.protocol === "file:") {
@@ -812,34 +876,11 @@ const SHARED_ACTIONS = {
     if (sub) sub.textContent = "Собираю актуальные страницы...";
     try {
       const dirs = ["companies", "gigs", "orders", "promos", "resume", "sous-map", "specialists", "vacancies"];
-      const getText = (u) => fetch(u, { cache: "no-store" }).then((r) => { if (!r.ok) throw new Error(u); return r.text(); });
-      const [sharedCss, pagesJs, sousJs, designsCss, logoBlob, ...rawPages] = await Promise.all([
-        getText("../shared/sous.css"),
-        getText("../shared/pages.js"),
-        getText("../shared/sous.js"),
-        getText("../vacancies/designs.css"),
-        fetch("../assets/logo.png", { cache: "no-store" }).then((r) => r.blob()),
-        ...dirs.map((d) => getText(`../${d}/index.html`)),
-      ]);
-      const logoUri = await new Promise((res) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.readAsDataURL(logoBlob); });
-      const safeScript = (code) => "<" + "script>\n" + code.replace(/<\/script>/gi, "<\\/script>") + "\n</" + "script>";
+      const bundled = await buildLiveBundle(dirs);
       const bridge = "<" + "script>\n(function(){if(window.parent===window)return;document.addEventListener('click',function(e){var a=e.target.closest('a[href]');if(!a)return;var h=a.getAttribute('href')||'';if(h.startsWith('#/')){e.preventDefault();e.stopPropagation();window.__SOUS_HASH__=h;try{location.hash=h;}catch{}if(typeof PAGE!=='undefined'){PAGE.onRoute&&PAGE.onRoute();if(typeof closeModal==='function')closeModal();if(typeof render==='function')render();window.scrollTo(0,0);}return;}var m=h.match(/^\\.\\.\\/([a-z0-9-]+)\\/(?:#(.*))?$/i);if(m){e.preventDefault();e.stopPropagation();window.parent.postMessage({type:'sous-nav',page:m[1],hash:m[2]?'#'+m[2]:'#/'},'*');}},true);})();\n</" + "script>";
-      const bundled = {};
-      dirs.forEach((d, i) => {
-        let h = rawPages[i]
-          .replace(/<link\s+rel="stylesheet"\s+href="\.\.\/shared\/sous\.css(?:\?v=[^"]*)?"\s*>/, () => `<style>\n${sharedCss}\n</style>`)
-          .replace(/<link\s+rel="stylesheet"\s+href="designs\.css(?:\?v=[^"]*)?"\s*>/, () => `<style>\n${designsCss}\n</style>`)
-          .replace(/<script\s+src="\.\.\/shared\/pages\.js(?:\?v=[^"]*)?"\s*><\/script>/, () => safeScript(pagesJs))
-          .replace(/<script\s+src="\.\.\/shared\/sous\.js(?:\?v=[^"]*)?"\s*><\/script>/, () => safeScript(sousJs))
-          .replaceAll("../assets/logo.png", logoUri);
-        bundled[d] = h.replace(/<\/body>/i, bridge + "\n<" + "/body>");
-      });
-      const allHtml = `<!doctype html>\n<html lang="ru" data-theme="dark">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n<title>СОУС · Единый прототип</title>\n<style>html,body{margin:0;padding:0;height:100%;background:#080402;overflow:hidden}#frame{display:block;width:100%;height:100%;border:0}</style>\n</head>\n<body>\n<iframe id="frame" title="Прототип СОУС"></iframe>\n${safeScript(`const PAGES=${JSON.stringify(bundled)};const frame=document.getElementById("frame");function openPage(n,h){const k=PAGES[n]?n:"vacancies";const t=h||"#/";const inj="<"+"script>window.__SOUS_HASH__="+JSON.stringify(t)+";try{location.hash="+JSON.stringify(t)+";}catch(e){}<\\/"+"script>";frame.srcdoc=PAGES[k].replace("<head>","<head>"+inj);}window.addEventListener("message",(e)=>{if(e.data&&e.data.type==="sous-nav")openPage(e.data.page,e.data.hash||"#/");});openPage("vacancies","#/");`)}\n<` + `/body>\n<` + `/html>\n`;
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(new Blob([allHtml], { type: "text/html;charset=utf-8" }));
-      a.download = "sous-all.html";
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      dirs.forEach((d) => { bundled[d] = bundled[d].replace(/<\/body>/i, bridge + "\n<" + "/body>"); });
+      const allHtml = `<!doctype html>\n<html lang="ru" data-theme="dark">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">\n<title>СОУС · Единый прототип</title>\n<style>html,body{margin:0;padding:0;height:100%;background:#080402;overflow:hidden}#frame{display:block;width:100%;height:100%;border:0}</style>\n</head>\n<body>\n<iframe id="frame" title="Прототип СОУС"></iframe>\n${safeScriptTag(`const PAGES=${JSON.stringify(bundled)};const frame=document.getElementById("frame");function openPage(n,h){const k=PAGES[n]?n:"vacancies";const t=h||"#/";const inj="<"+"script>window.__SOUS_HASH__="+JSON.stringify(t)+";try{location.hash="+JSON.stringify(t)+";}catch(e){}<\\/"+"script>";frame.srcdoc=PAGES[k].replace("<head>","<head>"+inj);}window.addEventListener("message",(e)=>{if(e.data&&e.data.type==="sous-nav")openPage(e.data.page,e.data.hash||"#/");});openPage("vacancies","#/");`)}\n<` + `/body>\n<` + `/html>\n`;
+      downloadHtmlFile("sous-all.html", allHtml);
       state.dlOpen = false;
       renderProto();
       toast("Файл скачан", "Собран из самой актуальной версии сайта");
