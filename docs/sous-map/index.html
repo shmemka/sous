@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Карта СОУС · СОУС</title>
+<meta name="description" content="Интерактивная карта автоуслуг СОУС: автомойки, детейлинг-центры и автосервисы по городам">
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/sous.css?v=202611280337">
+<style>
+.map-wrap{padding:20px 0 80px;display:grid;gap:16px}
+.map-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.map-cats{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.map-cat{min-height:36px;padding:0 14px;border-radius:999px;background:var(--fill);color:var(--text-2);font-size:13px;font-weight:500;transition:background-color .16s var(--ease),color .16s var(--ease)}
+.map-cat:hover{background:var(--fill-2);color:var(--text)}
+.map-cat[aria-pressed="true"]{background:var(--btn-primary,var(--primary));color:var(--on-primary)}
+.map-view-sw{display:none}
+.map-shell{display:grid;grid-template-columns:360px minmax(0,1fr);gap:16px;align-items:stretch}
+.map-list{background:var(--surface);border-radius:var(--r-panel);padding:10px;display:grid;gap:6px;align-content:start;max-height:600px;overflow:auto}
+.map-item{width:100%;display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;align-items:start;padding:12px;border-radius:12px;text-align:left;transition:background-color .16s var(--ease)}
+.map-item:hover{background:var(--fill)}
+.map-item.is-active{background:var(--surface-2)}
+.map-item-body{min-width:0;display:grid;gap:3px}
+.map-item-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.map-item-top b{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.map-item-sub{font-size:12px;color:var(--text-3)}
+.map-item-meta{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-2);margin-top:2px}
+.map-open{color:var(--ok);font-weight:500}
+.map-open.closed{color:var(--text-3)}
+.map-canvas-box{position:relative;min-height:560px;border-radius:var(--r-panel);background:#120e0c;overflow:hidden}
+.map-canvas{position:absolute;inset:0;transform:scale(var(--zoom,1));transform-origin:center;transition:transform .2s var(--ease);
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,.035) 1px, transparent 1px);
+  background-size:48px 48px}
+.map-road{position:absolute;background:rgba(255,236,224,.06);border-radius:999px}
+.map-road.r1{left:-10%;right:-10%;top:38%;height:10px;transform:rotate(-8deg)}
+.map-road.r2{left:36%;top:-10%;bottom:-10%;width:10px;transform:rotate(12deg)}
+.map-road.r3{left:-5%;right:-5%;top:70%;height:7px;transform:rotate(5deg)}
+.map-river{position:absolute;right:8%;top:-10%;bottom:-10%;width:64px;background:rgba(80,140,200,.08);transform:rotate(-16deg)}
+.map-pin{position:absolute;transform:translate(-50%,-50%);display:inline-flex;align-items:center;gap:6px;padding:6px 10px 6px 8px;border-radius:999px;background:var(--surface-2);color:var(--text);font-size:12px;font-weight:600;box-shadow:0 6px 18px rgba(0,0,0,.45);transition:background-color .16s var(--ease),transform .16s var(--ease)}
+.map-pin:hover{transform:translate(-50%,-54%);background:var(--surface-hover)}
+.map-pin.is-active{background:var(--btn-primary,var(--primary));color:#fff;z-index:5}
+.map-tools{position:absolute;top:14px;right:14px;z-index:6;display:grid;gap:6px}
+.map-tools button{width:36px;height:36px;border-radius:10px;background:var(--surface-2);color:var(--text);display:grid;place-items:center;box-shadow:var(--shadow);font-size:16px;font-weight:600}
+.map-tools button:hover{background:var(--surface-hover)}
+.map-card{position:absolute;left:16px;right:16px;bottom:16px;z-index:6;max-width:440px;padding:18px 20px;border-radius:var(--r-card);background:var(--surface);box-shadow:0 18px 48px rgba(0,0,0,.55);display:grid;gap:12px}
+.map-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.map-card-head h2{font-size:19px;font-weight:600;line-height:1.2}
+.map-card-acts{display:flex;flex-wrap:wrap;gap:8px}
+@media(max-width:900px){
+  .map-view-sw{display:inline-flex}
+  .map-shell{grid-template-columns:1fr}
+  .map-shell.mode-map .map-list{display:none}
+  .map-shell.mode-list .map-canvas-box{display:none}
+  .map-canvas-box{min-height:460px}
+}
+</style>
+</head>
+<body>
+<a class="sr-only" href="#app">Перейти к содержимому</a>
+<header class="top" id="top"></header>
+<main id="app" tabindex="-1"></main>
+<footer class="footer" id="footer"></footer>
+<div id="modal-root"></div>
+<div id="toast-root" class="toasts" aria-live="polite"></div>
+<div id="proto-root"></div>
+
+<script src="../shared/pages.js?v=202611280337"></script>
+<script src="../shared/sous.js?v=202611280337"></script>
+<script>
+/* =========================================================
+   Карта СОУС: точки и состояние
+   ========================================================= */
+const MAP_POINTS = [
+  { id: "company-001", name: "Shine&Go", branch: "Центральный филиал", city: "Казань", cat: "detailing", catLabel: "Детейлинг", address: "ул. Пушкина, 24", rating: "10", reviews: 42, verified: true, open: true, hours: "09:00–21:00", x: 64, y: 34, services: ["PPF", "Полировка", "Керамика"] },
+  { id: "company-002", name: "CleanLab", branch: "Тверская", city: "Москва", cat: "wash", catLabel: "Автомойка", address: "ул. Тверская, 12", rating: "9", reviews: 36, verified: true, open: true, hours: "Круглосуточно", x: 35, y: 40, services: ["Мойка", "Химчистка"] },
+  { id: "company-003", name: "АвтоПрофи", branch: "Невский", city: "Санкт-Петербург", cat: "service", catLabel: "Автосервис", address: "Невский пр., 88", rating: "9", reviews: 28, verified: true, open: false, hours: "Откроется в 09:00", x: 50, y: 24, services: ["Детейлинг", "Автосервис"] },
+  { id: "directory-001", name: "Детейлинг Партнёр", branch: "Арбат", city: "Москва", cat: "detailing", catLabel: "Детейлинг", address: "ул. Арбат, 18", rating: "9", reviews: 19, verified: false, open: true, hours: "10:00–22:00", x: 44, y: 56, services: ["Полировка", "Химчистка"] },
+  { id: "company-004", name: "Detail House", branch: "Центр", city: "Екатеринбург", cat: "detailing", catLabel: "Детейлинг", address: "ул. Малышева, 51", rating: "10", reviews: 24, verified: true, open: true, hours: "09:00–20:00", x: 74, y: 54, services: ["Керамика", "Химчистка"] },
+  { id: "company-005", name: "Мойка 24", branch: "Север", city: "Казань", cat: "wash", catLabel: "Автомойка", address: "пр. Победы, 142", rating: "9", reviews: 16, verified: true, open: true, hours: "08:00–22:00", x: 70, y: 42, services: ["Мойка", "Экспресс"] },
+  { id: "company-007", name: "Wrap Lab", branch: "Петроградский", city: "Санкт-Петербург", cat: "detailing", catLabel: "PPF и защита", address: "Большой пр. ПС, 44", rating: "10", reviews: 31, verified: true, open: true, hours: "10:00–21:00", x: 56, y: 34, services: ["PPF", "Полировка"] }
+];
+
+const CATS = [["all", "Все"], ["detailing", "Детейлинг"], ["wash", "Автомойки"], ["service", "Автосервис"]];
+
+Object.assign(state, {
+  q: "",
+  city: "Все города",
+  cat: "all",
+  verified: false,
+  selected: "company-001",
+  zoom: 1,
+  view: "map",
+  phones: new Set(),
+});
+
+function filtered() {
+  const q = state.q.trim().toLowerCase();
+  return MAP_POINTS.filter((c) => {
+    if (state.city !== "Все города" && c.city !== state.city) return false;
+    if (state.cat !== "all" && c.cat !== state.cat) return false;
+    if (state.verified && !c.verified) return false;
+    if (q && ![c.name, c.branch, c.city, c.address, c.services.join(" ")].join(" ").toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+
+function companyHref(c) {
+  return c.id === "directory-001" ? pageHref("/companies/directory/directory-001") : pageHref(`/companies/${c.id}`);
+}
+
+function mapView() {
+  document.body.className = "catalog-page";
+  document.title = "Карта СОУС · СОУС";
+  const items = filtered();
+  const cur = items.find((c) => c.id === state.selected) || items[0] || null;
+  const word = plural(items.length, "точка", "точки", "точек");
+
+  return `<section class="head"><div class="wrap head-in">
+      <div class="head-row">
+        <div class="tabs map-view-sw" role="tablist" aria-label="Вид">
+          <button type="button" class="tab" role="tab" aria-selected="${state.view === "map"}" data-act="view" data-v="map">Карта</button>
+          <button type="button" class="tab" role="tab" aria-selected="${state.view === "list"}" data-act="view" data-v="list">Список</button>
+        </div>
+        <a class="btn" href="${pageHref("/companies")}">Каталог компаний</a>
+      </div>
+      <h1>Карта СОУС</h1>
+      <p class="lead">Автомойки, детейлинг-центры и автосервисы на карте города</p>
+      <form class="search" role="search" data-act-submit="search">
+        <label class="s-field"><span class="sr-only">Поиск</span>${icon("search", "lg")}<input id="q" type="search" value="${esc(state.q)}" placeholder="Название, услуга или адрес" autocomplete="off"></label>
+        <div class="s-field s-city">${dd({ key: "search-city", name: "city", value: state.city, options: CITIES, variant: "bare", iconName: "pin", label: "Город" })}</div>
+        <button class="btn primary" type="submit">Найти</button>
+      </form>
+    </div></section>
+    <div class="wrap map-wrap">
+      <div class="map-bar">
+        <div class="map-cats">
+          ${CATS.map(([id, label]) => `<button type="button" class="map-cat" data-act="cat" data-cat="${id}" aria-pressed="${state.cat === id}">${label}</button>`).join("")}
+          <label class="toggle-row" style="margin-left:8px"><span>Только проверенные</span><input class="switch" type="checkbox" data-act-change="verified" ${state.verified ? "checked" : ""}></label>
+        </div>
+        <p class="count"><b class="num">${word.split(" ")[0]}</b> ${word.split(" ").slice(1).join(" ")}</p>
+      </div>
+      <div class="map-shell mode-${state.view}">
+        <aside class="map-list" aria-label="Компании на карте">
+          ${items.length ? items.map((c) => `<button type="button" class="map-item ${cur?.id === c.id ? "is-active" : ""}" data-act="pick" data-id="${c.id}">
+            <span class="tile">${initials(c.name)}</span>
+            <span class="map-item-body">
+              <span class="map-item-top"><b>${esc(c.name)}</b>${c.verified ? verifiedMark() : ""}</span>
+              <span class="map-item-sub">${esc(c.city)}, ${esc(c.address)}</span>
+              <span class="map-item-meta"><b class="num">${c.rating}/10</b><span>${esc(c.catLabel)}</span><span class="map-open ${c.open ? "" : "closed"}">${c.open ? "Открыто" : "Закрыто"}</span></span>
+            </span>
+          </button>`).join("") : `<div class="empty" style="padding:32px 16px"><h3>Ничего не найдено</h3><button class="btn sm" data-act="reset">Сбросить</button></div>`}
+        </aside>
+        <section class="map-canvas-box" aria-label="Схема города">
+          <div class="map-canvas" style="--zoom:${state.zoom}">
+            <span class="map-river" aria-hidden="true"></span>
+            <span class="map-road r1" aria-hidden="true"></span>
+            <span class="map-road r2" aria-hidden="true"></span>
+            <span class="map-road r3" aria-hidden="true"></span>
+            ${items.map((c) => `<button type="button" class="map-pin ${cur?.id === c.id ? "is-active" : ""}" style="left:${c.x}%;top:${c.y}%" data-act="pick" data-id="${c.id}">${icon("pin")}<span>${esc(c.name)}</span></button>`).join("")}
+          </div>
+          <div class="map-tools">
+            <button type="button" data-act="zoom-in" aria-label="Приблизить">+</button>
+            <button type="button" data-act="zoom-out" aria-label="Отдалить">-</button>
+            <button type="button" data-act="zoom-reset" aria-label="Сбросить масштаб">${icon("search")}</button>
+          </div>
+          ${cur ? `<article class="map-card">
+            <div class="map-card-head">
+              <div>
+                <div class="c-org">${esc(cur.catLabel)}${cur.verified ? verifiedMark() : ""}</div>
+                <h2>${esc(cur.name)}</h2>
+                <div class="meta"><span>${icon("pin")}${esc(cur.city)}, ${esc(cur.address)}</span><span>${icon("clock")}${esc(cur.hours)}</span></div>
+              </div>
+              <b class="num" style="font-size:20px">${cur.rating}/10</b>
+            </div>
+            <div class="map-card-acts">
+              <a class="btn sm primary" href="${companyHref(cur)}">Профиль компании</a>
+              <button type="button" class="btn sm" data-act="phone" data-id="${cur.id}">${icon("phone")}${state.phones.has(cur.id) ? "+7 (999) 521-22-51" : "Телефон"}</button>
+            </div>
+          </article>` : ""}
+        </section>
+      </div>
+    </div>`;
+}
+
+document.addEventListener("input", (e) => {
+  if (e.target.id === "q") { state.q = e.target.value; render(); }
+});
+document.addEventListener("change", (e) => {
+  if (e.target.dataset.actChange === "verified") { state.verified = e.target.checked; render(); }
+});
+document.addEventListener("submit", (e) => { e.preventDefault(); });
+
+const PAGE = {
+  section: "/sous-map",
+  currentPath: () => "/sous-map",
+  render() { $("#app").innerHTML = mapView(); },
+  onDD(key, v) {
+    if (key === "search-city") { state.city = v; render(); return true; }
+    return false;
+  },
+  authText: () => ["Войдите, чтобы увидеть телефон", "Номер откроется сразу после входа"],
+  loginRole: () => "client",
+  afterLogin(p) { if (p.kind === "phone" && p.id) { state.phones.add(p.id); render(); } },
+  roleHints: { guest: "смотрит карту", client: "ищет сервис", worker: "смотрит студии", employer: "проверяет конкурентов", supplier: "ищет клиентов", partner: "ищет партнёров" },
+  actions: {
+    cat: (el) => { state.cat = el.dataset.cat; render(); },
+    view: (el) => { state.view = el.dataset.v; render(); },
+    pick: (el) => { state.selected = el.dataset.id; render(); },
+    "zoom-in": () => { state.zoom = Math.min(1.5, +(state.zoom + 0.15).toFixed(2)); render(); },
+    "zoom-out": () => { state.zoom = Math.max(0.85, +(state.zoom - 0.15).toFixed(2)); render(); },
+    "zoom-reset": () => { state.zoom = 1; render(); },
+    reset: () => { state.q = ""; state.city = "Все города"; state.cat = "all"; state.verified = false; render(); },
+    phone: (el, e, id) => { if (!needAuth("phone", id)) { state.phones.add(id); render(); } },
+  },
+};
+
+start();
+</script>
+</body>
+</html>
