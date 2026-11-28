@@ -299,7 +299,7 @@ function catalogView() {
     <div class="wrap catalog">
       <aside class="filters" aria-label="Фильтры">
         <div class="filters-head"><h2>Фильтры</h2>${chips.length ? `<button class="link" data-act="reset">Сбросить</button>` : ""}</div>
-        <div class="field"><span>Сортировка</span>${dd({ key: "sort", value: state.sort, options: [["new", "Сначала новые"], ["benefit", "Сначала с большей выгодой"]], label: "Сортировка" })}</div>
+        <div class="field">${dd({ key: "sort", value: state.sort, options: [["new", "Сначала новые"], ["benefit", "Сначала с большей выгодой"]], label: "Сортировка" })}</div>
         ${filtersMarkup()}
       </aside>
       <section id="results" aria-live="polite">
