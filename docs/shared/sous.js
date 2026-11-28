@@ -554,6 +554,7 @@ function currentPageMarkup(page) {
   if (!page) return "";
   return `<div class="pp-now" aria-label="Текущий экран">
     <div class="pp-now-info">
+      <span class="pp-now-kicker">Сейчас открыто</span>
       <span class="pp-now-title">${esc(page.title)}</span>
       <code class="pp-route">${esc(page.path)}</code>
     </div>
@@ -563,18 +564,19 @@ function currentPageMarkup(page) {
     </div>
   </div>`;
 }
-function pageRow(page, isCurrent) {
+function pageRow(page) {
   const status = pageStatus(page);
   const avail = pageAvailable(page);
+  const sub = page.path.includes("/:") || page.path.includes("/edit") || page.path.includes("/new") || page.path.includes("/my") || page.path.includes("/scan");
+  const stLabel = status === "review" ? "На проверке" : status === "done" ? "Готово" : "В плане";
   const content = `<span class="pp-row-main">
       <span class="pp-row-title">${esc(page.title)}</span>
       <code class="pp-route">${esc(page.path)}</code>
     </span>
-    ${pageStatusDot(page)}`;
-  if (isCurrent) return `<li class="pp-row pp-row-cur" aria-current="page">${content}</li>`;
+    <span class="pp-row-st"><i class="st st-${status}" aria-hidden="true"></i>${stLabel}</span>`;
   return avail
-    ? `<li><a class="pp-row" href="${esc(localHref(page.href))}" data-act="page-go" data-path="${esc(page.path)}">${content}</a></li>`
-    : `<li class="pp-row pp-unavailable">${content}</li>`;
+    ? `<li><a class="pp-row ${sub ? "pp-row-sub" : ""}" href="${esc(localHref(page.href))}" data-act="page-go" data-path="${esc(page.path)}">${content}</a></li>`
+    : `<li class="pp-row ${sub ? "pp-row-sub" : ""} pp-unavailable">${content}</li>`;
 }
 function pageFilterCounts() {
   const all = window.SOUS_PAGES.flatMap((g) => g.pages);
@@ -589,11 +591,12 @@ function pageListMarkup() {
   const query = pageSearchText(state.pageQuery || "").trim().split(/\s+/);
   const groups = window.SOUS_PAGES.map((group) => {
     const pages = group.pages.filter((page) => {
+      if (page === current) return false;
       if (filter === "available" && !pageAvailable(page)) return false;
       const text = pageSearchText(`${page.title} ${page.path}`);
       return query.every((word) => text.includes(word));
     });
-    return pages.length ? `<section class="pp-group"><h4>${esc(group.title)}</h4><ul>${pages.map((p) => pageRow(p, p === current)).join("")}</ul></section>` : "";
+    return pages.length ? `<section class="pp-group"><h4>${esc(group.title)}</h4><ul>${pages.map(pageRow).join("")}</ul></section>` : "";
   }).join("");
   return groups || `<p class="pp-empty" role="status">Ничего не найдено</p>`;
 }
