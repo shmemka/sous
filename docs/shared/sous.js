@@ -677,8 +677,8 @@ function renderProto() {
     ${state.protoOpen ? `<section class="proto-panel"><h3>Роль пользователя</h3><p>Служебная панель прототипа. Показывает, как страница меняется для каждой роли</p>
       <div class="roles">${Object.entries(ROLES).map(([id, r]) => `<button data-act="role" data-role="${id}" aria-pressed="${state.role === id}">${r.label}<span>${hints[id] || ""}</span></button>`).join("")}</div></section>` : ""}
     ${state.pagesOpen ? pagesPanel() : ""}
-    <button class="proto-pages" data-act="pages" aria-expanded="${state.pagesOpen}"${state.pagesOpen ? ' aria-controls="pages-panel"' : ""}>${icon("pages")}Страницы</button>
-    <button class="proto-btn" data-act="proto" aria-expanded="${state.protoOpen}">Роль: ${ROLES[state.role].label}${icon("down")}</button>
+    <button class="proto-pages" data-act="pages" aria-label="Страницы" title="Страницы" aria-expanded="${state.pagesOpen}"${state.pagesOpen ? ' aria-controls="pages-panel"' : ""}>${icon("pages")}</button>
+    <button class="proto-btn" data-act="proto" aria-label="Роль: ${ROLES[state.role].label}" aria-expanded="${state.protoOpen}">${ROLES[state.role].label}${icon("down")}</button>
   </div>`;
   if (pagesFocused) $(".proto-pages").focus({ preventScroll: true });
 }
