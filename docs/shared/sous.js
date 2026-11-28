@@ -395,9 +395,9 @@ function renderHeader() {
         <button class="nav-btn ${i === cur ? "current" : ""}" aria-expanded="false" data-act="nav" data-i="${i}">${title}${icon("down")}</button>
         <div class="menu" role="menu">${items.map(([path, label, sub]) => `<a role="menuitem" class="${path === PAGE.section ? "here" : ""}" href="${pageHref(path)}"><b>${label}</b><span>${sub}</span></a>`).join("")}</div>
       </div>`).join("")}
-      <a class="nav-map ${PAGE.section === "/sous-map" ? "current" : ""}" href="${pageHref("/sous-map")}">${icon("pin")}Карта СОУС</a>
     </nav>
     <div class="top-actions">
+      <a class="btn ghost icon-only" href="${pageHref("/sous-map")}" title="Карта СОУС" aria-label="Карта СОУС">${icon("pin", "lg")}</a>
       <button class="btn ghost icon-only" data-act="theme" aria-label="${isDesignLight ? "Тёмная тема" : "Светлая тема"}">${icon(isDesignLight ? "moon" : "sun", "lg")}</button>
       ${right}
       <button class="btn icon-only burger" data-act="burger" aria-label="Меню">${icon("menu", "lg")}</button>
