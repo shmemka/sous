@@ -106,7 +106,7 @@ for (const dir of pageDirs) {
   }, true);
 })();
 </script>`;
-  bundledPages[dir] = standalone.replace("</body>", `${bridge}\n</body>`);
+  bundledPages[dir] = standalone.replace(/<\/body>/i, `${bridge}\n<` + `/body>`);
 }
 
 const allHtml = `<!doctype html>
