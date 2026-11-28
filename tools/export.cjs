@@ -11,7 +11,6 @@ const path = require("path");
 const ROOT = process.cwd();
 const DOCS = path.join(ROOT, "docs");
 const OUT = path.join(DOCS, "export");
-const OUT_PAGES = path.join(OUT, "pages");
 
 const SKIP_DIRS = new Set(["shared", "assets", "export"]);
 
@@ -62,7 +61,7 @@ function inlinePage(pageDir, html) {
   return out;
 }
 
-fs.mkdirSync(OUT_PAGES, { recursive: true });
+fs.mkdirSync(OUT, { recursive: true });
 
 const pageDirs = fs
   .readdirSync(DOCS, { withFileTypes: true })
@@ -76,7 +75,6 @@ const bundledPages = {};
 for (const dir of pageDirs) {
   const raw = fs.readFileSync(path.join(DOCS, dir, "index.html"), "utf8");
   const standalone = inlinePage(dir, raw);
-  fs.writeFileSync(path.join(OUT_PAGES, `${dir}.html`), standalone, "utf8");
 
   // Inject parent-navigation bridge for sous-all.html
   const bridge = `<script>
@@ -137,4 +135,4 @@ openPage("vacancies", "#/");
 `;
 
 fs.writeFileSync(path.join(OUT, "sous-all.html"), allHtml, "utf8");
-console.log(`Exported ${pageDirs.length} standalone pages + sous-all.html -> docs/export/`);
+console.log(`Exported ${pageDirs.length} pages into docs/export/sous-all.html`);

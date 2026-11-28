@@ -672,26 +672,11 @@ function pagesPanel() {
   </section>`;
 }
 function dlPanel() {
-  const curDir = (PAGE.section || "/vacancies").replace(/^\//, "") || "vacancies";
-  const curPage = currentProtoPage();
   const isBundled = window.parent !== window;
-  const exportPages = [
-    ["vacancies", "Вакансии"],
-    ["gigs", "Подработки"],
-    ["companies", "Компании"],
-    ["specialists", "Специалисты"],
-    ["orders", "Заявки автовладельцев"],
-    ["promos", "Кешбэк и акции"],
-    ["sous-map", "Карта СОУС"],
-    ["resume", "Резюме"],
-  ];
   return `<section class="dl-panel" role="dialog" aria-label="Скачать HTML">
     <div class="dl-head"><h3>Скачать HTML</h3><button class="btn sm icon-only" data-act="dl-menu" aria-label="Закрыть">${icon("x")}</button></div>
     ${isBundled ? `<button type="button" class="dl-item dl-main" data-act="dl-self"><span><b>Весь проект одним файлом</b><small>sous-all.html</small></span>${icon("download")}</button>`
-      : `<a class="dl-item dl-main" href="../export/sous-all.html" download="sous-all.html"><span><b>Весь проект одним файлом</b><small>sous-all.html</small></span>${icon("download")}</a>
-    <a class="dl-item" href="../export/pages/${curDir}.html" download="sous-${curDir}.html"><span><b>Текущая: ${esc(curPage?.title || curDir)}</b><small>sous-${curDir}.html</small></span>${icon("download")}</a>
-    <div class="dl-sep">Отдельные страницы</div>
-    <div class="dl-grid">${exportPages.map(([id, title]) => `<a class="dl-chip" href="../export/pages/${id}.html" download="sous-${id}.html">${esc(title)}</a>`).join("")}</div>`}
+      : `<a class="dl-item dl-main" href="../export/sous-all.html" download="sous-all.html"><span><b>Весь проект одним файлом</b><small>sous-all.html</small></span>${icon("download")}</a>`}
   </section>`;
 }
 function renderProto() {
