@@ -608,17 +608,16 @@ function refreshPageStatuses() {
 }
 function pagesPanel() {
   const filter = state.pageFilter || "available";
-  const hasDesign = PAGE.section === "/vacancies";
-  const design = hasDesign && state.pagePanelTab === "design";
+  const design = state.pagePanelTab === "design";
   const counts = pageFilterCounts();
   return `<section class="pages-panel" id="pages-panel" role="dialog" aria-label="Страницы и дизайн прототипа">
     <div class="pp-head">
       <div class="pp-title">
         <h3>Страницы</h3>
-        ${hasDesign ? `<div class="pp-tabs" role="group" aria-label="Раздел панели">
+        <div class="pp-tabs" role="group" aria-label="Раздел панели">
           <button data-act="pp-tab" data-tab="pages" aria-pressed="${!design}">Экраны</button>
           <button data-act="pp-tab" data-tab="design" aria-pressed="${design}">Дизайн</button>
-        </div>` : ""}
+        </div>
         <button class="btn sm icon-only" data-act="pages" aria-label="Закрыть страницы">${icon("x")}</button>
       </div>
       ${design ? "" : `<div class="pp-bar">
