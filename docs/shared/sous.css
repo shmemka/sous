@@ -450,14 +450,14 @@ a.pp-row:hover{background:var(--fill-2)}
 .st.st-review{background:var(--primary);box-shadow:none;opacity:1}
 .st.st-wip{background:var(--text-3);box-shadow:none;opacity:1}
 .proto-btn{display:flex;align-items:center;gap:8px;height:36px;padding:0 12px;border-radius:18px;background:var(--surface-2);color:var(--text-2);font-size:12px;font-weight:500;box-shadow:var(--shadow)}
-.proto-panel{position:absolute;right:0;bottom:44px;width:280px;padding:16px;border-radius:var(--r-card);background:var(--surface-2);box-shadow:var(--shadow);display:grid;gap:12px}
+.proto-panel{position:absolute;right:0;bottom:44px;width:max-content;min-width:300px;max-width:calc(100vw - 32px);padding:16px;border-radius:var(--r-card);background:var(--surface-2);box-shadow:var(--shadow);display:grid;gap:12px}
 .proto-panel h3{font-size:14px;font-weight:600}
 .proto-panel p{font-size:12px;color:var(--text-3)}
 .roles{display:grid;gap:4px}
-.roles button{display:flex;justify-content:space-between;align-items:center;height:36px;padding:0 12px;border-radius:8px;font-size:13px;color:var(--text-2);text-align:left}
+.roles button{display:flex;justify-content:space-between;align-items:center;gap:16px;min-height:36px;padding:6px 12px;border-radius:8px;font-size:13px;color:var(--text-2);text-align:left;white-space:nowrap}
 .roles button:hover{background:var(--surface-hover);color:var(--text)}
 .roles button[aria-pressed="true"]{background:var(--fill-2);color:var(--text)}
-.roles button span{font-size:12px;color:var(--text-3)}
+.roles button span{font-size:12px;color:var(--text-3);white-space:nowrap}
 
 .drawer-wrap{position:fixed;inset:0;z-index:100;background:var(--backdrop);animation:fade .16s var(--ease)}
 .drawer{position:absolute;top:0;right:0;bottom:0;width:min(360px,100%);display:flex;flex-direction:column;background:var(--surface-2);animation:slide .2s var(--ease)}
