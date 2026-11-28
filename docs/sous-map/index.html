@@ -109,7 +109,7 @@ function filtered() {
   });
 }
 
-function companyHref(c) {
+function mapCompanyHref(c) {
   return c.id === "directory-001" ? pageHref("/companies/directory/directory-001") : pageHref(`/companies/${c.id}`);
 }
 
@@ -178,7 +178,7 @@ function mapView() {
               <b class="num" style="font-size:20px">${cur.rating}/10</b>
             </div>
             <div class="map-card-acts">
-              <a class="btn sm primary" href="${companyHref(cur)}">Профиль компании</a>
+              <a class="btn sm primary" href="${mapCompanyHref(cur)}">Профиль компании</a>
               <button type="button" class="btn sm" data-act="phone" data-id="${cur.id}">${icon("phone")}${state.phones.has(cur.id) ? "+7 (999) 521-22-51" : "Телефон"}</button>
             </div>
           </article>` : ""}
