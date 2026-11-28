@@ -261,6 +261,64 @@ function dateLabel(v) {
   if (d.getFullYear() !== new Date().getFullYear()) opts.year = "numeric";
   return `${wd[0].toUpperCase()}${wd.slice(1)}, ${d.toLocaleDateString("ru-RU", opts).replace(" г.", "")}`;
 }
+function filePick({ name = "file", accept = "", multiple = false, label = "Выбрать файл" } = {}) {
+  return `<div class="file-pick" data-file-pick>
+    <label class="file-pick-btn">
+      <input class="sr-only" type="file" name="${esc(name)}"${accept ? ` accept="${esc(accept)}"` : ""}${multiple ? " multiple" : ""} data-fp-input>
+      ${icon("upload")}
+      <span class="file-pick-text" data-fp-text="${esc(label)}">${esc(label)}</span>
+    </label>
+    <button type="button" class="file-pick-clear" data-fp-clear hidden aria-label="Убрать файл">${icon("x")}</button>
+  </div>`;
+}
+document.addEventListener("change", (e) => {
+  const input = e.target.closest("[data-fp-input]");
+  if (!input) return;
+  const wrap = input.closest("[data-file-pick]");
+  const text = $("[data-fp-text]", wrap), clear = $("[data-fp-clear]", wrap);
+  const files = [...(input.files || [])];
+  if (files.length) {
+    text.textContent = files.length === 1 ? files[0].name : `${files.length} ${plural(files.length, "файл", "файла", "файлов").split(" ").slice(1).join(" ")}`;
+    wrap.classList.add("has-file");
+    clear.hidden = false;
+  } else {
+    text.textContent = text.dataset.fpText;
+    wrap.classList.remove("has-file");
+    clear.hidden = true;
+  }
+});
+document.addEventListener("click", (e) => {
+  const clear = e.target.closest("[data-fp-clear]");
+  if (!clear) return;
+  const wrap = clear.closest("[data-file-pick]");
+  const input = $("[data-fp-input]", wrap), text = $("[data-fp-text]", wrap);
+  input.value = "";
+  text.textContent = text.dataset.fpText;
+  wrap.classList.remove("has-file");
+  clear.hidden = true;
+});
+document.addEventListener("dragover", (e) => {
+  const wrap = e.target.closest("[data-file-pick]");
+  if (!wrap) return;
+  e.preventDefault();
+  wrap.classList.add("is-drag");
+});
+document.addEventListener("dragleave", (e) => {
+  const wrap = e.target.closest("[data-file-pick]");
+  if (wrap && !wrap.contains(e.relatedTarget)) wrap.classList.remove("is-drag");
+});
+document.addEventListener("drop", (e) => {
+  const wrap = e.target.closest("[data-file-pick]");
+  if (!wrap) return;
+  e.preventDefault();
+  wrap.classList.remove("is-drag");
+  const input = $("[data-fp-input]", wrap);
+  if (e.dataTransfer?.files?.length) {
+    input.files = e.dataTransfer.files;
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+});
+
 function datePick({ key, name = key, value, min = "", max = "", label = "" }) {
   return `<div class="dd dp" data-dp="${key}" data-value="${value}" data-min="${min}" data-max="${max}">
     <input type="hidden" name="${name}" value="${value}">

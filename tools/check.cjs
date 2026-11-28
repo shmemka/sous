@@ -39,12 +39,14 @@ fs.mkdirSync(out, { recursive: true });
         .slice(0, 3).map((e) => e.className || e.tagName));
       const dashes = await p.evaluate(() => (document.body.innerText.match(/—/g) || []).length + (document.title.includes("—") ? 1 : 0));
       const selects = await p.evaluate(() => document.querySelectorAll("select").length);
+      const rawFiles = await p.evaluate(() => document.querySelectorAll('input[type="file"]:not(.sr-only)').length);
       console.log(`${mode} ${r}: ${shot}`);
       if (overflow.length) { failed = true; console.log("  выходит за край экрана:", overflow.join(", ")); }
       if (dashes) { failed = true; console.log("  длинных тире в тексте:", dashes); }
       const dots = await p.evaluate(() => (document.body.innerText.match(/·/g) || []).length);
       if (dots) { failed = true; console.log("  точек-разделителей «·» в тексте:", dots); }
       if (selects) { failed = true; console.log("  системных <select>:", selects); }
+      if (rawFiles) { failed = true; console.log("  системных <input type=file>:", rawFiles); }
     }
     if (errors.length) { failed = true; console.log(`  ошибки (${mode}):`, errors); }
     await p.close();
