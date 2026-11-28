@@ -564,10 +564,9 @@ function currentPageMarkup(page) {
     </div>
   </div>`;
 }
-function pageRow(page) {
+function pageRowHtml(page, isSub = false) {
   const status = pageStatus(page);
   const avail = pageAvailable(page);
-  const sub = page.path.includes("/:") || page.path.includes("/edit") || page.path.includes("/new") || page.path.includes("/my") || page.path.includes("/scan");
   const stLabel = status === "review" ? "На проверке" : status === "done" ? "Готово" : "В плане";
   const content = `<span class="pp-row-main">
       <span class="pp-row-title">${esc(page.title)}</span>
@@ -575,8 +574,11 @@ function pageRow(page) {
     </span>
     <span class="pp-row-st"><i class="st st-${status}" aria-hidden="true"></i>${stLabel}</span>`;
   return avail
-    ? `<li><a class="pp-row ${sub ? "pp-row-sub" : ""}" href="${esc(localHref(page.href))}" data-act="page-go" data-path="${esc(page.path)}">${content}</a></li>`
-    : `<li class="pp-row ${sub ? "pp-row-sub" : ""} pp-unavailable">${content}</li>`;
+    ? `<a class="pp-row ${isSub ? "pp-sub" : ""}" href="${esc(localHref(page.href))}" data-act="page-go" data-path="${esc(page.path)}">${content}</a>`
+    : `<div class="pp-row ${isSub ? "pp-sub" : ""} pp-unavailable">${content}</div>`;
+}
+function isSubPage(page) {
+  return page.path.includes("/:") || ["/resume/new", "/promos/my", "/promos/scan"].includes(page.path);
 }
 function pageFilterCounts() {
   const all = window.SOUS_PAGES.flatMap((g) => g.pages);
@@ -596,7 +598,21 @@ function pageListMarkup() {
       const text = pageSearchText(`${page.title} ${page.path}`);
       return query.every((word) => text.includes(word));
     });
-    return pages.length ? `<section class="pp-group"><h4>${esc(group.title)}</h4><ul>${pages.map(pageRow).join("")}</ul></section>` : "";
+    if (!pages.length) return "";
+    let itemsHtml = "";
+    for (let i = 0; i < pages.length; i++) {
+      const p = pages[i];
+      if (!isSubPage(p)) {
+        const subs = [];
+        while (i + 1 < pages.length && isSubPage(pages[i + 1])) {
+          subs.push(pages[++i]);
+        }
+        itemsHtml += `<li class="pp-node">${pageRowHtml(p, false)}${subs.length ? `<div class="pp-subs">${subs.map((s) => pageRowHtml(s, true)).join("")}</div>` : ""}</li>`;
+      } else {
+        itemsHtml += `<li class="pp-node"><div class="pp-subs">${pageRowHtml(p, true)}</div></li>`;
+      }
+    }
+    return `<section class="pp-group"><h4>${esc(group.title)}</h4><ul>${itemsHtml}</ul></section>`;
   }).join("");
   return groups || `<p class="pp-empty" role="status">Ничего не найдено</p>`;
 }
