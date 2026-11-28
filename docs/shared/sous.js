@@ -124,6 +124,7 @@ const ICONS = {
   camera: '<path d="M5 7h1a2 2 0 0 0 2 -2a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2"/><path d="M9 13a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/>', // camera
   pages: '<path d="M15 3v4a1 1 0 0 0 1 1h4"/><path d="M18 17h-7a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h4l5 5v7a2 2 0 0 1 -2 2"/><path d="M16 17v2a2 2 0 0 1 -2 2h-7a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h2"/>', // files
   copy: '<path d="M7 7m0 2.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z"/><path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"/>', // copy
+  download: '<path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 11l5 5l5 -5"/><path d="M12 4l0 12"/>', // download
 };
 /* Filled-варианты Tabler: в кнопках иконки всегда залитые (CSS в sous.css, «Иконки в кнопках»).
    Линейные знаки (x, plus, check, стрелки, меню) остаются линейными: их filled-версии те же линии, только тоньше. */
@@ -670,13 +671,38 @@ function pagesPanel() {
     <div class="pp-scroll">${design ? vacancyDesignsMarkup() : `${currentPageMarkup(currentProtoPage())}<div class="pp-list">${pageListMarkup()}</div>`}</div>
   </section>`;
 }
+function dlPanel() {
+  const curDir = (PAGE.section || "/vacancies").replace(/^\//, "") || "vacancies";
+  const curPage = currentProtoPage();
+  const isBundled = window.parent !== window;
+  const exportPages = [
+    ["vacancies", "Вакансии"],
+    ["gigs", "Подработки"],
+    ["companies", "Компании"],
+    ["specialists", "Специалисты"],
+    ["orders", "Заявки автовладельцев"],
+    ["promos", "Кешбэк и акции"],
+    ["sous-map", "Карта СОУС"],
+    ["resume", "Резюме"],
+  ];
+  return `<section class="dl-panel" role="dialog" aria-label="Скачать HTML">
+    <div class="dl-head"><h3>Скачать HTML</h3><button class="btn sm icon-only" data-act="dl-menu" aria-label="Закрыть">${icon("x")}</button></div>
+    ${isBundled ? `<button type="button" class="dl-item dl-main" data-act="dl-self"><span><b>Весь проект одним файлом</b><small>sous-all.html</small></span>${icon("download")}</button>`
+      : `<a class="dl-item dl-main" href="../export/sous-all.html" download="sous-all.html"><span><b>Весь проект одним файлом</b><small>sous-all.html</small></span>${icon("download")}</a>
+    <a class="dl-item" href="../export/pages/${curDir}.html" download="sous-${curDir}.html"><span><b>Текущая: ${esc(curPage?.title || curDir)}</b><small>sous-${curDir}.html</small></span>${icon("download")}</a>
+    <div class="dl-sep">Отдельные страницы</div>
+    <div class="dl-grid">${exportPages.map(([id, title]) => `<a class="dl-chip" href="../export/pages/${id}.html" download="sous-${id}.html">${esc(title)}</a>`).join("")}</div>`}
+  </section>`;
+}
 function renderProto() {
   const hints = PAGE.roleHints || {};
   const pagesFocused = document.activeElement?.matches(".proto-pages");
   $("#proto-root").innerHTML = `<div class="proto">
     ${state.protoOpen ? `<section class="proto-panel"><h3>Роль пользователя</h3><p>Служебная панель прототипа. Показывает, как страница меняется для каждой роли</p>
       <div class="roles">${Object.entries(ROLES).map(([id, r]) => `<button data-act="role" data-role="${id}" aria-pressed="${state.role === id}">${r.label}<span>${hints[id] || ""}</span></button>`).join("")}</div></section>` : ""}
+    ${state.dlOpen ? dlPanel() : ""}
     ${state.pagesOpen ? pagesPanel() : ""}
+    <button class="proto-dl" data-act="dl-menu" aria-label="Скачать" title="Скачать" aria-expanded="${Boolean(state.dlOpen)}">${icon("download")}</button>
     <button class="proto-pages" data-act="pages" aria-label="Страницы" title="Страницы" aria-expanded="${state.pagesOpen}"${state.pagesOpen ? ' aria-controls="pages-panel"' : ""}>${icon("pages")}</button>
     <button class="proto-btn" data-act="proto" aria-label="Роль: ${ROLES[state.role].label}" aria-expanded="${state.protoOpen}">${ROLES[state.role].label}${icon("down")}</button>
   </div>`;
@@ -685,6 +711,7 @@ function renderProto() {
 function togglePages() {
   state.pagesOpen = !state.pagesOpen;
   state.protoOpen = false;
+  state.dlOpen = false;
   state.pageQuery = "";
   state.pageFilter = "available";
   if (state.pagesOpen && state.pagePanelTab !== "design") loadIssues();
@@ -766,7 +793,16 @@ const SHARED_ACTIONS = {
   "auth-register": () => { closeModal(); soon("/register"); },
   close: closeModal,
   "close-bg": closeModal,
-  proto: () => { state.protoOpen = !state.protoOpen; state.pagesOpen = false; renderProto(); },
+  proto: () => { state.protoOpen = !state.protoOpen; state.pagesOpen = false; state.dlOpen = false; renderProto(); },
+  "dl-menu": () => { state.dlOpen = !state.dlOpen; state.pagesOpen = false; state.protoOpen = false; renderProto(); },
+  "dl-self": () => {
+    const html = "<!doctype html>\n" + window.parent.document.documentElement.outerHTML;
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([html], { type: "text/html;charset=utf-8" }));
+    a.download = "sous-all.html";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  },
   pages: togglePages,
   "pp-tab": (el) => {
     state.pagePanelTab = el.dataset.tab;
