@@ -424,7 +424,7 @@ function mobileMenu() {
 function closeDrawer() { $(".drawer-wrap")?.remove(); document.body.classList.remove("lock"); }
 function renderFooter() {
   const f = $("#footer");
-  if (f) f.innerHTML = `<div class="wrap"><a class="logo" href="${pageHref("/")}">${PAGE.textLogo ? "" : '<img src="../assets/logo.png" alt="">'}<span>СОУС</span></a><span>Работа, автоуслуги, закупки и обучение для индустрии автоуслуг</span><nav><a href="${pageHref("/contacts")}">Контакты</a><a href="${pageHref("/terms")}">Оферта</a><a href="${pageHref("/privacy")}">Приватность</a></nav></div>`;
+  if (f) f.innerHTML = `<div class="wrap"><a class="logo" href="${pageHref("/")}">${PAGE.textLogo ? "" : '<img src="../assets/logo.png" alt="">'}<span>СОУС</span></a><span>Работа, база бизнеса, автоуслуги и сообщество СОУС</span><nav><a href="${pageHref("/contacts")}">Контакты</a><a href="${pageHref("/terms")}">Оферта</a><a href="${pageHref("/privacy")}">Приватность</a></nav></div>`;
 }
 
 /* ---------- Окна, вход, уведомления ---------- */
@@ -608,16 +608,17 @@ function refreshPageStatuses() {
 }
 function pagesPanel() {
   const filter = state.pageFilter || "available";
-  const design = state.pagePanelTab === "design";
+  const hasDesign = PAGE.section === "/vacancies";
+  const design = hasDesign && state.pagePanelTab === "design";
   const counts = pageFilterCounts();
   return `<section class="pages-panel" id="pages-panel" role="dialog" aria-label="Страницы и дизайн прототипа">
     <div class="pp-head">
       <div class="pp-title">
         <h3>Страницы</h3>
-        <div class="pp-tabs" role="group" aria-label="Раздел панели">
+        ${hasDesign ? `<div class="pp-tabs" role="group" aria-label="Раздел панели">
           <button data-act="pp-tab" data-tab="pages" aria-pressed="${!design}">Экраны</button>
           <button data-act="pp-tab" data-tab="design" aria-pressed="${design}">Дизайн</button>
-        </div>
+        </div>` : ""}
         <button class="btn sm icon-only" data-act="pages" aria-label="Закрыть страницы">${icon("x")}</button>
       </div>
       ${design ? "" : `<div class="pp-bar">
