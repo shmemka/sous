@@ -9,7 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../shared/sous.css?v=202611280544">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<link rel="stylesheet" href="../shared/sous.css?v=202611280543">
 <style>
 .map-wrap{padding:20px 0 80px;display:grid;gap:16px}
 .map-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
@@ -31,23 +32,19 @@
 .map-open{color:var(--ok);font-weight:500}
 .map-open.closed{color:var(--text-3)}
 .map-canvas-box{position:relative;min-height:560px;border-radius:var(--r-panel);background:#120e0c;overflow:hidden}
-.map-canvas{position:absolute;inset:0;transform:scale(var(--zoom,1));transform-origin:center;transition:transform .2s var(--ease);
-  background-image:
-    linear-gradient(to right, rgba(255,255,255,.035) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255,255,255,.035) 1px, transparent 1px);
-  background-size:48px 48px}
-.map-road{position:absolute;background:rgba(255,236,224,.06);border-radius:999px}
-.map-road.r1{left:-10%;right:-10%;top:38%;height:10px;transform:rotate(-8deg)}
-.map-road.r2{left:36%;top:-10%;bottom:-10%;width:10px;transform:rotate(12deg)}
-.map-road.r3{left:-5%;right:-5%;top:70%;height:7px;transform:rotate(5deg)}
-.map-river{position:absolute;right:8%;top:-10%;bottom:-10%;width:64px;background:rgba(80,140,200,.08);transform:rotate(-16deg)}
-.map-pin{position:absolute;transform:translate(-50%,-50%);display:inline-flex;align-items:center;gap:6px;padding:6px 10px 6px 8px;border-radius:999px;background:var(--surface-2);color:var(--text);font-size:12px;font-weight:600;box-shadow:0 6px 18px rgba(0,0,0,.45);transition:background-color .16s var(--ease),transform .16s var(--ease)}
-.map-pin:hover{transform:translate(-50%,-54%);background:var(--surface-hover)}
-.map-pin.is-active{background:var(--btn-primary,var(--primary));color:#fff;z-index:5}
-.map-tools{position:absolute;top:14px;right:14px;z-index:6;display:grid;gap:6px}
+#leafletMap{position:absolute;inset:0;z-index:1;background:#120e0c}
+.leaflet-control-attribution{background:rgba(12,9,8,.65)!important;color:var(--text-3)!important;font-size:10px!important;padding:2px 6px!important}
+.leaflet-control-attribution a{color:var(--text-2)!important}
+.sous-pin-wrap{background:none;border:0}
+.map-pin{display:inline-flex;align-items:center;gap:6px;padding:6px 10px 6px 8px;border-radius:999px;background:var(--surface-2);color:var(--text);font:600 12px/1.2 var(--font-sans);white-space:nowrap;box-shadow:0 6px 18px rgba(0,0,0,.5);transform:translate(-50%,-50%);transition:background-color .16s var(--ease),transform .16s var(--ease)}
+.map-pin:hover{transform:translate(-50%,-56%);background:var(--surface-hover)}
+.map-pin.is-active{background:var(--btn-primary,var(--primary));color:#fff}
+.map-pin .icon{width:14px;height:14px;color:var(--primary)}
+.map-pin.is-active .icon{color:#fff}
+.map-tools{position:absolute;top:14px;right:14px;z-index:450;display:grid;gap:6px}
 .map-tools button{width:36px;height:36px;border-radius:10px;background:var(--surface-2);color:var(--text);display:grid;place-items:center;box-shadow:var(--shadow);font-size:16px;font-weight:600}
 .map-tools button:hover{background:var(--surface-hover)}
-.map-card{position:absolute;left:16px;right:16px;bottom:16px;z-index:6;max-width:440px;padding:18px 20px;border-radius:var(--r-card);background:var(--surface);box-shadow:0 18px 48px rgba(0,0,0,.55);display:grid;gap:12px}
+.map-card{position:absolute;left:16px;right:16px;bottom:26px;z-index:450;max-width:430px;padding:18px 20px;border-radius:var(--r-card);background:var(--surface);box-shadow:0 18px 48px rgba(0,0,0,.6);display:grid;gap:12px}
 .map-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .map-card-head h2{font-size:19px;font-weight:600;line-height:1.2}
 .map-card-acts{display:flex;flex-wrap:wrap;gap:8px}
@@ -69,20 +66,21 @@
 <div id="toast-root" class="toasts" aria-live="polite"></div>
 <div id="proto-root"></div>
 
-<script src="../shared/pages.js?v=202611280544"></script>
-<script src="../shared/sous.js?v=202611280544"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script src="../shared/pages.js?v=202611280543"></script>
+<script src="../shared/sous.js?v=202611280543"></script>
 <script>
 /* =========================================================
-   Карта СОУС: точки и состояние
+   Карта СОУС: реальная карта Leaflet без API-ключей
    ========================================================= */
 const MAP_POINTS = [
-  { id: "company-001", name: "Shine&Go", branch: "Центральный филиал", city: "Казань", cat: "detailing", catLabel: "Детейлинг", address: "ул. Пушкина, 24", rating: "10", reviews: 42, verified: true, open: true, hours: "09:00–21:00", x: 64, y: 34, services: ["PPF", "Полировка", "Керамика"] },
-  { id: "company-002", name: "CleanLab", branch: "Тверская", city: "Москва", cat: "wash", catLabel: "Автомойка", address: "ул. Тверская, 12", rating: "9", reviews: 36, verified: true, open: true, hours: "Круглосуточно", x: 35, y: 40, services: ["Мойка", "Химчистка"] },
-  { id: "company-003", name: "АвтоПрофи", branch: "Невский", city: "Санкт-Петербург", cat: "service", catLabel: "Автосервис", address: "Невский пр., 88", rating: "9", reviews: 28, verified: true, open: false, hours: "Откроется в 09:00", x: 50, y: 24, services: ["Детейлинг", "Автосервис"] },
-  { id: "directory-001", name: "Детейлинг Партнёр", branch: "Арбат", city: "Москва", cat: "detailing", catLabel: "Детейлинг", address: "ул. Арбат, 18", rating: "9", reviews: 19, verified: false, open: true, hours: "10:00–22:00", x: 44, y: 56, services: ["Полировка", "Химчистка"] },
-  { id: "company-004", name: "Detail House", branch: "Центр", city: "Екатеринбург", cat: "detailing", catLabel: "Детейлинг", address: "ул. Малышева, 51", rating: "10", reviews: 24, verified: true, open: true, hours: "09:00–20:00", x: 74, y: 54, services: ["Керамика", "Химчистка"] },
-  { id: "company-005", name: "Мойка 24", branch: "Север", city: "Казань", cat: "wash", catLabel: "Автомойка", address: "пр. Победы, 142", rating: "9", reviews: 16, verified: true, open: true, hours: "08:00–22:00", x: 70, y: 42, services: ["Мойка", "Экспресс"] },
-  { id: "company-007", name: "Wrap Lab", branch: "Петроградский", city: "Санкт-Петербург", cat: "detailing", catLabel: "PPF и защита", address: "Большой пр. ПС, 44", rating: "10", reviews: 31, verified: true, open: true, hours: "10:00–21:00", x: 56, y: 34, services: ["PPF", "Полировка"] }
+  { id: "company-001", name: "Shine&Go", branch: "Центральный филиал", city: "Казань", cat: "detailing", catLabel: "Детейлинг", address: "ул. Пушкина, 24", rating: "10", reviews: 42, verified: true, open: true, hours: "09:00–21:00", lat: 55.7897, lng: 49.1243, services: ["PPF", "Полировка", "Керамика"] },
+  { id: "company-002", name: "CleanLab", branch: "Тверская", city: "Москва", cat: "wash", catLabel: "Автомойка", address: "ул. Тверская, 12", rating: "9", reviews: 36, verified: true, open: true, hours: "Круглосуточно", lat: 55.7647, lng: 37.6056, services: ["Мойка", "Химчистка"] },
+  { id: "company-003", name: "АвтоПрофи", branch: "Невский", city: "Санкт-Петербург", cat: "service", catLabel: "Автосервис", address: "Невский пр., 88", rating: "9", reviews: 28, verified: true, open: false, hours: "Откроется в 09:00", lat: 59.9329, lng: 30.3519, services: ["Детейлинг", "Автосервис"] },
+  { id: "directory-001", name: "Детейлинг Партнёр", branch: "Арбат", city: "Москва", cat: "detailing", catLabel: "Детейлинг", address: "ул. Арбат, 18", rating: "9", reviews: 19, verified: false, open: true, hours: "10:00–22:00", lat: 55.7506, lng: 37.5936, services: ["Полировка", "Химчистка"] },
+  { id: "company-004", name: "Detail House", branch: "Центр", city: "Екатеринбург", cat: "detailing", catLabel: "Детейлинг", address: "ул. Малышева, 51", rating: "10", reviews: 24, verified: true, open: true, hours: "09:00–20:00", lat: 56.8364, lng: 60.6140, services: ["Керамика", "Химчистка"] },
+  { id: "company-005", name: "Мойка 24", branch: "Север", city: "Казань", cat: "wash", catLabel: "Автомойка", address: "пр. Победы, 142", rating: "9", reviews: 16, verified: true, open: true, hours: "08:00–22:00", lat: 55.7836, lng: 49.2108, services: ["Мойка", "Экспресс"] },
+  { id: "company-007", name: "Wrap Lab", branch: "Петроградский", city: "Санкт-Петербург", cat: "detailing", catLabel: "PPF и защита", address: "Большой пр. ПС, 44", rating: "10", reviews: 31, verified: true, open: true, hours: "10:00–21:00", lat: 59.9606, lng: 30.3046, services: ["PPF", "Полировка"] }
 ];
 
 const CATS = [["all", "Все"], ["detailing", "Детейлинг"], ["wash", "Автомойки"], ["service", "Автосервис"]];
@@ -93,10 +91,12 @@ Object.assign(state, {
   cat: "all",
   verified: false,
   selected: "company-001",
-  zoom: 1,
   view: "map",
   phones: new Set(),
 });
+
+let lMap = null;
+let lLayer = null;
 
 function filtered() {
   const q = state.q.trim().toLowerCase();
@@ -113,13 +113,97 @@ function mapCompanyHref(c) {
   return c.id === "directory-001" ? pageHref("/companies/directory/directory-001") : pageHref(`/companies/${c.id}`);
 }
 
+function listHtml(items, cur) {
+  return items.length ? items.map((c) => `<button type="button" class="map-item ${cur?.id === c.id ? "is-active" : ""}" data-act="pick" data-id="${c.id}">
+    <span class="tile">${initials(c.name)}</span>
+    <span class="map-item-body">
+      <span class="map-item-top"><b>${esc(c.name)}</b>${c.verified ? verifiedMark() : ""}</span>
+      <span class="map-item-sub">${esc(c.city)}, ${esc(c.address)}</span>
+      <span class="map-item-meta"><b class="num">${c.rating}/10</b><span>${esc(c.catLabel)}</span><span class="map-open ${c.open ? "" : "closed"}">${c.open ? "Открыто" : "Закрыто"}</span></span>
+    </span>
+  </button>`).join("") : `<div class="empty" style="padding:32px 16px"><h3>Ничего не найдено</h3><button class="btn sm" data-act="reset">Сбросить</button></div>`;
+}
+
+function cardHtml(cur) {
+  if (!cur) return "";
+  return `<article class="map-card">
+    <div class="map-card-head">
+      <div>
+        <div class="c-org">${esc(cur.catLabel)}${cur.verified ? verifiedMark() : ""}</div>
+        <h2>${esc(cur.name)}</h2>
+        <div class="meta"><span>${icon("pin")}${esc(cur.city)}, ${esc(cur.address)}</span><span>${icon("clock")}${esc(cur.hours)}</span></div>
+      </div>
+      <b class="num" style="font-size:20px">${cur.rating}/10</b>
+    </div>
+    <div class="map-card-acts">
+      <a class="btn sm primary" href="${mapCompanyHref(cur)}">Профиль компании</a>
+      <button type="button" class="btn sm" data-act="phone" data-id="${cur.id}">${icon("phone")}${state.phones.has(cur.id) ? "+7 (999) 521-22-51" : "Телефон"}</button>
+    </div>
+  </article>`;
+}
+
+function initLeaflet() {
+  const box = $("#leafletMap");
+  if (!box || typeof L === "undefined") return;
+  if (lMap) { lMap.remove(); lMap = null; }
+  lMap = L.map(box, { zoomControl: false, attributionControl: true }).setView([56.8, 44.0], 5);
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+    attribution: "&copy; OpenStreetMap &copy; CARTO",
+    subdomains: "abcd",
+    maxZoom: 19
+  }).addTo(lMap);
+  lLayer = L.layerGroup().addTo(lMap);
+}
+
+function syncMap(fit = false) {
+  const items = filtered();
+  const cur = items.find((c) => c.id === state.selected) || items[0] || null;
+  if (cur) state.selected = cur.id;
+
+  const listEl = $("#mapList");
+  const cardEl = $("#mapCardSlot");
+  const countEl = $("#mapCount");
+  const shellEl = $("#mapShell");
+  if (listEl) listEl.innerHTML = listHtml(items, cur);
+  if (cardEl) cardEl.innerHTML = cardHtml(cur);
+  if (countEl) {
+    const word = plural(items.length, "точка", "точки", "точек");
+    countEl.innerHTML = `<b class="num">${word.split(" ")[0]}</b> ${word.split(" ").slice(1).join(" ")}`;
+  }
+  if (shellEl) shellEl.className = `map-shell mode-${state.view}`;
+  $$(".map-cat").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.cat === state.cat)));
+  $$(".map-view-sw .tab").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.v === state.view)));
+
+  if (!lMap || !lLayer) return;
+  lLayer.clearLayers();
+  const coords = [];
+  items.forEach((c) => {
+    coords.push([c.lat, c.lng]);
+    const active = cur?.id === c.id;
+    const marker = L.marker([c.lat, c.lng], {
+      icon: L.divIcon({
+        className: "sous-pin-wrap",
+        html: `<div class="map-pin ${active ? "is-active" : ""}">${icon("pin")}<span>${esc(c.name)}</span></div>`,
+        iconSize: [0, 0]
+      })
+    });
+    marker.on("click", () => {
+      state.selected = c.id;
+      syncMap(false);
+      lMap.panTo([c.lat, c.lng], { animate: true });
+    });
+    marker.addTo(lLayer);
+  });
+
+  if (fit && coords.length) {
+    if (coords.length === 1) lMap.setView(coords[0], 13, { animate: true });
+    else lMap.fitBounds(coords, { padding: [56, 56], maxZoom: 13, animate: true });
+  }
+}
+
 function mapView() {
   document.body.className = "catalog-page";
   document.title = "Карта СОУС · СОУС";
-  const items = filtered();
-  const cur = items.find((c) => c.id === state.selected) || items[0] || null;
-  const word = plural(items.length, "точка", "точки", "точек");
-
   return `<section class="head"><div class="wrap head-in">
       <div class="head-row">
         <div class="tabs map-view-sw" role="tablist" aria-label="Вид">
@@ -142,80 +226,65 @@ function mapView() {
           ${CATS.map(([id, label]) => `<button type="button" class="map-cat" data-act="cat" data-cat="${id}" aria-pressed="${state.cat === id}">${label}</button>`).join("")}
           <label class="toggle-row" style="margin-left:8px"><span>Только проверенные</span><input class="switch" type="checkbox" data-act-change="verified" ${state.verified ? "checked" : ""}></label>
         </div>
-        <p class="count"><b class="num">${word.split(" ")[0]}</b> ${word.split(" ").slice(1).join(" ")}</p>
+        <p class="count" id="mapCount"></p>
       </div>
-      <div class="map-shell mode-${state.view}">
-        <aside class="map-list" aria-label="Компании на карте">
-          ${items.length ? items.map((c) => `<button type="button" class="map-item ${cur?.id === c.id ? "is-active" : ""}" data-act="pick" data-id="${c.id}">
-            <span class="tile">${initials(c.name)}</span>
-            <span class="map-item-body">
-              <span class="map-item-top"><b>${esc(c.name)}</b>${c.verified ? verifiedMark() : ""}</span>
-              <span class="map-item-sub">${esc(c.city)}, ${esc(c.address)}</span>
-              <span class="map-item-meta"><b class="num">${c.rating}/10</b><span>${esc(c.catLabel)}</span><span class="map-open ${c.open ? "" : "closed"}">${c.open ? "Открыто" : "Закрыто"}</span></span>
-            </span>
-          </button>`).join("") : `<div class="empty" style="padding:32px 16px"><h3>Ничего не найдено</h3><button class="btn sm" data-act="reset">Сбросить</button></div>`}
-        </aside>
-        <section class="map-canvas-box" aria-label="Схема города">
-          <div class="map-canvas" style="--zoom:${state.zoom}">
-            <span class="map-river" aria-hidden="true"></span>
-            <span class="map-road r1" aria-hidden="true"></span>
-            <span class="map-road r2" aria-hidden="true"></span>
-            <span class="map-road r3" aria-hidden="true"></span>
-            ${items.map((c) => `<button type="button" class="map-pin ${cur?.id === c.id ? "is-active" : ""}" style="left:${c.x}%;top:${c.y}%" data-act="pick" data-id="${c.id}">${icon("pin")}<span>${esc(c.name)}</span></button>`).join("")}
-          </div>
+      <div class="map-shell mode-${state.view}" id="mapShell">
+        <aside class="map-list" id="mapList" aria-label="Компании на карте"></aside>
+        <section class="map-canvas-box" aria-label="Интерактивная карта">
+          <div id="leafletMap"></div>
           <div class="map-tools">
             <button type="button" data-act="zoom-in" aria-label="Приблизить">+</button>
             <button type="button" data-act="zoom-out" aria-label="Отдалить">-</button>
-            <button type="button" data-act="zoom-reset" aria-label="Сбросить масштаб">${icon("search")}</button>
+            <button type="button" data-act="zoom-reset" aria-label="Показать все точки">${icon("pin")}</button>
           </div>
-          ${cur ? `<article class="map-card">
-            <div class="map-card-head">
-              <div>
-                <div class="c-org">${esc(cur.catLabel)}${cur.verified ? verifiedMark() : ""}</div>
-                <h2>${esc(cur.name)}</h2>
-                <div class="meta"><span>${icon("pin")}${esc(cur.city)}, ${esc(cur.address)}</span><span>${icon("clock")}${esc(cur.hours)}</span></div>
-              </div>
-              <b class="num" style="font-size:20px">${cur.rating}/10</b>
-            </div>
-            <div class="map-card-acts">
-              <a class="btn sm primary" href="${mapCompanyHref(cur)}">Профиль компании</a>
-              <button type="button" class="btn sm" data-act="phone" data-id="${cur.id}">${icon("phone")}${state.phones.has(cur.id) ? "+7 (999) 521-22-51" : "Телефон"}</button>
-            </div>
-          </article>` : ""}
+          <div id="mapCardSlot"></div>
         </section>
       </div>
     </div>`;
 }
 
 document.addEventListener("input", (e) => {
-  if (e.target.id === "q") { state.q = e.target.value; render(); }
+  if (e.target.id === "q") { state.q = e.target.value; syncMap(true); }
 });
 document.addEventListener("change", (e) => {
-  if (e.target.dataset.actChange === "verified") { state.verified = e.target.checked; render(); }
+  if (e.target.dataset.actChange === "verified") { state.verified = e.target.checked; syncMap(true); }
 });
 document.addEventListener("submit", (e) => { e.preventDefault(); });
 
 const PAGE = {
   section: "/sous-map",
   currentPath: () => "/sous-map",
-  render() { $("#app").innerHTML = mapView(); },
+  render() {
+    $("#app").innerHTML = mapView();
+    initLeaflet();
+    syncMap(true);
+  },
   onDD(key, v) {
-    if (key === "search-city") { state.city = v; render(); return true; }
+    if (key === "search-city") { state.city = v; syncMap(true); return true; }
     return false;
   },
   authText: () => ["Войдите, чтобы увидеть телефон", "Номер откроется сразу после входа"],
   loginRole: () => "client",
-  afterLogin(p) { if (p.kind === "phone" && p.id) { state.phones.add(p.id); render(); } },
+  afterLogin(p) { if (p.kind === "phone" && p.id) { state.phones.add(p.id); syncMap(false); } },
   roleHints: { guest: "смотрит карту", client: "ищет сервис", worker: "смотрит студии", employer: "проверяет конкурентов", supplier: "ищет клиентов", partner: "ищет партнёров" },
   actions: {
-    cat: (el) => { state.cat = el.dataset.cat; render(); },
-    view: (el) => { state.view = el.dataset.v; render(); },
-    pick: (el) => { state.selected = el.dataset.id; render(); },
-    "zoom-in": () => { state.zoom = Math.min(1.5, +(state.zoom + 0.15).toFixed(2)); render(); },
-    "zoom-out": () => { state.zoom = Math.max(0.85, +(state.zoom - 0.15).toFixed(2)); render(); },
-    "zoom-reset": () => { state.zoom = 1; render(); },
-    reset: () => { state.q = ""; state.city = "Все города"; state.cat = "all"; state.verified = false; render(); },
-    phone: (el, e, id) => { if (!needAuth("phone", id)) { state.phones.add(id); render(); } },
+    cat: (el) => { state.cat = el.dataset.cat; syncMap(true); },
+    view: (el) => {
+      state.view = el.dataset.v;
+      syncMap(false);
+      if (state.view === "map" && lMap) setTimeout(() => lMap.invalidateSize(), 50);
+    },
+    pick: (el) => {
+      state.selected = el.dataset.id;
+      syncMap(false);
+      const c = MAP_POINTS.find((x) => x.id === state.selected);
+      if (c && lMap) lMap.setView([c.lat, c.lng], Math.max(lMap.getZoom(), 12), { animate: true });
+    },
+    "zoom-in": () => { lMap?.zoomIn(); },
+    "zoom-out": () => { lMap?.zoomOut(); },
+    "zoom-reset": () => { syncMap(true); },
+    reset: () => { state.q = ""; state.city = "Все города"; state.cat = "all"; state.verified = false; const q = $("#q"); if (q) q.value = ""; syncMap(true); },
+    phone: (el, e, id) => { if (!needAuth("phone", id)) { state.phones.add(id); syncMap(false); } },
   },
 };
 
